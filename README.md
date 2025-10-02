@@ -37,12 +37,10 @@ VediSpeak/
 ## ⚡ Quick Setup & Deployment
 
 ### 1️⃣ Clone the repository
-```bash
 git clone https://github.com/vishal0136/VediSpeak.git
 cd VediSpeak
-2️⃣ Create & activate a virtual environment
+### 2️⃣ Create & activate a virtual environment
 bash
-Copy code
 # Windows
 python -m venv venv
 venv\Scripts\activate
@@ -51,10 +49,11 @@ venv\Scripts\activate
 python3 -m venv venv
 source venv/bin/activate
 
-3️⃣ Install dependencies
+### 3️⃣ Install dependencies
 
 pip install -r requirements.txt
-4️⃣ Setup MySQL Database
+
+### 4️⃣ Setup MySQL Database
 
 Open MySQL and create a database:
 
@@ -76,7 +75,7 @@ app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "your_password"
 app.config["MYSQL_DB"] = "isl_app"
 
-5️⃣ Run the Flask app
+### 5️⃣ Run the Flask app
 python app.py
 Visit http://127.0.0.1:5000 in your browser.
 
@@ -95,14 +94,14 @@ pydub → Audio processing (mp3 ↔ wav)
 
 HTML, CSS, TailwindCSS → Frontend design
 
-👥 Team
+### 👥 Team
 Name	Role
 Vishal 	Project Lead & ISL Expert
 Tushar Gupta	Frontend Developer
 Vishal Singh	Backend Developer
 Yash Singhal	UI/UX Designer
 
-📚 References
+### 📚 References
 Pujar, P.B. & Goudar , S. D. (2016). Indian Sign Language Recognition Using Hidden Markov Models. International Journal of Computer Applications, 140(9), 29–33.
 GitHub: HMM-based Sign Language Recognition
 
@@ -114,7 +113,7 @@ GitHub: ISL Deep Learning Model
 
 (See resources.html for full list of references and GitHub repos.)
 
-💡 Notes
+### 💡 Notes
 Ensure Python 3.10+ is installed.
 
 Make sure MySQL server is running locally.
@@ -123,7 +122,3 @@ All teammates can clone, install, and run using the steps above.
 
 VediSpeak - Making ISL accessible to everyone! 🖐️💬
  
-
-If you want, I can also **generate a `GIF/demo image section` showing live dashboard interactions** to make it visually more attractive for teammates.  
-
-Do you want me to add that?
