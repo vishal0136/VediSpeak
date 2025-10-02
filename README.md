@@ -79,7 +79,9 @@ app.config["MYSQL_DB"] = "isl_app"
 python app.py
 Visit http://127.0.0.1:5000 in your browser.
 
-🛠️ Tools Used
+---
+
+## 🛠️ Tools Used
 Flask → Backend web framework
 
 Flask-MySQLdb → MySQL integration
@@ -93,6 +95,8 @@ SpeechRecognition → Speech-to-Text
 pydub → Audio processing (mp3 ↔ wav)
 
 HTML, CSS, TailwindCSS → Frontend design
+
+---
 
 ### 👥 Team
 Name	Role
