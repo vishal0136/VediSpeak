@@ -99,10 +99,13 @@ HTML, CSS, TailwindCSS → Frontend design
 ---
 
 ### 👥 Team
-Name	Role
+
 Vishal 	Project Lead & ISL Expert
+
 Tushar Gupta	Frontend Developer
+
 Vishal Singh	Backend Developer
+
 Yash Singhal	UI/UX Designer
 
 ### 📚 References
