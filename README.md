@@ -100,13 +100,13 @@ HTML, CSS, TailwindCSS → Frontend design
 
 ### 👥 Team
 
-Vishal 	Project Lead & ISL Expert
+Vishal 	        > Project Lead & ISL Expert
 
-Tushar Gupta	Frontend Developer
+Tushar Gupta	> Frontend Developer
 
-Vishal Singh	Backend Developer
+Vishal Singh	> Backend Developer
 
-Yash Singhal	UI/UX Designer
+Yash Singhal	> UI/UX Designer
 
 ### 📚 References
 Pujar, P.B. & Goudar , S. D. (2016). Indian Sign Language Recognition Using Hidden Markov Models. International Journal of Computer Applications, 140(9), 29–33.
