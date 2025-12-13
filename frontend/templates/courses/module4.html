@@ -1,0 +1,210 @@
+{% extends 'components/base_learning.html' %}
+
+{% block page_title %}Module 4: Colors, Shapes & Objects — NPTEL-SWAYAM{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <!-- Module Header -->
+  {% include 'module/header.html' with context %}
+
+  <div class="grid lg:grid-cols-4 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-3 space-y-6">
+      
+      <!-- NPTEL Course Info -->
+      <div class="glass p-6 reveal">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-white">
+            <i class="fas fa-graduation-cap text-blue-400 mr-2"></i>
+            NPTEL-SWAYAM: Colors, Shapes & Objects
+          </h2>
+          <div class="text-sm text-emerald-400">
+            <i class="fas fa-wifi mr-1"></i>Live Session
+          </div>
+        </div>
+        
+        <!-- Content Tabs -->
+        <div class="flex gap-1 mb-6 bg-slate-800/50 p-1 rounded-lg">
+          <button onclick="showWeekContent('practice')" id="practiceTab" class="week-tab active flex-1 px-4 py-2 text-sm font-medium text-white rounded-md">
+            <i class="fas fa-palette mr-2"></i>Practice
+          </button>
+          <button onclick="showWeekContent('videos')" id="videosTab" class="week-tab flex-1 px-4 py-2 text-sm font-medium text-slate-400 rounded-md">
+            <i class="fas fa-video mr-2"></i>Videos
+          </button>
+          <button onclick="showWeekContent('quiz')" id="quizTab" class="week-tab flex-1 px-4 py-2 text-sm font-medium text-slate-400 rounded-md">
+            <i class="fas fa-question-circle mr-2"></i>Quiz
+          </button>
+        </div>
+        
+        <!-- Practice Content -->
+        <div id="practiceContent" class="content-section">
+          <!-- Colors Section -->
+          <div class="mb-8">
+            <h4 class="text-lg font-semibold text-white mb-4">Colors</h4>
+            {% set color_vocabulary = [
+              {'english': 'Red', 'hindi': 'लाल', 'emoji': '🔴'},
+              {'english': 'Blue', 'hindi': 'नीला', 'emoji': '🔵'},
+              {'english': 'Green', 'hindi': 'हरा', 'emoji': '🟢'},
+              {'english': 'Yellow', 'hindi': 'पीला', 'emoji': '🟡'},
+              {'english': 'Orange', 'hindi': 'नारंगी', 'emoji': '🟠'},
+              {'english': 'Purple', 'hindi': 'बैंगनी', 'emoji': '🟣'},
+              {'english': 'Black', 'hindi': 'काला', 'emoji': '⚫'},
+              {'english': 'White', 'hindi': 'सफेद', 'emoji': '⚪'}
+            ] %}
+            {% include 'courses/components/vocabulary_practice.html' with context %}
+          </div>
+          
+          <!-- Shapes Section -->
+          <div class="mb-8">
+            <h4 class="text-lg font-semibold text-white mb-4">Shapes</h4>
+            {% set shape_vocabulary = [
+              {'english': 'Circle', 'hindi': 'वृत्त', 'emoji': '⭕'},
+              {'english': 'Square', 'hindi': 'वर्ग', 'emoji': '⬜'},
+              {'english': 'Triangle', 'hindi': 'त्रिकोण', 'emoji': '🔺'},
+              {'english': 'Rectangle', 'hindi': 'आयत', 'emoji': '▭'},
+              {'english': 'Star', 'hindi': 'तारा', 'emoji': '⭐'},
+              {'english': 'Heart', 'hindi': 'दिल', 'emoji': '❤️'}
+            ] %}
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {% for item in shape_vocabulary %}
+              <div class="letter-card glass p-4 text-center hover:bg-purple-500/10 transition cursor-pointer" 
+                   onclick="practiceVocabulary('{{ item.english }}', '{{ item.hindi }}')">
+                <div class="text-3xl mb-2">{{ item.emoji }}</div>
+                <div class="font-semibold text-white">{{ item.english }}</div>
+                <div class="text-sm text-slate-400">{{ item.hindi }}</div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          
+          <!-- Objects Section -->
+          <div>
+            <h4 class="text-lg font-semibold text-white mb-4">Common Objects</h4>
+            {% set object_vocabulary = [
+              {'english': 'Book', 'hindi': 'किताब', 'emoji': '📚'},
+              {'english': 'Pen', 'hindi': 'कलम', 'emoji': '✏️'},
+              {'english': 'Phone', 'hindi': 'फोन', 'emoji': '📱'},
+              {'english': 'Car', 'hindi': 'कार', 'emoji': '🚗'},
+              {'english': 'House', 'hindi': 'घर', 'emoji': '🏠'},
+              {'english': 'Tree', 'hindi': 'पेड़', 'emoji': '🌳'},
+              {'english': 'Water', 'hindi': 'पानी', 'emoji': '💧'},
+              {'english': 'Food', 'hindi': 'खाना', 'emoji': '🍽️'}
+            ] %}
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {% for item in object_vocabulary %}
+              <div class="letter-card glass p-4 text-center hover:bg-purple-500/10 transition cursor-pointer" 
+                   onclick="practiceVocabulary('{{ item.english }}', '{{ item.hindi }}')">
+                <div class="text-3xl mb-2">{{ item.emoji }}</div>
+                <div class="font-semibold text-white">{{ item.english }}</div>
+                <div class="text-sm text-slate-400">{{ item.hindi }}</div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Videos Content -->
+        <div id="videosContent" class="week-content hidden">
+          {% include 'module/video_player.html' %}
+        </div>
+        
+        <!-- Quiz Content -->
+        <div id="quizContent" class="week-content hidden">
+          {% include 'module/quiz.html' %}
+        </div>
+      </div>
+
+      <!-- Progress Actions -->
+      <div class="flex gap-4 reveal">
+        <button onclick="updateProgress(100)" class="flex-1 px-6 py-3 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-500 transition">
+          <i class="fas fa-check mr-2"></i>Complete Module
+        </button>
+        <button onclick="updateProgress(currentProgress)" class="px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-500 transition">
+          <i class="fas fa-save mr-2"></i>Save Progress
+        </button>
+        <button onclick="showUpcomingModulesModal()" class="px-6 py-3 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-500 transition">
+          <i class="fas fa-rocket mr-2"></i>What's Next?
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- Module Progress -->
+      <div class="glass p-6 reveal">
+        <h3 class="text-lg font-semibold text-white mb-4">Module Progress</h3>
+        <div class="text-center mb-4">
+          <div class="text-3xl font-bold text-purple-400">{{ progress.progress_percentage if progress else 0 }}%</div>
+          <div class="text-sm text-slate-400">Complete</div>
+        </div>
+        <div class="progress-bar mb-4">
+          <div class="progress-fill bg-purple-500" style="width: {{ progress.progress_percentage if progress else 0 }}%"></div>
+        </div>
+        
+        <!-- Learning Stats -->
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-slate-300">Colors</span>
+            <span class="text-purple-400">{{ (progress.progress_percentage if progress else 0) * 8 // 100 }}/8</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-300">Shapes</span>
+            <span class="text-blue-400">{{ (progress.progress_percentage if progress else 0) * 6 // 100 }}/6</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-300">Objects</span>
+            <span class="text-emerald-400">{{ (progress.progress_percentage if progress else 0) * 8 // 100 }}/8</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Tips -->
+      <div class="glass p-6 reveal">
+        <h3 class="text-lg font-semibold text-white mb-4">Visual Tips</h3>
+        <div class="space-y-3 text-sm text-slate-300">
+          <div class="flex items-start gap-2">
+            <i class="fas fa-eye text-purple-400 mt-1"></i>
+            <span>Point to objects while signing</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <i class="fas fa-palette text-blue-400 mt-1"></i>
+            <span>Use real colors for practice</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <i class="fas fa-shapes text-emerald-400 mt-1"></i>
+            <span>Draw shapes while signing</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <!-- Upcoming Modules Modal -->
+  {% include 'components/upcoming_modules_modal.html' %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/module_learning.js') }}"></script>
+<script>
+  // Module 4 specific data
+  window.moduleData = {
+    id: 4,
+    title: 'Colors, Shapes & Objects',
+    type: 'vocabulary'
+  };
+  window.progressData = {{ progress|tojson if progress else 'null' }};
+  
+  let currentProgress = {{ progress.progress_percentage if progress else 0 }};
+  
+  function updateProgress(newProgress) {
+    currentProgress = newProgress;
+    LearningUtils.showNotification(`Progress updated: ${newProgress}%`, 'success');
+  }
+  
+  function practiceVocabulary(english, hindi) {
+    LearningUtils.showNotification(`Practicing: ${english} (${hindi})`, 'info');
+  }
+</script>
+{% endblock %}

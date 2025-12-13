@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VediSpeak Tools — Learn • Speak • Rise</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root{
+      --bg-1:#0b1220;
+      --card:#0f1724;
+      --accent:#b9834a;
+      --muted:#98a0a6;
+    }
+
+    body{ 
+      background: linear-gradient(180deg,var(--bg-1) 0%, #07101a 100%);
+      color:#e6eef6;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px);
+      border-radius: 14px;
+    }
+
+    .mandala {
+      opacity: 0.06;
+      filter: blur(0.6px);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 600ms ease, transform 600ms ease;
+      will-change: transform, opacity;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .parallax {
+      transform: translateY(0);
+      transition: transform 0.2s linear;
+      will-change: transform;
+    }
+
+    .tool-card {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(185,131,74,0.15);
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(185,131,74,0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .tool-card:hover::before {
+      left: 100%;
+    }
+
+    .feature-tag {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .cta {
+      background: linear-gradient(90deg, rgba(185,131,74,0.12), rgba(185,131,74,0.06));
+      border: 1px solid rgba(185,131,74,0.22);
+      color: var(--accent);
+      padding: .6rem 1.05rem;
+      border-radius: 999px;
+      font-weight: 600;
+      display:inline-flex;
+      gap:.6rem;
+      align-items:center;
+      transition: all 0.3s ease;
+    }
+
+    .cta:hover {
+      background: linear-gradient(90deg, rgba(185,131,74,0.18), rgba(185,131,74,0.12));
+      border-color: rgba(185,131,74,0.35);
+      transform: translateY(-2px);
+    }
+
+    .tool-icon {
+      background: linear-gradient(135deg, var(--accent), #d4a574);
+      border-radius: 16px;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-icon::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: rotate(45deg);
+      transition: transform 0.6s;
+    }
+
+    .tool-card:hover .tool-icon::before {
+      transform: rotate(45deg) translate(50%, 50%);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .floating-element {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #b9834a, #d4a574);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    a:focus, button:focus { outline: 3px solid rgba(185,131,74,0.14); outline-offset: 4px; }
+  </style>
+</head>
+<body class="min-h-screen antialiased">
+
+  <!-- Navigation -->
+  {% include 'components/navigation.html' %}
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="relative overflow-hidden py-20">
+    <!-- decorative mandala top-left -->
+    <svg class="absolute -left-28 -top-28 w-96 h-96 mandala parallax" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <g fill="none" stroke="#b8834a">
+        <circle cx="100" cy="100" r="36" stroke-opacity="0.12"></circle>
+        <path d="M100 0 L110 40 L140 60 L110 80 L100 120 L90 80 L60 60 L90 40 Z" stroke-opacity="0.08"></path>
+      </g>
+    </svg>
+
+    <!-- floating elements -->
+    <div class="absolute top-20 right-20 w-4 h-4 bg-amber-400/20 rounded-full floating-element"></div>
+    <div class="absolute top-40 right-40 w-2 h-2 bg-amber-400/30 rounded-full floating-element" style="animation-delay: -2s;"></div>
+    <div class="absolute bottom-40 left-20 w-3 h-3 bg-amber-400/25 rounded-full floating-element" style="animation-delay: -4s;"></div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      <!-- Hero Content -->
+      <div class="text-center mb-16 reveal">
+        <p class="text-amber-300 text-lg font-serif italic mb-4">"विद्या ददाति विनयं" — Knowledge gives humility</p>
+        <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6">
+          <span class="gradient-text">VediSpeak</span> <span class="text-white">Tools</span>
+        </h1>
+        <p class="text-slate-300 text-xl max-w-3xl mx-auto mb-8">
+          Powerful AI-driven communication tools designed for accessibility, learning, and inclusive education. 
+          Transform how you speak, listen, and learn with cutting-edge technology.
+        </p>
+        
+        <!-- Quick Stats -->
+        <div class="stats-grid max-w-2xl mx-auto mb-8">
+          <div class="stat-item">
+            <div class="text-2xl font-bold text-amber-400">3</div>
+            <div class="text-sm text-slate-400">AI Tools</div>
+          </div>
+          <div class="stat-item">
+            <div class="text-2xl font-bold text-emerald-400">5+</div>
+            <div class="text-sm text-slate-400">Languages</div>
+          </div>
+          <div class="stat-item">
+            <div class="text-2xl font-bold text-sky-400">24/7</div>
+            <div class="text-sm text-slate-400">Available</div>
+          </div>
+          <div class="stat-item">
+            <div class="text-2xl font-bold text-purple-400">Free</div>
+            <div class="text-sm text-slate-400">To Use</div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-4 items-center justify-center">
+          <a href="#tools" class="cta text-lg px-8 py-3">
+            <i class="fa-solid fa-tools"></i> Explore Tools
+          </a>
+          <a href="{{ url_for('pages.learn') }}" class="text-slate-300 hover:text-white transition flex items-center gap-2">
+            <i class="fa-solid fa-graduation-cap text-[--muted]"></i> Learning Courses
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TOOLS SECTION ===== -->
+  <section id="tools" class="py-20 bg-[rgba(255,255,255,0.01)]">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16 reveal">
+        <h2 class="text-4xl font-bold text-white mb-4">Choose Your Tool</h2>
+        <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+          Select from our suite of AI-powered communication tools, each designed to break barriers and enhance accessibility.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-8">
+        <!-- TTS Tool Card -->
+        <div class="glass p-8 rounded-2xl tool-card reveal">
+          <div class="text-center mb-6">
+            <div class="tool-icon mx-auto mb-4">
+              <i class="fas fa-volume-up text-3xl text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-2">Text-to-Speech</h3>
+            <p class="text-[--muted]">Convert text into natural speech</p>
+          </div>
+          
+          <div class="space-y-4 mb-6">
+            <p class="text-slate-300 text-center">
+              Transform written content into high-quality audio with support for multiple languages including English, Hindi, and Hinglish.
+            </p>
+            
+            <div class="flex flex-wrap gap-2 justify-center">
+              <span class="feature-tag text-green-400 border-green-400/30">
+                <i class="fas fa-language mr-1"></i>Multi-language
+              </span>
+              <span class="feature-tag text-blue-400 border-blue-400/30">
+                <i class="fas fa-download mr-1"></i>Download
+              </span>
+              <span class="feature-tag text-purple-400 border-purple-400/30">
+                <i class="fas fa-file-upload mr-1"></i>File Upload
+              </span>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-sm text-slate-400 mb-8">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>Support for English, Hindi, and Hinglish</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>Adjustable speech speed and quality</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>Upload text files or type directly</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>Export audio in multiple formats</span>
+            </div>
+          </div>
+          
+          <a href="{{ url_for('pages.tts_tool') }}" class="w-full inline-flex items-center justify-center px-6 py-4 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 text-black font-semibold hover:from-amber-300 hover:to-amber-500 transition-all transform hover:scale-105">
+            <i class="fas fa-arrow-right mr-2"></i>Launch TTS Tool
+          </a>
+        </div>
+
+        <!-- STT Tool Card -->
+        <div class="glass p-8 rounded-2xl tool-card reveal">
+          <div class="text-center mb-6">
+            <div class="tool-icon mx-auto mb-4">
+              <i class="fas fa-microphone text-3xl text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-2">Speech-to-Text</h3>
+            <p class="text-[--muted]">Convert speech into accurate text</p>
+          </div>
+          
+          <div class="space-y-4 mb-6">
+            <p class="text-slate-300 text-center">
+              Advanced AI-powered speech recognition that converts audio files or live recordings into accurate text transcriptions with high precision.
+            </p>
+            
+            <div class="flex flex-wrap gap-2 justify-center">
+              <span class="feature-tag text-red-400 border-red-400/30">
+                <i class="fas fa-microphone mr-1"></i>Live Recording
+              </span>
+              <span class="feature-tag text-blue-400 border-blue-400/30">
+                <i class="fas fa-file-audio mr-1"></i>Audio Files
+              </span>
+              <span class="feature-tag text-purple-400 border-purple-400/30">
+                <i class="fas fa-brain mr-1"></i>AI-Powered
+              </span>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-sm text-slate-400 mb-8">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>Record live audio or upload files</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>Support for MP3, WAV, M4A formats</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>Export transcriptions as text files</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>Real-time transcription display</span>
+            </div>
+          </div>
+          
+          <a href="{{ url_for('pages.stt_tool') }}" class="w-full inline-flex items-center justify-center px-6 py-4 rounded-xl bg-gradient-to-r from-sky-400 to-sky-600 text-black font-semibold hover:from-sky-300 hover:to-sky-500 transition-all transform hover:scale-105">
+            <i class="fas fa-arrow-right mr-2"></i>Launch STT Tool
+          </a>
+        </div>
+
+        <!-- ISL Tool Card -->
+        <div class="glass p-8 rounded-2xl tool-card reveal">
+          <div class="text-center mb-6">
+            <div class="tool-icon mx-auto mb-4">
+              <i class="fas fa-hand-paper text-3xl text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-2">ISL Recognition</h3>
+            <p class="text-[--muted]">Real-time sign language detection</p>
+          </div>
+          
+          <div class="space-y-4 mb-6">
+            <p class="text-slate-300 text-center">
+              Revolutionary Indian Sign Language recognition using computer vision and machine learning for real-time hand gesture detection.
+            </p>
+            
+            <div class="flex flex-wrap gap-2 justify-center">
+              <span class="feature-tag text-green-400 border-green-400/30">
+                <i class="fas fa-video mr-1"></i>Real-time
+              </span>
+              <span class="feature-tag text-blue-400 border-blue-400/30">
+                <i class="fas fa-camera mr-1"></i>Multi-camera
+              </span>
+              <span class="feature-tag text-purple-400 border-purple-400/30">
+                <i class="fas fa-brain mr-1"></i>ML-Powered
+              </span>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-sm text-slate-400 mb-8">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>Real-time hand gesture recognition</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>Multiple camera support with selection</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>Adaptive learning and model training</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check text-green-400 w-4"></i>
+              <span>ISL alphabet and gesture recognition</span>
+            </div>
+          </div>
+          
+          <a href="{{ url_for('pages.isl_recognition') }}" class="w-full inline-flex items-center justify-center px-6 py-4 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 text-black font-semibold hover:from-emerald-300 hover:to-emerald-500 transition-all transform hover:scale-105">
+            <i class="fas fa-arrow-right mr-2"></i>Launch ISL Tool
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES SECTION ===== -->
+  <section class="py-20">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16 reveal">
+        <h2 class="text-4xl font-bold text-white mb-4">Why Choose VediSpeak Tools?</h2>
+        <p class="text-slate-400 text-lg max-w-3xl mx-auto">
+          Our comprehensive suite of AI-powered tools makes communication accessible for everyone, 
+          breaking barriers and creating inclusive digital experiences.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Accessibility -->
+        <div class="glass p-8 text-center reveal tool-card">
+          <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-universal-access text-3xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Accessibility First</h3>
+          <p class="text-slate-400">
+            Designed to break communication barriers and make content accessible to people with different abilities and learning preferences.
+          </p>
+        </div>
+
+        <!-- Multi-language -->
+        <div class="glass p-8 text-center reveal tool-card">
+          <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-globe text-3xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Multi-language Support</h3>
+          <p class="text-slate-400">
+            Native support for English, Hindi, and Hinglish, making our tools perfect for India's diverse linguistic landscape.
+          </p>
+        </div>
+
+        <!-- AI-Powered -->
+        <div class="glass p-8 text-center reveal tool-card">
+          <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-robot text-3xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">AI-Powered Accuracy</h3>
+          <p class="text-slate-400">
+            Advanced machine learning algorithms ensure high accuracy in speech recognition, text generation, and sign language detection.
+          </p>
+        </div>
+
+        <!-- Free & Open -->
+        <div class="glass p-8 text-center reveal tool-card">
+          <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-heart text-3xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Free & Inclusive</h3>
+          <p class="text-slate-400">
+            All tools are completely free to use, ensuring that quality assistive technology is accessible to everyone, everywhere.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS SECTION ===== -->
+  <section id="features" class="py-20 bg-[rgba(255,255,255,0.01)]">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16 reveal">
+        <h2 class="text-4xl font-bold text-white mb-4">How It Works</h2>
+        <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+          Simple, intuitive, and powerful. Get started with any tool in just a few clicks.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-12">
+        <!-- Step 1 -->
+        <div class="text-center reveal">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-black">
+            1
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Choose Your Tool</h3>
+          <p class="text-slate-400">
+            Select from Text-to-Speech, Speech-to-Text, or ISL Recognition based on your communication needs.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="text-center reveal">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-black">
+            2
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Input Your Content</h3>
+          <p class="text-slate-400">
+            Type text, upload files, record audio, or use your camera depending on the selected tool.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="text-center reveal">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-black">
+            3
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Get Results</h3>
+          <p class="text-slate-400">
+            Receive high-quality output instantly - audio files, text transcriptions, or sign language recognition.
+          </p>
+        </div>
+      </div>
+
+      <!-- CTA Section -->
+      <div class="text-center mt-16 reveal">
+        <div class="glass p-8 rounded-2xl max-w-2xl mx-auto">
+          <h3 class="text-2xl font-bold text-white mb-4">Ready to Get Started?</h3>
+          <p class="text-slate-400 mb-6">
+            Join thousands of users who are already using VediSpeak tools to enhance their communication and learning experience.
+          </p>
+          <div class="flex flex-wrap gap-4 justify-center">
+            <a href="#tools" class="cta text-lg px-8 py-3">
+              <i class="fa-solid fa-rocket"></i> Start Using Tools
+            </a>
+            <a href="{{ url_for('pages.learn') }}" class="px-8 py-3 rounded-full border border-white/20 text-white hover:bg-white/5 transition">
+              <i class="fa-solid fa-graduation-cap mr-2"></i> Learn ISL
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER DECORATION ===== -->
+  <div class="relative">
+    <!-- skyline decorative footer svg -->
+    <svg class="absolute bottom-0 left-0 w-full h-36 parallax" viewBox="0 0 1400 200" preserveAspectRatio="none" aria-hidden>
+      <g stroke="#b8834a" stroke-opacity="0.12" fill="none" stroke-width="2">
+        <path d="M0,120 L60,120 L90,80 L150,80 L200,120 L260,120 L320,60 L380,120 L440,120 L500,70 L560,120 L620,120 L680,50 L740,120 L800,120 L860,90 L920,120 L980,120 L1040,75 L1100,120 L1160,120 L1220,60 L1280,120 L1340,120 L1400,120" />
+      </g>
+    </svg>
+  </div>
+
+  <script>
+    // Reveal on scroll with staggered animation
+    const io = new IntersectionObserver(entries => {
+      entries.forEach((e, index) => {
+        if(e.isIntersecting){
+          setTimeout(() => {
+            e.target.classList.add('visible');
+          }, index * 100); // Stagger the animations
+          io.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.12});
+    
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // Enhanced parallax with smooth scrolling
+    const parallaxEls = document.querySelectorAll('.parallax');
+    let ticking = false;
+    
+    function updateParallax() {
+      const scrolled = window.scrollY;
+      parallaxEls.forEach((el, i) => {
+        const modifier = 0.15 + (i * 0.03);
+        el.style.transform = `translateY(${scrolled * modifier * 0.02}px)`;
+      });
+      ticking = false;
+    }
+    
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    }, {passive: true});
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    // Add loading animation
+    window.addEventListener('load', () => {
+      document.body.classList.add('loaded');
+    });
+  </script>
+</body>
+</html>

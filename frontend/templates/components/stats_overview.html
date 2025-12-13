@@ -1,0 +1,70 @@
+<!-- Stats Overview Section -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+  <div class="glass p-5 reveal">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-[--muted] text-sm">Today's Hours</p>
+        <h3 class="text-2xl font-bold mt-1" id="todayHours">{{ stats.today_hours or 0 }}</h3>
+        <p class="text-xs text-green-400 mt-1" id="todayHoursChange">Loading...</p>
+      </div>
+      <div class="w-12 h-12 rounded-lg bg-amber-400/10 flex items-center justify-center">
+        <i class="fa-solid fa-clock text-amber-300 text-xl"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass p-5 reveal">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-[--muted] text-sm">Tasks Today</p>
+        <h3 class="text-2xl font-bold mt-1"><span id="completedTasks">{{ stats.today_completed_tasks or 0 }}</span>/<span id="totalTasks">{{ stats.today_total_tasks or 0 }}</span></h3>
+        <p class="text-xs text-sky-400 mt-1" id="tasksRemaining">{{ (stats.today_total_tasks or 0) - (stats.today_completed_tasks or 0) }} remaining</p>
+      </div>
+      <div class="w-12 h-12 rounded-lg bg-green-400/10 flex items-center justify-center">
+        <i class="fa-solid fa-check-circle text-green-300 text-xl"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass p-5 reveal">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-[--muted] text-sm">Active Sessions</p>
+        <h3 class="text-2xl font-bold mt-1" id="activeSessions">{{ stats.active_sessions or 0 }}</h3>
+        <p class="text-xs text-indigo-400 mt-1" id="sessionsStatus">
+          {% if stats.active_sessions > 0 %}
+            {{ stats.active_sessions }} in progress
+          {% else %}
+            Ready to start
+          {% endif %}
+        </p>
+      </div>
+      <div class="w-12 h-12 rounded-lg bg-sky-400/10 flex items-center justify-center">
+        <i class="fa-solid fa-play text-sky-300 text-xl"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass p-5 reveal">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-[--muted] text-sm">Streak Days</p>
+        <h3 class="text-2xl font-bold mt-1" id="streakDays">{{ stats.streak_days or 0 }}</h3>
+        <p class="text-xs text-amber-400 mt-1" id="streakStatus">
+          {% if stats.streak_days >= 7 %}
+            Great streak! 🔥
+          {% elif stats.streak_days >= 3 %}
+            Keep it up! 💪
+          {% elif stats.streak_days > 0 %}
+            Good start! 🌟
+          {% else %}
+            Start your streak!
+          {% endif %}
+        </p>
+      </div>
+      <div class="w-12 h-12 rounded-lg bg-indigo-400/10 flex items-center justify-center">
+        <i class="fa-solid fa-fire text-indigo-300 text-xl"></i>
+      </div>
+    </div>
+  </div>
+</section>

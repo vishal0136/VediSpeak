@@ -1,0 +1,613 @@
+{% extends 'components/base_learning.html' %}
+
+{% block page_title %}Learn{% endblock %}
+
+{% block content %}
+<main>
+  <!-- Maintenance Banner -->
+  <div class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-b border-blue-500/30">
+    <div class="max-w-6xl mx-auto px-6 py-3">
+      <div class="flex items-center justify-center gap-3 text-center">
+        <i class="fas fa-tools text-blue-400 animate-pulse"></i>
+        <span class="text-sm text-slate-300">
+          <strong>Learning modules are being enhanced</strong> with AI features. 
+          <a href="{{ url_for('pages.stt_tts') }}" class="text-blue-400 hover:text-blue-300 underline">Try our AI tools</a> 
+          while we upgrade!
+        </span>
+        <i class="fas fa-sparkles text-purple-400"></i>
+      </div>
+    </div>
+  </div>
+  
+  {% include 'learn/hero.html' %}
+
+  <!-- Upcoming Modules Banner -->
+  <section class="py-8">
+    <div class="max-w-6xl mx-auto px-6">
+      {% include 'components/upcoming_modules_banner.html' %}
+    </div>
+  </section>
+
+  <!-- Learning Courses -->
+  <section id="courses" class="py-16 bg-[rgba(255,255,255,0.02)] border-t border-white/4">
+    <div class="max-w-6xl mx-auto px-6">
+      <h3 class="text-3xl font-bold text-center mb-4 reveal">ISLRTC Certified Learning Modules</h3>
+      <p class="text-center text-[--muted] max-w-3xl mx-auto mb-12 reveal">
+        Structured curriculum following Government of India's Indian Sign Language Research and Training Center guidelines. 
+        Each module includes video lectures, interactive exercises, and assessments.
+      </p>
+
+      <!-- Foundation Level Courses -->
+      {% set foundation_level = {
+        'name': 'Foundation Level (Level 1)',
+        'icon': 'fa-solid fa-graduation-cap',
+        'color': 'emerald',
+        'duration': '40-60 hours',
+        'certificate': 'Certificate Available'
+      } %}
+      {% set foundation_modules = [
+        {
+          'id': 1,
+          'title': 'ISL Alphabet & Fingerspelling',
+          'title_hindi': 'भारतीय सांकेतिक वर्णमाला',
+          'description': 'Master the 26 letters of ISL alphabet with proper hand shapes, movements, and fingerspelling techniques.',
+          'icon': 'fa-solid fa-hand-point-right',
+          'color': 'amber',
+          'color_rgb': '251,191,36',
+          'video_count': 12,
+          'quiz_count': 5,
+          'assignment_count': 3,
+          'duration': '8-10 hours'
+        },
+        {
+          'id': 2,
+          'title': 'Numbers & Mathematical Concepts',
+          'title_hindi': 'संख्या और गणित',
+          'description': 'Learn cardinal numbers (1-100), ordinal numbers, basic arithmetic operations, and mathematical expressions in ISL.',
+          'icon': 'fa-solid fa-calculator',
+          'color': 'blue',
+          'color_rgb': '59,130,246',
+          'video_count': 10,
+          'quiz_count': 4,
+          'assignment_count': 2,
+          'duration': '6-8 hours'
+        },
+        {
+          'id': 3,
+          'title': 'Family & Relationships',
+          'title_hindi': 'परिवार और रिश्ते',
+          'description': 'Essential vocabulary for family members, relationships, and social connections with cultural context.',
+          'icon': 'fa-solid fa-users',
+          'color': 'orange',
+          'color_rgb': '249,115,22',
+          'video_count': 8,
+          'quiz_count': 3,
+          'assignment_count': 2,
+          'duration': '5-6 hours'
+        },
+        {
+          'id': 4,
+          'title': 'Colors, Shapes & Objects',
+          'title_hindi': 'रंग, आकार और वस्तुएं',
+          'description': 'Learn to describe the visual world - colors, geometric shapes, common objects, and their properties.',
+          'icon': 'fa-solid fa-palette',
+          'color': 'purple',
+          'color_rgb': '168,85,247',
+          'video_count': 9,
+          'quiz_count': 4,
+          'assignment_count': 3,
+          'duration': '6-7 hours'
+        },
+        {
+          'id': 5,
+          'title': 'Time & Calendar Concepts',
+          'title_hindi': 'समय और कैलेंडर',
+          'description': 'Master time expressions, days, months, seasons, and temporal concepts essential for daily communication.',
+          'icon': 'fa-solid fa-clock',
+          'color': 'emerald',
+          'color_rgb': '34,197,94',
+          'video_count': 11,
+          'quiz_count': 5,
+          'assignment_count': 3,
+          'duration': '7-8 hours'
+        },
+        {
+          'id': 6,
+          'title': 'Basic Grammar & Sentence Structure',
+          'title_hindi': 'व्याकरण और वाक्य संरचना',
+          'description': 'Understand ISL grammar rules, word order, sentence formation, and basic linguistic structures.',
+          'icon': 'fa-solid fa-language',
+          'color': 'pink',
+          'color_rgb': '236,72,153',
+          'video_count': 13,
+          'quiz_count': 6,
+          'assignment_count': 4,
+          'duration': '9-10 hours'
+        }
+      ] %}
+      {% set level = foundation_level %}
+      {% set modules = foundation_modules %}
+      {% include 'learn/level_section.html' %}
+      <!-- Intermediate Level Courses -->
+      {% set intermediate_level = {
+        'name': 'Intermediate Level (Level 2)',
+        'icon': 'fa-solid fa-rocket',
+        'color': 'sky',
+        'duration': '50-70 hours',
+        'certificate': 'Advanced Certificate Available'
+      } %}
+      {% set intermediate_modules = [
+        {
+          'id': 7,
+          'title': 'Daily Activities & Routines',
+          'title_hindi': 'दैनिक गतिविधियां',
+          'description': 'Express daily routines, activities, hobbies, and lifestyle choices with appropriate ISL vocabulary.',
+          'icon': 'fa-solid fa-calendar-day',
+          'color': 'sky',
+          'color_rgb': '14,165,233',
+          'video_count': 15,
+          'quiz_count': 7,
+          'assignment_count': 5,
+          'duration': '10-12 hours'
+        },
+        {
+          'id': 8,
+          'title': 'Emotions & Feelings',
+          'title_hindi': 'भावनाएं और अनुभूतियां',
+          'description': 'Learn to express complex emotions, feelings, and psychological states with nuanced sign language.',
+          'icon': 'fa-solid fa-heart',
+          'color': 'orange',
+          'color_rgb': '251,146,60',
+          'video_count': 12,
+          'quiz_count': 6,
+          'assignment_count': 4,
+          'duration': '8-9 hours'
+        },
+        {
+          'id': 9,
+          'title': 'Places & Directions',
+          'title_hindi': 'स्थान और दिशाएं',
+          'description': 'Navigate the world with signs for locations, directions, transportation, and spatial relationships.',
+          'icon': 'fa-solid fa-map-marker-alt',
+          'color': 'emerald',
+          'color_rgb': '34,197,94',
+          'video_count': 14,
+          'quiz_count': 7,
+          'assignment_count': 5,
+          'duration': '9-10 hours'
+        },
+        {
+          'id': 10,
+          'title': 'Food & Health',
+          'title_hindi': 'भोजन और स्वास्थ्य',
+          'description': 'Essential vocabulary for food, cooking, nutrition, health, and medical communication.',
+          'icon': 'fa-solid fa-utensils',
+          'color': 'purple',
+          'color_rgb': '168,85,247',
+          'video_count': 16,
+          'quiz_count': 8,
+          'assignment_count': 6,
+          'duration': '11-12 hours'
+        },
+        {
+          'id': 11,
+          'title': 'Education & Work',
+          'title_hindi': 'शिक्षा और कार्य',
+          'description': 'Professional and academic vocabulary for workplace communication and educational settings.',
+          'icon': 'fa-solid fa-briefcase',
+          'color': 'pink',
+          'color_rgb': '236,72,153',
+          'video_count': 18,
+          'quiz_count': 9,
+          'assignment_count': 7,
+          'duration': '12-14 hours'
+        },
+        {
+          'id': 12,
+          'title': 'Advanced Grammar & Discourse',
+          'title_hindi': 'उन्नत व्याकरण और संवाद',
+          'description': 'Master complex grammatical structures, discourse markers, and advanced communication strategies.',
+          'icon': 'fa-solid fa-comments',
+          'color': 'indigo',
+          'color_rgb': '99,102,241',
+          'video_count': 20,
+          'quiz_count': 10,
+          'assignment_count': 8,
+          'duration': '14-16 hours'
+        }
+      ] %}
+      {% set level = intermediate_level %}
+      {% set modules = intermediate_modules %}
+      {% include 'learn/level_section.html' %}
+
+
+
+        <!-- Certification & Assessment -->
+        <div class="glass p-8 rounded-xl text-center reveal">
+          <h4 class="text-2xl font-bold text-white mb-4">ISLRTC Certification Program</h4>
+          <p class="text-slate-300 max-w-3xl mx-auto mb-6">
+            Complete all modules and pass the comprehensive assessment to earn your official 
+            Indian Sign Language proficiency certificate, recognized by Government of India institutions.
+          </p>
+          
+          <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
+            <div class="text-center">
+              <div class="text-3xl text-amber-300 mb-2">📜</div>
+              <h5 class="font-semibold text-white mb-1">Foundation Certificate</h5>
+              <p class="text-sm text-slate-400">Complete Modules 1-6</p>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl text-sky-300 mb-2">🏆</div>
+              <h5 class="font-semibold text-white mb-1">Intermediate Certificate</h5>
+              <p class="text-sm text-slate-400">Complete Modules 7-12</p>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl text-purple-300 mb-2">👨‍🏫</div>
+              <h5 class="font-semibold text-white mb-1">Instructor Qualification</h5>
+              <p class="text-sm text-slate-400">Advanced Training Program</p>
+            </div>
+          </div>
+          
+          <div class="flex flex-wrap gap-4 items-center justify-center">
+            <a href="{{ url_for('pages.stt_tts') }}" class="inline-flex items-center gap-2 cta">
+              <i class="fa-solid fa-tools"></i> Practice Tools
+            </a>
+            <a href="{{ url_for('pages.isl_recognition') }}" class="inline-flex items-center gap-2 cta">
+              <i class="fa-solid fa-video"></i> AI Assessment
+            </a>
+            <button onclick="showCertificationInfo()" class="inline-flex items-center gap-2 cta">
+              <i class="fa-solid fa-certificate"></i> Certification Info
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Learning Resources & Tools -->
+    <section class="py-16 bg-[rgba(255,255,255,0.02)] border-t border-white/4">
+      <div class="max-w-6xl mx-auto px-6">
+        <h3 class="text-3xl font-bold text-center mb-4 reveal">Interactive Learning Resources</h3>
+        <p class="text-center text-[--muted] max-w-3xl mx-auto mb-12 reveal">
+          Enhance your learning experience with AI-powered tools, interactive exercises, and real-time feedback systems.
+        </p>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- AI Sign Recognition -->
+          <div class="glass p-6 text-center reveal">
+            <i class="fa-solid fa-robot text-3xl text-emerald-400 mb-4"></i>
+            <h4 class="font-semibold text-lg mb-2">AI Sign Recognition</h4>
+            <p class="text-[--muted] text-sm mb-4">Practice signs with real-time AI feedback and accuracy scoring</p>
+            <a href="{{ url_for('pages.isl_recognition') }}" class="cta">Practice Now</a>
+          </div>
+          
+          <!-- Video Dictionary -->
+          <div class="glass p-6 text-center reveal">
+            <i class="fa-solid fa-video text-3xl text-blue-400 mb-4"></i>
+            <h4 class="font-semibold text-lg mb-2">Video Dictionary</h4>
+            <p class="text-[--muted] text-sm mb-4">Comprehensive ISL dictionary with HD video demonstrations</p>
+            <a href="/dictionary" class="cta">Browse Signs</a>
+          </div>
+          
+          <!-- Speech Tools -->
+          <div class="glass p-6 text-center reveal">
+            <i class="fa-solid fa-microphone text-3xl text-purple-400 mb-4"></i>
+            <h4 class="font-semibold text-lg mb-2">Speech Tools</h4>
+            <p class="text-[--muted] text-sm mb-4">Voice-to-text and text-to-speech for accessibility support</p>
+            <a href="{{ url_for('pages.stt_tts') }}" class="cta">Try Tools</a>
+          </div>
+          
+          <!-- Progress Tracking -->
+          <div class="glass p-6 text-center reveal">
+            <i class="fa-solid fa-chart-line text-3xl text-orange-400 mb-4"></i>
+            <h4 class="font-semibold text-lg mb-2">Progress Analytics</h4>
+            <p class="text-[--muted] text-sm mb-4">Detailed learning analytics and performance insights</p>
+            <a href="/progress" class="cta">View Progress</a>
+          </div>
+        </div>
+        
+        <!-- NPTEL/SWAYAM Integration -->
+        <div class="mt-12 glass p-8 rounded-xl reveal">
+          <div class="text-center mb-6">
+            <h4 class="text-2xl font-bold text-white mb-2">NPTEL/SWAYAM Integration</h4>
+            <p class="text-slate-300">
+              This course is designed to complement NPTEL and SWAYAM educational standards, 
+              providing structured learning paths with assessments and certifications.
+            </p>
+          </div>
+          
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="text-center">
+              <div class="text-2xl text-amber-300 mb-2">📚</div>
+              <h5 class="font-semibold text-white mb-1">Structured Curriculum</h5>
+              <p class="text-sm text-slate-400">Week-by-week learning modules with clear objectives</p>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl text-sky-300 mb-2">📝</div>
+              <h5 class="font-semibold text-white mb-1">Regular Assessments</h5>
+              <p class="text-sm text-slate-400">Quizzes, assignments, and practical evaluations</p>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl text-emerald-300 mb-2">🎓</div>
+              <h5 class="font-semibold text-white mb-1">Credit Recognition</h5>
+              <p class="text-sm text-slate-400">Earn academic credits for completed modules</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <!-- Upcoming Modules Modal -->
+  {% include 'components/upcoming_modules_modal.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/learn.js') }}"></script>
+
+<!-- Maintenance Notification Styles -->
+<style>
+  .maintenance-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    z-index: 9999;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    animation: popupSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .maintenance-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9998;
+    opacity: 0;
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  @keyframes popupSlideIn {
+    0% {
+      transform: translate(-50%, -50%) scale(0) rotate(-10deg);
+      opacity: 0;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.1) rotate(2deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+  }
+
+  .maintenance-icon {
+    animation: bounce 2s infinite;
+  }
+
+  .maintenance-button {
+    animation: pulse 2s infinite;
+  }
+
+  .maintenance-popup.closing {
+    animation: popupSlideOut 0.4s ease-in forwards;
+  }
+
+  @keyframes popupSlideOut {
+    0% {
+      transform: translate(-50%, -50%) scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(0) rotate(10deg);
+      opacity: 0;
+    }
+  }
+
+  .maintenance-overlay.closing {
+    animation: fadeOut 0.4s ease-in forwards;
+  }
+
+  @keyframes fadeOut {
+    to {
+      opacity: 0;
+    }
+  }
+</style>
+
+<!-- Maintenance Notification Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Show maintenance notification after a short delay
+  setTimeout(showMaintenanceNotification, 1000);
+  
+  // Add click handlers to module cards
+  addModuleClickHandlers();
+});
+
+function addModuleClickHandlers() {
+  // Find all module cards and add click handlers
+  const moduleCards = document.querySelectorAll('.glass');
+  moduleCards.forEach(card => {
+    // Check if it's a module card (has module-like content)
+    const hasModuleContent = card.querySelector('h4') && 
+                            (card.textContent.includes('Module') || 
+                             card.textContent.includes('ISL') || 
+                             card.textContent.includes('Numbers') ||
+                             card.textContent.includes('Family') ||
+                             card.textContent.includes('Colors') ||
+                             card.textContent.includes('Time') ||
+                             card.textContent.includes('Grammar'));
+    
+    if (hasModuleContent) {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', function(e) {
+        e.preventDefault();
+        showModuleComingSoon();
+      });
+    }
+  });
+}
+
+function showModuleComingSoon() {
+  // Create a quick notification
+  const notification = document.createElement('div');
+  notification.className = 'fixed top-4 right-4 z-50 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300';
+  notification.innerHTML = `
+    <div class="flex items-center gap-3">
+      <i class="fas fa-rocket text-xl"></i>
+      <div>
+        <div class="font-semibold">Module Coming Soon!</div>
+        <div class="text-sm opacity-90">Enhanced with AI features</div>
+      </div>
+      <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white/70 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Slide in
+  setTimeout(() => {
+    notification.style.transform = 'translateX(0)';
+  }, 100);
+  
+  // Auto remove after 4 seconds
+  setTimeout(() => {
+    notification.style.transform = 'translateX(full)';
+    setTimeout(() => notification.remove(), 300);
+  }, 4000);
+}
+
+function showMaintenanceNotification() {
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'maintenance-overlay';
+  
+  // Create popup
+  const popup = document.createElement('div');
+  popup.className = 'maintenance-popup';
+  popup.innerHTML = `
+    <div class="text-center">
+      <div class="maintenance-icon mb-4">
+        <i class="fas fa-tools text-5xl text-blue-400"></i>
+      </div>
+      
+      <h3 class="text-2xl font-bold text-white mb-3">
+        🚀 Learning Modules Enhancement
+      </h3>
+      
+      <p class="text-slate-300 mb-4 leading-relaxed">
+        We're currently upgrading our learning modules with <strong>AI-powered features</strong> 
+        and <strong>interactive content</strong> to provide you with an even better learning experience!
+      </p>
+      
+      <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6">
+        <div class="flex items-center justify-center gap-2 text-blue-400 mb-2">
+          <i class="fas fa-sparkles"></i>
+          <span class="font-semibold">Coming Soon</span>
+        </div>
+        <ul class="text-sm text-slate-400 space-y-1">
+          <li>• Enhanced video lessons with AI subtitles</li>
+          <li>• Real-time sign recognition practice</li>
+          <li>• Personalized learning paths</li>
+          <li>• Interactive quizzes and assessments</li>
+        </ul>
+      </div>
+      
+      <p class="text-sm text-slate-400 mb-6">
+        Meanwhile, explore our <strong>AI-powered tools</strong> for speech recognition, 
+        text-to-speech, and ISL recognition to enhance your learning journey!
+      </p>
+      
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <button onclick="closeMaintenanceNotification()" 
+                class="maintenance-button px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+          <i class="fas fa-check mr-2"></i>Got it, Thanks!
+        </button>
+        <a href="{{ url_for('pages.stt_tts') }}" 
+           class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+          <i class="fas fa-tools mr-2"></i>Try AI Tools
+        </a>
+      </div>
+      
+      <div class="mt-4 text-xs text-slate-500">
+        <i class="fas fa-heart text-red-400"></i> Thank you for your patience and support!
+      </div>
+    </div>
+  `;
+  
+  // Add to page
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+  
+  // Prevent body scroll
+  document.body.style.overflow = 'hidden';
+  
+  // Close on overlay click
+  overlay.addEventListener('click', closeMaintenanceNotification);
+}
+
+function closeMaintenanceNotification() {
+  const popup = document.querySelector('.maintenance-popup');
+  const overlay = document.querySelector('.maintenance-overlay');
+  
+  if (popup && overlay) {
+    popup.classList.add('closing');
+    overlay.classList.add('closing');
+    
+    setTimeout(() => {
+      popup.remove();
+      overlay.remove();
+      document.body.style.overflow = '';
+    }, 400);
+  }
+}
+
+// Close with Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeMaintenanceNotification();
+  }
+});
+</script>
+{% endblock %}

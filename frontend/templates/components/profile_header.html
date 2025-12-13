@@ -1,0 +1,213 @@
+<!-- Profile Header Section -->
+<section class="glass p-6 mb-6 reveal">
+  <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+    <div class="relative group">
+      <!-- Profile Photo -->
+      <div class="w-24 h-24 rounded-full border-4 border-amber-300/20 overflow-hidden bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center cursor-pointer" id="profilePhotoContainer">
+        {% if user.profile_photo and user.profile_photo != 'default.png' %}
+          <img src="/storage/uploads/{{ user.profile_photo }}" alt="Profile" class="w-full h-full object-cover" id="profilePhotoImg">
+        {% else %}
+          <span class="text-2xl font-bold text-white" id="profileInitial">{{ (user.username or 'U')[0].upper() }}</span>
+        {% endif %}
+      </div>
+      
+      <!-- Photo Upload Overlay -->
+      <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" id="photoUploadOverlay">
+        <i class="fas fa-camera text-white text-xl"></i>
+      </div>
+      
+      <!-- Online Status -->
+      <div class="absolute bottom-0 right-0 w-6 h-6 bg-green-500 rounded-full border-2 border-[--bg-1] activity-pulse"></div>
+      
+      <!-- Hidden File Input -->
+      <input type="file" id="profilePhotoInput" accept="image/*" class="hidden">
+    </div>
+    
+    <div class="flex-1">
+      <h1 class="text-3xl font-bold">{{ user.username or 'User' }}</h1>
+      <p class="text-[--muted] mt-1">{{ user.email or 'user@vedispeak.com' }}</p>
+      <div class="flex gap-3 mt-3">
+        <span class="px-3 py-1 rounded-full bg-amber-400/10 text-amber-300 text-sm">
+          <i class="fa-solid fa-star mr-1"></i> Pro Learner
+        </span>
+        <span class="px-3 py-1 rounded-full bg-sky-400/10 text-sky-300 text-sm">
+          <i class="fa-solid fa-fire mr-1"></i> {{ stats.streak_days or 0 }} Day Streak
+        </span>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button id="editProfileBtn" class="px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 transition">
+        <i class="fa-solid fa-pen mr-2"></i>Edit Profile
+      </button>
+      <a href="{{ url_for('profile.settings') }}" class="px-4 py-2 rounded-lg bg-amber-400 text-black hover:brightness-95 transition">
+        <i class="fa-solid fa-cog mr-2"></i>Settings
+      </a>
+    </div>
+  </div>
+  
+  <!-- Upload Progress -->
+  <div id="uploadProgress" class="hidden mt-4">
+    <div class="bg-slate-700 rounded-full h-2">
+      <div class="bg-amber-400 h-2 rounded-full transition-all duration-300" style="width: 0%" id="progressBar"></div>
+    </div>
+    <p class="text-sm text-slate-400 mt-2" id="uploadStatus">Uploading...</p>
+  </div>
+</section>
+
+<script>
+// Profile photo upload functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const photoContainer = document.getElementById('profilePhotoContainer');
+  const photoOverlay = document.getElementById('photoUploadOverlay');
+  const photoInput = document.getElementById('profilePhotoInput');
+  const uploadProgress = document.getElementById('uploadProgress');
+  const progressBar = document.getElementById('progressBar');
+  const uploadStatus = document.getElementById('uploadStatus');
+  const profilePhotoImg = document.getElementById('profilePhotoImg');
+  const profileInitial = document.getElementById('profileInitial');
+  
+  // Click to upload
+  photoContainer.addEventListener('click', () => {
+    photoInput.click();
+  });
+  
+  photoOverlay.addEventListener('click', (e) => {
+    e.stopPropagation();
+    photoInput.click();
+  });
+  
+  // Handle file selection
+  photoInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      handlePhotoUpload(e.target.files[0]);
+    }
+  });
+  
+  function handlePhotoUpload(file) {
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      showNotification('Please select a PNG, JPG, JPEG, or WebP image file.', 'error');
+      return;
+    }
+    
+    // Validate file size (8MB)
+    if (file.size > 8 * 1024 * 1024) {
+      showNotification('File size must be less than 8MB.', 'error');
+      return;
+    }
+    
+    const formData = new FormData();
+    formData.append('profile_photo', file);
+    
+    // Show progress
+    uploadProgress.classList.remove('hidden');
+    progressBar.style.width = '0%';
+    uploadStatus.textContent = 'Uploading...';
+    
+    // Upload with progress
+    const xhr = new XMLHttpRequest();
+    
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable) {
+        const percentComplete = (e.loaded / e.total) * 100;
+        progressBar.style.width = percentComplete + '%';
+      }
+    });
+    
+    xhr.addEventListener('load', () => {
+      uploadProgress.classList.add('hidden');
+      
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        if (response.success) {
+          // Update profile photo
+          const newPhotoUrl = response.photo_url + '?t=' + Date.now();
+          
+          if (profilePhotoImg) {
+            profilePhotoImg.src = newPhotoUrl;
+          } else if (profileInitial) {
+            // Replace initial with image
+            photoContainer.innerHTML = `
+              <img src="${newPhotoUrl}" alt="Profile" class="w-full h-full object-cover" id="profilePhotoImg">
+            `;
+          }
+          
+          // Update navbar profile photo
+          updateNavbarProfilePhoto(newPhotoUrl);
+          
+          // Store in localStorage for persistence across pages
+          localStorage.setItem('userProfilePhoto', newPhotoUrl);
+          
+          // Dispatch custom event for other components
+          window.dispatchEvent(new CustomEvent('profilePhotoUpdated', {
+            detail: { photoUrl: newPhotoUrl }
+          }));
+          
+          showNotification('Profile photo updated successfully!', 'success');
+        } else {
+          showNotification(response.error || 'Upload failed', 'error');
+        }
+      } else {
+        showNotification('Upload failed. Please try again.', 'error');
+      }
+    });
+    
+    xhr.addEventListener('error', () => {
+      uploadProgress.classList.add('hidden');
+      showNotification('Upload failed. Please check your connection.', 'error');
+    });
+    
+    xhr.open('POST', '/api/profile/upload_photo');
+    xhr.send(formData);
+  }
+  
+  function updateNavbarProfilePhoto(photoUrl) {
+    const navProfilePhoto = document.getElementById('navProfilePhoto');
+    const fallbackDiv = navProfilePhoto ? navProfilePhoto.nextElementSibling : null;
+    
+    if (navProfilePhoto && photoUrl) {
+      navProfilePhoto.src = photoUrl;
+      navProfilePhoto.style.display = 'block';
+      if (fallbackDiv) fallbackDiv.style.display = 'none';
+    } else if (fallbackDiv) {
+      if (navProfilePhoto) navProfilePhoto.style.display = 'none';
+      fallbackDiv.style.display = 'flex';
+    }
+  }
+  
+  function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+      type === 'success' ? 'bg-green-600' : 
+      type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+    } text-white`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 300);
+    }, 3000);
+  }
+});
+</script>
+
+<style>
+.activity-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}
+</style>

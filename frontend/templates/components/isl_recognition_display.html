@@ -1,0 +1,68 @@
+<!-- ISL Recognition Display Component -->
+<div class="glass p-8 rounded-2xl component-card reveal">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-4">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+        <i class="fas fa-hand-paper text-2xl text-white"></i>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-1">Sign Recognition</h2>
+        <p class="text-slate-400">Real-time ISL gesture detection</p>
+      </div>
+    </div>
+    <div id="recognitionStatus" class="status-badge status-idle">
+      <span class="w-2 h-2 rounded-full bg-current"></span>
+      <span>Waiting</span>
+    </div>
+  </div>
+  
+  <!-- Current Sign Display -->
+  <div class="prediction-display mb-6">
+    <div class="text-sm text-slate-400 mb-2">Current Sign</div>
+    <div id="currentLetter" class="sign-letter">-</div>
+    
+    <!-- Confidence Display -->
+    <div class="confidence-meter mb-3">
+      <div id="confidenceBar" class="confidence-progress" style="width: 0%"></div>
+    </div>
+    <div id="confidenceText" class="text-lg text-slate-300 mb-3">0% confidence</div>
+    
+    <!-- Stability Indicator -->
+    <div id="stabilityIndicator" class="status-badge status-idle">
+      <i class="fas fa-circle mr-1"></i>
+      <span>Waiting for sign...</span>
+    </div>
+  </div>
+  
+  <!-- Recognition Stats -->
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="text-center p-4 bg-slate-800/30 rounded-xl">
+      <div class="text-2xl font-bold text-emerald-400" id="recognitionCount">0</div>
+      <div class="text-sm text-slate-400">Signs Detected</div>
+    </div>
+    <div class="text-center p-4 bg-slate-800/30 rounded-xl">
+      <div class="text-2xl font-bold text-blue-400" id="accuracyRate">0%</div>
+      <div class="text-sm text-slate-400">Accuracy Rate</div>
+    </div>
+  </div>
+  
+  <!-- Quick Actions -->
+  <div class="grid grid-cols-2 gap-3">
+    <button id="backspaceBtn" class="btn btn-secondary py-3" title="Backspace">
+      <i class="fas fa-backspace mr-2"></i>
+      Backspace
+    </button>
+    <button id="spaceBtn" class="btn btn-secondary py-3" title="Add Space">
+      <i class="fas fa-space-shuttle mr-2"></i>
+      Space
+    </button>
+    <button id="clearBtn" class="btn btn-danger py-3" title="Clear All">
+      <i class="fas fa-trash mr-2"></i>
+      Clear All
+    </button>
+    <button id="copyBtn" class="btn py-3" title="Copy Text">
+      <i class="fas fa-copy mr-2"></i>
+      Copy Text
+    </button>
+  </div>
+</div>

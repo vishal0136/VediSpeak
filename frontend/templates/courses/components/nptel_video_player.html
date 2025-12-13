@@ -1,0 +1,122 @@
+<!-- NPTEL-Style Video Player Component -->
+<!-- Include with: {% include 'courses/components/nptel_video_player.html' %} -->
+
+<div id="videoPlayerSection" class="glass p-6 rounded-xl mb-6">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-semibold text-white">
+      <i class="fas fa-youtube text-red-500 mr-2"></i>Video Lectures
+    </h3>
+    <div class="flex items-center gap-3 text-sm">
+      <span class="text-slate-400">Source:</span>
+      <a href="https://www.youtube.com/@ISLRTC" target="_blank" class="text-red-400 hover:text-red-300">
+        ISLRTC Official Channel
+      </a>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <!-- Main Video Player -->
+    <div class="lg:col-span-2">
+      <div id="youtubePlayer" class="aspect-video bg-slate-800 rounded-lg overflow-hidden relative">
+        <iframe id="videoFrame" 
+                class="w-full h-full"
+                src="" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+        </iframe>
+        <div id="videoPlaceholder" class="absolute inset-0 flex items-center justify-center bg-slate-800">
+          <div class="text-center">
+            <i class="fas fa-play-circle text-6xl text-red-500 mb-4"></i>
+            <p class="text-white font-medium">Select a video to start learning</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Video Info -->
+      <div class="mt-4 p-4 glass rounded-lg">
+        <h4 id="currentVideoTitle" class="font-semibold text-white mb-2">Select a video</h4>
+        <p id="currentVideoDesc" class="text-sm text-slate-400">Choose from the playlist to begin</p>
+        <div class="flex items-center gap-4 mt-3 text-xs text-slate-400">
+          <span><i class="fas fa-clock mr-1"></i><span id="videoDuration">--:--</span></span>
+          <span><i class="fas fa-eye mr-1"></i>ISLRTC Official</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Playlist -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="font-medium text-white">Playlist</h4>
+        <span class="text-xs text-slate-400" id="playlistCount">0 videos</span>
+      </div>
+      <div id="videoPlaylist" class="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+        <!-- Videos loaded dynamically -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Video Player Functions
+const videoData = window.moduleVideos || [];
+let currentVideoIndex = 0;
+
+function initVideoPlayer() {
+  const playlist = document.getElementById('videoPlaylist');
+  if (!playlist || !videoData.length) return;
+  
+  document.getElementById('playlistCount').textContent = videoData.length + ' videos';
+  
+  videoData.forEach((video, index) => {
+    const item = document.createElement('div');
+    item.className = `video-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${index === 0 ? 'bg-red-500/20 border border-red-500/30' : 'glass hover:bg-white/5'}`;
+    item.onclick = () => playVideo(index);
+    item.innerHTML = `
+      <div class="w-8 h-8 rounded-full ${index === 0 ? 'bg-red-500' : 'bg-slate-600'} flex items-center justify-center text-white text-sm font-medium">
+        ${index + 1}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="font-medium text-white text-sm truncate">${video.title}</div>
+        <div class="text-xs text-slate-400">${video.duration || '5:00'}</div>
+      </div>
+      <i class="fas fa-play text-xs ${index === 0 ? 'text-red-400' : 'text-slate-500'}"></i>
+    `;
+    playlist.appendChild(item);
+  });
+  
+  if (videoData.length > 0) playVideo(0);
+}
+
+function playVideo(index) {
+  const video = videoData[index];
+  if (!video) return;
+  
+  currentVideoIndex = index;
+  
+  // Update iframe
+  const frame = document.getElementById('videoFrame');
+  const placeholder = document.getElementById('videoPlaceholder');
+  frame.src = `https://www.youtube.com/embed/${video.youtubeId}?rel=0`;
+  placeholder.style.display = 'none';
+  
+  // Update info
+  document.getElementById('currentVideoTitle').textContent = video.title;
+  document.getElementById('currentVideoDesc').textContent = video.description || '';
+  document.getElementById('videoDuration').textContent = video.duration || '--:--';
+  
+  // Update playlist UI
+  document.querySelectorAll('.video-item').forEach((item, i) => {
+    if (i === index) {
+      item.className = 'video-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition bg-red-500/20 border border-red-500/30';
+    } else {
+      item.className = 'video-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition glass hover:bg-white/5';
+    }
+  });
+  
+  // Track progress
+  if (window.trackVideoProgress) window.trackVideoProgress(video.youtubeId);
+}
+
+document.addEventListener('DOMContentLoaded', initVideoPlayer);
+</script>

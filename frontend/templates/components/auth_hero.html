@@ -1,0 +1,80 @@
+<!-- Auth Hero Section Component -->
+<div class="left-hero">
+  <div class="relative z-10">
+    <!-- Brand Logo -->
+    <div class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16">
+          <img src="{{ url_for('static', filename='images/vedispeak-logo.png') }}" 
+               alt="VediSpeak Logo" 
+               class="w-16 h-16 object-contain">
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold text-white tracking-tight">VediSpeak</h1>
+          <p class="text-amber-300 font-medium text-sm">Learn • Speak • Rise</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Message -->
+    <div class="mb-8">
+      <h2 class="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-4">
+        Bridge Every
+        <span class="gradient-text block">Conversation</span>
+      </h2>
+      
+      <p class="text-xl text-slate-300 font-light leading-relaxed">
+        AI-powered Indian Sign Language recognition that breaks barriers and builds connections.
+      </p>
+    </div>
+
+    <!-- Sanskrit Quote -->
+    <div class="mb-8 p-5 rounded-2xl bg-gradient-to-r from-amber-400/8 to-orange-400/8 border border-amber-400/20">
+      <div class="text-amber-300 font-semibold text-lg mb-2 tracking-wide">
+        "हाथों की भाषा, दिल का संदेश"
+      </div>
+      <div class="text-slate-400 text-sm italic font-light">
+        Language of hands, message of the heart
+      </div>
+    </div>
+
+    <!-- Value Proposition -->
+    <div class="space-y-4 mb-8">
+      <div class="flex items-start gap-3">
+        <div class="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
+        <span class="text-slate-300 font-medium">Real-time sign recognition with 95% accuracy</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <div class="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
+        <span class="text-slate-300 font-medium">Multi-language STT & TTS support (14+ languages)</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <div class="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
+        <span class="text-slate-300 font-medium">Learn ISL through interactive AI guidance</span>
+      </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="text-center">
+      <div class="text-amber-300 font-semibold text-lg mb-2">
+        Join 5,000+ learners today
+      </div>
+      <div class="text-slate-400 text-sm font-light">
+        Free forever • Start in 30 seconds
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.gradient-text {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.left-hero {
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+</style>

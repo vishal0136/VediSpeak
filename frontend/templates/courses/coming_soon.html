@@ -1,0 +1,157 @@
+{% extends 'components/base_learning.html' %}
+
+{% block page_title %}{{ requested_module.title or 'Module ' + module_id|string }} — Coming Soon{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 py-12">
+  <!-- Coming Soon Header -->
+  <div class="text-center mb-12 reveal">
+    <div class="text-8xl mb-6">🚀</div>
+    <h1 class="text-4xl font-bold text-white mb-4">Coming Soon!</h1>
+    <p class="text-xl text-slate-300 max-w-2xl mx-auto">
+      We're working hard to bring you more amazing ISL learning modules. 
+      Stay tuned for exciting new content!
+    </p>
+  </div>
+
+  <!-- Requested Module Info -->
+  {% if requested_module %}
+  <div class="glass p-8 mb-8 reveal">
+    <div class="text-center mb-6">
+      <h2 class="text-2xl font-bold text-white mb-2">{{ requested_module.title }}</h2>
+      <p class="text-accent text-lg">{{ requested_module.title_hindi }}</p>
+    </div>
+    
+    <p class="text-slate-300 text-center mb-6">{{ requested_module.description }}</p>
+    
+    <div class="flex items-center justify-center gap-4 text-sm">
+      <div class="flex items-center gap-2 text-blue-400">
+        <i class="fas fa-clock"></i>
+        <span>Module {{ module_id }}</span>
+      </div>
+      <div class="flex items-center gap-2 text-purple-400">
+        <i class="fas fa-rocket"></i>
+        <span>In Development</span>
+      </div>
+      <div class="flex items-center gap-2 text-emerald-400">
+        <i class="fas fa-star"></i>
+        <span>Advanced Level</span>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Upcoming Modules Preview -->
+  <div class="glass p-8 mb-8 reveal">
+    <h3 class="text-xl font-bold text-white mb-6 text-center">
+      <i class="fas fa-calendar-alt text-blue-400 mr-2"></i>
+      Upcoming Modules
+    </h3>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      {% for module in upcoming_modules %}
+      <div class="glass p-6 hover:bg-white/5 transition">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+            {{ loop.index + 6 }}
+          </div>
+          <div class="flex-1">
+            <h4 class="font-semibold text-white mb-1">{{ module.title }}</h4>
+            <p class="text-sm text-slate-400 mb-2">{{ module.title_hindi }}</p>
+            <p class="text-sm text-slate-300">{{ module.description }}</p>
+            
+            <div class="flex items-center gap-3 mt-3">
+              <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">
+                <i class="fas fa-clock mr-1"></i>Coming Soon
+              </span>
+              <span class="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full">
+                <i class="fas fa-star mr-1"></i>Advanced
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- What You Can Do Now -->
+  <div class="glass p-8 mb-8 reveal">
+    <h3 class="text-xl font-bold text-white mb-6 text-center">
+      <i class="fas fa-lightbulb text-amber-400 mr-2"></i>
+      What You Can Do Now
+    </h3>
+    
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-arrow-left text-2xl text-emerald-400"></i>
+        </div>
+        <h4 class="font-semibold text-white mb-2">Complete Previous Modules</h4>
+        <p class="text-sm text-slate-300">Master the foundation modules to prepare for advanced content.</p>
+        <a href="{{ url_for('pages.learn') }}" class="inline-block mt-3 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition">
+          <i class="fas fa-book mr-2"></i>Go to Learn
+        </a>
+      </div>
+      
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-practice text-2xl text-blue-400"></i>
+        </div>
+        <h4 class="font-semibold text-white mb-2">Practice Current Skills</h4>
+        <p class="text-sm text-slate-300">Use our ISL recognition tool to practice what you've learned.</p>
+        <a href="{{ url_for('pages.isl_recognition') }}" class="inline-block mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition">
+          <i class="fas fa-camera mr-2"></i>Practice Now
+        </a>
+      </div>
+      
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-bell text-2xl text-purple-400"></i>
+        </div>
+        <h4 class="font-semibold text-white mb-2">Get Notified</h4>
+        <p class="text-sm text-slate-300">We'll notify you when new modules are available.</p>
+        <button onclick="subscribeToUpdates()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition">
+          <i class="fas fa-envelope mr-2"></i>Notify Me
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Encouragement -->
+  <div class="text-center reveal">
+    <div class="glass p-6 inline-block">
+      <h4 class="text-lg font-semibold text-white mb-2">Keep Learning!</h4>
+      <p class="text-slate-300 mb-4">You're doing great! Complete the available modules while we prepare more content for you.</p>
+      
+      <div class="flex items-center justify-center gap-4">
+        <a href="{{ url_for('pages.learn') }}" class="px-6 py-3 bg-accent text-black font-semibold rounded-lg hover:bg-accent/80 transition">
+          <i class="fas fa-arrow-left mr-2"></i>Back to Learning
+        </a>
+        <a href="{{ url_for('pages.dashboard') }}" class="px-6 py-3 bg-slate-600 text-white font-semibold rounded-lg hover:bg-slate-500 transition">
+          <i class="fas fa-home mr-2"></i>Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function subscribeToUpdates() {
+    // In a real implementation, this would subscribe the user to notifications
+    LearningUtils.showNotification('You\'ll be notified when new modules are available! 🔔', 'success');
+    
+    // Could integrate with email subscription or push notifications
+    console.log('User subscribed to module updates');
+  }
+  
+  // Show welcome message
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+      LearningUtils.showNotification('More modules coming soon! Keep practicing! 🚀', 'info', 5000);
+    }, 1000);
+  });
+</script>
+{% endblock %}

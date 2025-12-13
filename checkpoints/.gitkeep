@@ -1,0 +1,9 @@
+# This file keeps the checkpoints directory in git
+# 
+# Model files (*.pth) are excluded from git due to size limitations
+# Download pre-trained models from: [Add your model hosting URL here]
+# 
+# Expected files:
+# - best.pth (56.2 MB) - Best performing ISL recognition model
+# - last.pth (56.2 MB) - Latest checkpoint
+# - train_log.csv - Training metrics and logs

@@ -1,0 +1,128 @@
+<!-- Upcoming Modules Notification Modal -->
+<div id="upcomingModulesModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="glass max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-white/10">
+        <h3 class="text-xl font-bold text-white">
+          <i class="fas fa-rocket text-blue-400 mr-2"></i>
+          Upcoming Modules
+        </h3>
+        <button onclick="closeUpcomingModulesModal()" class="p-2 hover:bg-white/10 rounded-lg transition">
+          <i class="fas fa-times text-slate-400"></i>
+        </button>
+      </div>
+      
+      <!-- Modal Content -->
+      <div class="p-6">
+        <p class="text-slate-300 mb-6 text-center">
+          🎉 Great progress! Here's what's coming next in your ISL learning journey.
+        </p>
+        
+        <!-- Next Modules List -->
+        <div class="space-y-4 mb-6">
+          {% if next_modules %}
+            {% for module in next_modules %}
+            <div class="glass p-4 hover:bg-white/5 transition">
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-{{ ['blue', 'purple', 'emerald', 'amber', 'pink', 'indigo'][loop.index0 % 6] }}-500 to-{{ ['purple', 'emerald', 'amber', 'pink', 'indigo', 'blue'][loop.index0 % 6] }}-600 flex items-center justify-center text-white font-bold text-sm">
+                  {{ module.id }}
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-white mb-1">{{ module.title }}</h4>
+                  <p class="text-sm text-slate-400 mb-2">{{ module.title_hindi }}</p>
+                  <p class="text-sm text-slate-300 mb-3">{{ module.description }}</p>
+                  
+                  <div class="flex items-center gap-2">
+                    {% if module.available %}
+                      <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full">
+                        <i class="fas fa-check mr-1"></i>Available
+                      </span>
+                      <a href="{{ url_for('pages.learn_module', module_id=module.id) }}" 
+                         class="px-3 py-1 bg-emerald-600 text-white text-xs rounded-full hover:bg-emerald-500 transition">
+                        <i class="fas fa-play mr-1"></i>Start Now
+                      </a>
+                    {% else %}
+                      <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">
+                        <i class="fas fa-clock mr-1"></i>Coming Soon
+                      </span>
+                      <span class="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full">
+                        <i class="fas fa-star mr-1"></i>Advanced
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center py-8">
+              <div class="text-6xl mb-4">🎓</div>
+              <h4 class="text-lg font-semibold text-white mb-2">You're All Caught Up!</h4>
+              <p class="text-slate-300">You've reached the latest available content. More modules coming soon!</p>
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex gap-3">
+          <button onclick="subscribeToModuleUpdates()" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition">
+            <i class="fas fa-bell mr-2"></i>Notify Me of Updates
+          </button>
+          <button onclick="closeUpcomingModulesModal()" class="px-4 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-500 transition">
+            <i class="fas fa-times mr-2"></i>Close
+          </button>
+        </div>
+        
+        <!-- Progress Encouragement -->
+        <div class="mt-6 p-4 bg-gradient-to-r from-emerald-500/10 to-blue-500/10 rounded-lg border border-emerald-500/20">
+          <div class="flex items-center gap-3">
+            <div class="text-2xl">🌟</div>
+            <div>
+              <h5 class="font-semibold text-white">Keep Up the Great Work!</h5>
+              <p class="text-sm text-slate-300">You're making excellent progress in your ISL learning journey.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showUpcomingModulesModal() {
+    document.getElementById('upcomingModulesModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function closeUpcomingModulesModal() {
+    document.getElementById('upcomingModulesModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  }
+  
+  function subscribeToModuleUpdates() {
+    // In a real implementation, this would subscribe the user to notifications
+    LearningUtils.showNotification('You\'ll be notified when new modules are available! 🔔', 'success');
+    closeUpcomingModulesModal();
+    
+    // Could integrate with:
+    // - Email subscription service
+    // - Push notifications
+    // - In-app notification system
+    console.log('User subscribed to module updates');
+  }
+  
+  // Close modal when clicking outside
+  document.getElementById('upcomingModulesModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeUpcomingModulesModal();
+    }
+  });
+  
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeUpcomingModulesModal();
+    }
+  });
+</script>

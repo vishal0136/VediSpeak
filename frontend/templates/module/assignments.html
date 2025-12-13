@@ -1,0 +1,240 @@
+<!-- Assignments Component -->
+<div class="grid lg:grid-cols-2 gap-6">
+  <!-- Assignment List -->
+  <div class="space-y-4">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-white">
+        <i class="fas fa-tasks text-orange-400 mr-2"></i>
+        Weekly Assignments
+      </h3>
+      <span class="px-3 py-1 bg-orange-500/20 text-orange-400 text-sm rounded-full">
+        {{ assignments|length if assignments else module.assignment_count or 3 }} assignments
+      </span>
+    </div>
+    
+    {% if assignments and assignments|length > 0 %}
+      {% for assignment in assignments %}
+        <div class="assignment-card glass p-4 rounded-lg {% if assignment.status == 'locked' %}opacity-60{% endif %}">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg {% if assignment.type == 'video' %}bg-blue-500/20{% elif assignment.type == 'written' %}bg-purple-500/20{% elif assignment.type == 'peer' %}bg-slate-600{% else %}bg-emerald-500/20{% endif %} flex items-center justify-center">
+                {% if assignment.type == 'video' %}
+                  <i class="fas fa-video text-blue-400"></i>
+                {% elif assignment.type == 'written' %}
+                  <i class="fas fa-pen text-purple-400"></i>
+                {% elif assignment.type == 'peer' %}
+                  <i class="fas fa-users text-slate-400"></i>
+                {% else %}
+                  <i class="fas fa-tasks text-emerald-400"></i>
+                {% endif %}
+              </div>
+              <div>
+                <h4 class="font-semibold text-white">{{ assignment.title }}</h4>
+                <p class="text-xs text-slate-400">{{ assignment.description }}</p>
+              </div>
+            </div>
+            <span class="px-2 py-1 {% if assignment.status == 'submitted' %}bg-emerald-500/20 text-emerald-400{% elif assignment.status == 'in_progress' %}bg-yellow-500/20 text-yellow-400{% elif assignment.status == 'locked' %}bg-slate-600 text-slate-400{% else %}bg-blue-500/20 text-blue-400{% endif %} text-xs rounded-full">
+              {% if assignment.status == 'submitted' %}
+                <i class="fas fa-check mr-1"></i>Submitted
+              {% elif assignment.status == 'in_progress' %}
+                <i class="fas fa-clock mr-1"></i>In Progress
+              {% elif assignment.status == 'locked' %}
+                <i class="fas fa-lock mr-1"></i>Locked
+              {% else %}
+                <i class="fas fa-play mr-1"></i>Available
+              {% endif %}
+            </span>
+          </div>
+          
+          <div class="mb-3">
+            <div class="flex justify-between text-xs text-slate-400 mb-1">
+              <span>Due: {{ assignment.due_date or 'Week End' }}</span>
+              {% if assignment.score %}
+                <span>Score: {{ assignment.score }}/100</span>
+              {% elif assignment.status == 'in_progress' %}
+                <span>Progress: {{ assignment.progress or 0 }}%</span>
+              {% else %}
+                <span>Not Started</span>
+              {% endif %}
+            </div>
+            <div class="progress-bar">
+              {% if assignment.score %}
+                <div class="progress-fill bg-emerald-500" style="width: {{ assignment.score }}%"></div>
+              {% elif assignment.status == 'in_progress' %}
+                <div class="progress-fill bg-yellow-500" style="width: {{ assignment.progress or 0 }}%"></div>
+              {% else %}
+                <div class="progress-fill bg-slate-500" style="width: 0%"></div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="flex gap-2">
+            {% if assignment.status == 'submitted' %}
+              <button class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-md hover:bg-blue-500/30 transition">
+                <i class="fas fa-eye mr-1"></i>View Feedback
+              </button>
+              <button class="px-3 py-1 bg-slate-600 text-slate-300 text-xs rounded-md hover:bg-slate-500 transition">
+                <i class="fas fa-download mr-1"></i>Download
+              </button>
+            {% elif assignment.status == 'in_progress' %}
+              <button class="px-3 py-1 bg-emerald-600 text-white text-xs rounded-md hover:bg-emerald-500 transition">
+                <i class="fas fa-edit mr-1"></i>Continue
+              </button>
+              <button class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-md hover:bg-blue-500/30 transition">
+                <i class="fas fa-info-circle mr-1"></i>Instructions
+              </button>
+            {% elif assignment.status == 'locked' %}
+              <button disabled class="px-3 py-1 bg-slate-700 text-slate-500 text-xs rounded-md cursor-not-allowed">
+                <i class="fas fa-lock mr-1"></i>Locked
+              </button>
+            {% else %}
+              <button class="px-3 py-1 bg-emerald-600 text-white text-xs rounded-md hover:bg-emerald-500 transition">
+                <i class="fas fa-play mr-1"></i>Start
+              </button>
+              <button class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-md hover:bg-blue-500/30 transition">
+                <i class="fas fa-info-circle mr-1"></i>Instructions
+              </button>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <!-- Default assignments when no data provided -->
+      <div class="assignment-card glass p-4 rounded-lg">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+              <i class="fas fa-video text-blue-400"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-white">Video Assignment 1</h4>
+              <p class="text-xs text-slate-400">Record yourself signing basic vocabulary</p>
+            </div>
+          </div>
+          <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">
+            <i class="fas fa-play mr-1"></i>Available
+          </span>
+        </div>
+        
+        <div class="mb-3">
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>Due: Week 1 End</span>
+            <span>Not Started</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill bg-slate-500" style="width: 0%"></div>
+          </div>
+        </div>
+        
+        <div class="flex gap-2">
+          <button class="px-3 py-1 bg-emerald-600 text-white text-xs rounded-md hover:bg-emerald-500 transition">
+            <i class="fas fa-play mr-1"></i>Start
+          </button>
+          <button class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-md hover:bg-blue-500/30 transition">
+            <i class="fas fa-info-circle mr-1"></i>Instructions
+          </button>
+        </div>
+      </div>
+      
+      <div class="assignment-card glass p-4 rounded-lg">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+              <i class="fas fa-pen text-purple-400"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-white">Written Assignment 2</h4>
+              <p class="text-xs text-slate-400">Analyze ISL grammar structures</p>
+            </div>
+          </div>
+          <span class="px-2 py-1 bg-slate-600 text-slate-400 text-xs rounded-full">
+            <i class="fas fa-lock mr-1"></i>Locked
+          </span>
+        </div>
+        
+        <div class="mb-3">
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>Unlocks: After Assignment 1</span>
+            <span>Not Available</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill bg-slate-500" style="width: 0%"></div>
+          </div>
+        </div>
+        
+        <div class="flex gap-2">
+          <button disabled class="px-3 py-1 bg-slate-700 text-slate-500 text-xs rounded-md cursor-not-allowed">
+            <i class="fas fa-lock mr-1"></i>Locked
+          </button>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  
+  <!-- Assignment Submission Area -->
+  <div class="space-y-4">
+    <div class="glass p-4 rounded-lg">
+      <h4 class="font-semibold text-white mb-4">
+        <i class="fas fa-upload text-emerald-400 mr-2"></i>
+        Submit Assignment
+      </h4>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Assignment Type</label>
+          <select class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white">
+            <option>Video Recording</option>
+            <option>Written Report</option>
+            <option>Peer Review</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Upload File</label>
+          <div class="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center hover:border-slate-500 transition cursor-pointer" onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-cloud-upload-alt text-3xl text-slate-400 mb-2"></i>
+            <p class="text-slate-400 text-sm">Drag & drop your file here or click to browse</p>
+            <p class="text-xs text-slate-500 mt-1">Supported: MP4, PDF, DOC (Max 50MB)</p>
+            <input type="file" id="fileInput" class="hidden" accept=".mp4,.pdf,.doc,.docx" />
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Comments (Optional)</label>
+          <textarea class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white" rows="3" placeholder="Add any comments about your submission..."></textarea>
+        </div>
+        
+        <button class="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition">
+          <i class="fas fa-paper-plane mr-2"></i>Submit Assignment
+        </button>
+      </div>
+    </div>
+    
+    <!-- Grading Rubric -->
+    <div class="glass p-4 rounded-lg">
+      <h4 class="font-semibold text-white mb-3">
+        <i class="fas fa-clipboard-check text-blue-400 mr-2"></i>
+        Grading Rubric
+      </h4>
+      
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between">
+          <span class="text-slate-300">Sign Accuracy:</span>
+          <span class="text-blue-400">40%</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-300">Fluency & Flow:</span>
+          <span class="text-purple-400">30%</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-300">Grammar Usage:</span>
+          <span class="text-emerald-400">20%</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-300">Creativity:</span>
+          <span class="text-orange-400">10%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

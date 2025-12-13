@@ -1,0 +1,62 @@
+# VediSpeak - Main Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core Web Framework
+Flask==3.2.2
+Flask-MySQLdb==1.0.1
+Flask-Bcrypt==1.0.1
+Werkzeug==2.3.7
+gunicorn==21.2.0
+
+# Real-time Features
+Flask-SocketIO==5.3.6
+python-socketio==5.10.0
+eventlet==0.33.3
+
+# Speech & Audio Processing
+gTTS==2.4.6
+pydub==0.25.1
+SpeechRecognition==3.9.0
+azure-cognitiveservices-speech==1.34.0
+requests==2.31.0
+
+# Translation & Language Processing
+googletrans==4.0.0rc1
+translate==3.6.1
+langdetect==1.0.9
+indic-transliteration==2.3.43
+
+# Machine Learning & Computer Vision
+torch==2.4.1
+torch-directml==0.2.5
+torchvision==0.19.1
+opencv-python==4.8.1.78
+mediapipe==0.10.8
+Pillow==10.1.0
+numpy==1.24.3
+scikit-learn==1.3.2
+matplotlib==3.8.2
+tqdm==4.66.1
+
+# Database
+mysqlclient==2.2.0
+
+# Authentication & Messaging
+Flask-Dance==7.0.0
+twilio==8.2.0
+sendgrid==6.11.0
+
+# Environment & Configuration
+python-dotenv==1.0.0
+
+# Optional: Development & Testing
+pytest==7.4.3
+pytest-flask==1.3.0
+pytest-cov==4.1.0
+ruff==0.1.6
+black==23.11.0
+isort==5.12.0
+
+# Optional: Background Tasks
+redis==5.0.1
+celery==5.3.4

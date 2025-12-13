@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VediSpeak — Learn • Speak • Rise</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* ===== Theme colors & small utilities ===== */
+    :root{
+      --bg-1:#0b1220;   /* deep slate */
+      --card:#0f1724;   /* card dark */
+      --accent:#b9834a; /* earthy gold */
+      --muted:#98a0a6;  /* muted text */
+    }
+
+    body{ background: linear-gradient(180deg,var(--bg-1) 0%, #07101a 100%); color:#e6eef6; font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; }
+
+    /* subtle frosted glass card */
+    .glass {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px);
+      border-radius: 14px;
+    }
+
+    /* decorative mandala style (light) */
+    .mandala {
+      opacity: 0.06;
+      filter: blur(0.6px);
+    }
+
+    /* scroll reveal - base */
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 600ms ease, transform 600ms ease;
+      will-change: transform, opacity;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* small parallax for decorative svgs */
+    .parallax {
+      transform: translateY(0);
+      transition: transform 0.2s linear;
+      will-change: transform;
+    }
+
+    /* CTA button */
+    .cta {
+      background: linear-gradient(90deg, rgba(185,131,74,0.12), rgba(185,131,74,0.06));
+      border: 1px solid rgba(185,131,74,0.22);
+      color: var(--accent);
+      padding: .6rem 1.05rem;
+      border-radius: 999px;
+      font-weight: 600;
+      display:inline-flex;
+      gap:.6rem;
+      align-items:center;
+    }
+
+    /* gentle focus */
+    a:focus, button:focus { outline: 3px solid rgba(185,131,74,0.14); outline-offset: 4px; }
+
+    /* small responsive tweaks */
+    @media (max-width:768px){
+      .hero-title { font-size: clamp(1.8rem, 6vw, 2.6rem); }
+      .hero-sub { font-size: clamp(.9rem, 3.2vw, 1.05rem); }
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased">
+
+  <!-- ===== NAV ===== -->
+  <header class="sticky top-0 z-40 backdrop-blur bg-[rgba(2,6,11,0.45)] border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="{{ url_for('pages.dashboard') }}" class="flex items-center gap-3" aria-label="VediSpeak Home">
+        <!-- VediSpeak Lotus Logo -->
+        <div class="w-11 h-11 flex items-center justify-center">
+          <img src="{{ url_for('static', filename='images/vedispeak-logo.png') }}" 
+               alt="VediSpeak Logo" 
+               class="w-11 h-11 object-contain">
+        </div>
+        <div>
+          <div class="text-sm font-semibold text-amber-200 leading-none">VediSpeak</div>
+          <div class="text-xs text-muted text-[--muted]">Learn • Speak • Rise</div>
+        </div>
+      </a>
+
+      <!-- nav -->
+      <nav class="hidden md:flex items-center gap-6 text-sm text-slate-300">
+        <a href="#tools" class="hover:text-white transition">Tools</a>
+        <a href="{{ url_for('pages.learn') }}" class="hover:text-white transition">Learn</a>
+        <a href="{{ url_for('pages.about_us') }}" class="hover:text-white transition">About</a>
+      </nav>
+
+      <!-- User Profile Section (when logged in) -->
+      <div class="flex items-center gap-3">
+        <button class="p-2 rounded-full hover:bg-white/5 transition" aria-label="Notifications">
+          <i class="fa-regular fa-bell text-[--muted] hover:text-white transition"></i>
+        </button>
+        
+        <!-- User Profile Dropdown -->
+        <div class="relative group">
+          <button class="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] px-3 py-2 rounded-full hover:bg-[rgba(255,255,255,0.06)] transition" aria-label="User menu">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-sm font-semibold">
+              {{ username[0].upper() if username else 'U' }}
+            </div>
+            <span class="text-sm font-medium">{{ username or 'User' }}</span>
+            <i class="fa-solid fa-chevron-down text-xs text-[--muted]"></i>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div class="absolute right-0 top-full mt-2 w-48 glass rounded-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <a href="{{ url_for('profile.user_profile') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
+              <i class="fa-solid fa-user text-[--muted]"></i>
+              View Profile
+            </a>
+            <a href="{{ url_for('pages.learn') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
+              <i class="fa-solid fa-graduation-cap text-[--muted]"></i>
+              My Learning
+            </a>
+            <div class="border-t border-white/10 my-2"></div>
+            <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition text-red-400">
+              <i class="fa-solid fa-sign-out-alt text-red-400"></i>
+              Sign Out
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- mobile menu toggle -->
+      <div class="md:hidden text-slate-300">
+        <button aria-label="Open menu" class="p-2 rounded hover:bg-white/3">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <main>
+    <section class="relative overflow-hidden">
+      <!-- decorative mandala top-left -->
+      <svg class="absolute -left-20 -top-28 w-96 h-96 mandala parallax" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+        <g fill="none" stroke="#b8834a">
+          <circle cx="100" cy="100" r="36" stroke-opacity="0.12"></circle>
+          <path d="M100 0 L110 40 L140 60 L110 80 L100 120 L90 80 L60 60 L90 40 Z" stroke-opacity="0.08"></path>
+        </g>
+      </svg>
+
+      <div class="max-w-6xl mx-auto px-6 py-20 relative z-10">
+        <div class="grid lg:grid-cols-2 gap-10 items-center">
+          <!-- left: content -->
+          <div class="reveal">
+            <div class="text-amber-300 text-base font-serif italic mb-3 space-y-1">
+              <div>"वाचा वृत्तिर्विचारेण मनसा चेष्टया तनुः।"</div>
+              <div class="text-sm text-amber-200">"Communication flows through speech, thought, mind, and gesture."</div>
+            </div>
+
+            <h1 class="hero-title text-4xl md:text-5xl font-extrabold leading-tight mb-6">
+              Sign It, Speak It, Own It! 🤟
+            </h1>
+
+            <p class="hero-sub text-slate-300 max-w-2xl mb-8 text-lg leading-relaxed">
+              Turn your hands into words with AI magic. This little ISL playground makes learning fun and actually works!
+            </p>
+
+            <div class="flex flex-wrap gap-4 items-center mb-8">
+              <a href="{{ url_for('pages.isl_recognition') }}" class="cta" role="button">
+                <i class="fa-solid fa-video" aria-hidden></i> Start Signing
+              </a>
+
+              <a href="{{ url_for('pages.learn') }}" class="cta" role="button">
+                <i class="fa-solid fa-graduation-cap" aria-hidden></i> Learn More
+              </a>
+            </div>
+
+            <div class="text-base text-slate-400">
+              <div class="italic text-lg font-serif text-amber-200 mb-2">
+                "अहिंसा परमो धर्मः सर्व प्राणी हितैषिणः।"
+              </div>
+              <div class="text-sm text-slate-300 italic">
+                "Non-violence is the highest virtue, wishing well for all beings."
+              </div>
+              <div class="mt-3 text-sm text-[--muted] leading-relaxed">
+                Every gesture carries meaning, every sign builds bridges. Let's create a world where everyone can communicate freely.
+              </div>
+            </div>
+          </div>
+
+          <!-- right: wisdom & actions -->
+          <div class="space-y-6">
+            <!-- Sanskrit Wisdom -->
+            <div class="glass p-6 reveal">
+              <h4 class="font-semibold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-om text-amber-300"></i>
+                आज का श्लोक
+                <button onclick="rotateSloka()" class="ml-auto text-xs text-amber-300 hover:text-amber-200 transition">
+                  <i class="fa-solid fa-refresh"></i>
+                </button>
+              </h4>
+              <div id="slokaContainer" class="text-center space-y-3 transition-opacity duration-500">
+                <div class="text-lg font-serif text-amber-200 leading-relaxed" id="slokaText">
+                  "सर्वे भवन्तु सुखिनः सर्वे सन्तु निरामयाः।<br>
+                  सर्वे भद्राणि पश्यन्तु मा कश्चिद्दुःखभाग्भवेत्॥"
+                </div>
+                <div class="text-sm text-slate-300 italic" id="slokaTranslation">
+                  "May all beings be happy, may all be healthy.<br>
+                  May all see good fortune, may none suffer."
+                </div>
+                <div class="text-xs text-[--muted] mt-2" id="slokaSource">
+                  — Universal Prayer for Well-being
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="glass p-6 reveal">
+              <h4 class="font-semibold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-sky-300"></i>
+                Quick Actions
+              </h4>
+              <div class="grid grid-cols-2 gap-3">
+                <a href="{{ url_for('pages.isl_recognition') }}" class="p-3 rounded-lg bg-[rgba(185,131,74,0.1)] border border-amber-300/20 hover:bg-[rgba(185,131,74,0.15)] transition text-center">
+                  <i class="fa-solid fa-video text-amber-300 text-lg mb-2 block"></i>
+                  <div class="text-xs font-medium">Practice ISL</div>
+                </a>
+                <a href="{{ url_for('pages.stt_tts') }}" class="p-3 rounded-lg bg-[rgba(56,189,248,0.1)] border border-sky-300/20 hover:bg-[rgba(56,189,248,0.15)] transition text-center">
+                  <i class="fa-solid fa-microphone text-sky-300 text-lg mb-2 block"></i>
+                  <div class="text-xs font-medium">Voice Tools</div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Learning Wisdom -->
+            <div class="glass p-6 reveal">
+              <h4 class="font-semibold text-white mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-scroll text-yellow-300"></i>
+                शिक्षा का मंत्र
+              </h4>
+              <div class="text-center space-y-2">
+                <div class="text-base font-serif text-yellow-200">
+                  "आचार्यात् पादमादत्ते पादं शिष्यः स्वमेधया।<br>
+                  पादं सब्रह्मचारिभ्यः पादं कालक्रमेण च॥"
+                </div>
+                <div class="text-xs text-slate-300 italic mt-2">
+                  "One quarter from the teacher, one quarter from self-study,<br>
+                  one quarter from fellow students, one quarter from time and experience."
+                </div>
+                <div class="text-xs text-[--muted] mt-1">— The Four Sources of Learning</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- skyline decorative footer svg (minimal lines) -->
+      <svg class="absolute bottom-0 left-0 w-full h-36 parallax" viewBox="0 0 1400 200" preserveAspectRatio="none" aria-hidden>
+        <g stroke="#b8834a" stroke-opacity="0.12" fill="none" stroke-width="2">
+          <!-- stylized skyline line art -->
+          <path d="M0,120 L60,120 L90,80 L150,80 L200,120 L260,120 L320,60 L380,120 L440,120 L500,70 L560,120 L620,120 L680,50 L740,120 L800,120 L860,90 L920,120 L980,120 L1040,75 L1100,120 L1160,120 L1220,60 L1280,120 L1340,120 L1400,120" />
+        </g>
+      </svg>
+    </section>
+
+    <!-- ===== TOOLS SHOWCASE ===== -->
+    <section id="tools" class="py-16 bg-[rgba(255,255,255,0.02)] border-t border-white/5">
+      <div class="max-w-6xl mx-auto px-6 text-center">
+        <h3 class="text-3xl font-bold mb-4 reveal">Three Tools That Actually Work 🛠️</h3>
+        <p class="max-w-2xl mx-auto text-slate-300 mb-12 text-lg leading-relaxed reveal">
+          Built by students, tested by students. Simple, honest tech that does what it says.
+        </p>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <!-- ISL Recognition -->
+          <div class="glass p-6 rounded-xl transition-all duration-500 hover:scale-[1.03] reveal">
+            <div class="text-amber-300 text-3xl mb-4">
+              <i class="fa-solid fa-hand"></i>
+            </div>
+            <h4 class="font-semibold text-lg mb-2">ISL Recognition</h4>
+            <p class="text-[--muted] text-sm mb-4 leading-relaxed">
+              Wave your hands, get words! Our AI watches your signs and translates them instantly.
+            </p>
+            <button onclick="window.location.href='/isl-recognition'" class="px-4 py-2 text-sm rounded-md border border-white/10 hover:bg-amber-300 hover:text-black transition-all font-semibold">
+              Let's Sign!
+            </button>
+          </div>
+
+          <!-- Speech to Text -->
+          <div class="glass p-6 rounded-xl transition-all duration-500 hover:scale-[1.03] reveal">
+            <div class="text-sky-300 text-3xl mb-4">
+              <i class="fa-solid fa-microphone"></i>
+            </div>
+            <h4 class="font-semibold text-lg mb-2">Voice to Text</h4>
+            <p class="text-[--muted] text-sm mb-4 leading-relaxed">
+              Talk to your computer and watch it type for you. Great for notes or showing off to friends.
+            </p>
+            <button onclick="window.location.href='/stt-tts'" class="px-4 py-2 text-sm rounded-md border border-white/10 hover:bg-sky-300 hover:text-black transition-all font-semibold">
+              Try It Out!
+            </button>
+          </div>
+
+          <!-- Text to Speech -->
+          <div class="glass p-6 rounded-xl transition-all duration-500 hover:scale-[1.03] reveal">
+            <div class="text-indigo-300 text-3xl mb-4">
+              <i class="fa-solid fa-volume-high"></i>
+            </div>
+            <h4 class="font-semibold text-lg mb-2">Text to Speech</h4>
+            <p class="text-[--muted] text-sm mb-4 leading-relaxed">
+              Type something and let the computer read it back. Better pronunciation than some professors! 😄
+            </p>
+            <button onclick="window.location.href='/stt-tts'" class="px-4 py-2 text-sm rounded-md border border-white/10 hover:bg-indigo-300 hover:text-black transition-all font-semibold">
+              Make It Talk!
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section class="py-16">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div class="reveal">
+            <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent">Small Project, Big Dreams! 💫</h3>
+            <p class="text-slate-300 text-lg leading-relaxed mb-6">
+              Started as a college project, now it's a cool little ISL playground! We're just students who thought 
+              "Hey, what if we could make sign language learning actually fun?"
+            </p>
+            <ul class="grid gap-3 text-base text-slate-300">
+              <li class="flex items-start gap-3">
+                <i class="fa-solid fa-heart text-rose-400 mt-1"></i> 
+                <span><strong>Keep it real</strong> - ISL with Indian vibes</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <i class="fa-solid fa-users text-sky-400 mt-1"></i> 
+                <span><strong>Share the love</strong> - tell your friends if it works!</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <i class="fa-solid fa-rocket text-emerald-400 mt-1"></i> 
+                <span><strong>Stay curious</strong> - we're always adding cool stuff</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="reveal">
+            <div class="glass p-6 border border-white/6 rounded-2xl">
+              <div class="flex gap-3 mb-4">
+                <div class="w-2 bg-amber-300 rounded"></div>
+                <div>
+                  <h4 class="font-semibold">Made by students, for students</h4>
+                  <p class="text-[--muted] text-sm">Real feedback from real people learning ISL.</p>
+                </div>
+              </div>
+
+              <div class="flex gap-3 mb-4">
+                <div class="w-2 bg-sky-300 rounded"></div>
+                <div>
+                  <h4 class="font-semibold">Works on potato internet</h4>
+                  <p class="text-[--muted] text-sm">Optimized for Indian internet speeds - we get it!</p>
+                </div>
+              </div>
+
+              <div class="flex gap-3">
+                <div class="w-2 bg-indigo-300 rounded"></div>
+                <div>
+                  <h4 class="font-semibold">Try, fail, learn, repeat</h4>
+                  <p class="text-[--muted] text-sm">Practice makes perfect, and our AI is pretty patient!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="pt-12 pb-8 border-t border-white/10">
+      <div class="max-w-6xl mx-auto px-6 text-center">
+        <div class="mb-6 reveal">
+          <h4 class="font-semibold text-xl mb-3">Wanna Help Out? 🤗</h4>
+          <p class="text-slate-300 max-w-2xl mx-auto">This little project could use some friends! Whether you're a teacher, student, or just think ISL is cool.</p>
+        </div>
+
+        <div class="flex items-center justify-center gap-6 mb-6 reveal">
+          <a href="#" class="w-12 h-12 rounded-full bg-[rgba(255,255,255,0.03)] flex items-center justify-center text-[--muted] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
+            <i class="fa-brands fa-github fa-lg"></i>
+          </a>
+          <a href="#" class="w-12 h-12 rounded-full bg-[rgba(255,255,255,0.03)] flex items-center justify-center text-[--muted] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
+            <i class="fa-brands fa-linkedin fa-lg"></i>
+          </a>
+          <a href="#" class="w-12 h-12 rounded-full bg-[rgba(255,255,255,0.03)] flex items-center justify-center text-[--muted] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
+            <i class="fa-brands fa-twitter fa-lg"></i>
+          </a>
+        </div>
+
+        <div class="text-[--muted] text-sm reveal">
+          <p class="text-lg font-semibold text-white mb-2">VediSpeak — Where Hands Meet AI 🤖</p>
+          <p>© 2025 VediSpeak • Made with ♥ and lots of chai ☕ • A student project that got out of hand</p>
+          <div class="mt-3 space-y-1">
+            <p class="italic text-amber-200 font-serif">"यत्र नार्यस्तु पूज्यन्ते रमन्ते तत्र देवताः।"</p>
+            <p class="text-xs text-slate-400">"Where communication is honored, there divinity resides."</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ===== SCRIPTS: IntersectionObserver (reveal) + Parallax ===== -->
+  <script>
+    // Reveal on scroll using IntersectionObserver
+    (function(){
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            e.target.classList.add('visible');
+            io.unobserve(e.target);
+          }
+        });
+      }, {threshold: 0.12});
+
+      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    })();
+
+    // parallax decorative elements
+    (function(){
+      const parallaxEls = document.querySelectorAll('.parallax');
+      if(!parallaxEls.length) return;
+      window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        parallaxEls.forEach((el, i) => {
+          // subtle movement; farther elements move less (i% as modifier)
+          const modifier = 0.15 + (i * 0.03);
+          el.style.transform = `translateY(${scrolled * modifier * 0.02}px)`;
+        });
+      }, {passive:true});
+    })();
+  </script>
+
+  <!-- Real-time Dashboard Scripts -->
+  <script src="{{ url_for('static', filename='js/realtime-dashboard.js') }}"></script>
+  <script>
+    // Mark this as a dashboard page for real-time tracking
+    document.body.classList.add('dashboard-page');
+
+    // Initialize real-time tracking when user interacts with modules
+    function trackModuleInteraction(moduleId, action) {
+        RealtimeTracker.logActivity(action, {
+            module_id: moduleId,
+            description: `${action.replace('_', ' ')} for module ${moduleId}`
+        });
+    }
+
+    // Track when user starts learning
+    function startLearningSession(moduleId) {
+        RealtimeTracker.startSession('study', moduleId);
+    }
+
+    // Update progress tracking in module templates
+    function updateModuleProgress(moduleId, progressPercentage, timeSpent = 0, quizScore = 0) {
+        RealtimeTracker.updateProgress(moduleId, {
+            progress_percentage: progressPercentage,
+            time_spent_minutes: timeSpent,
+            quiz_score: quizScore
+        });
+    }
+
+    // Track dashboard interactions
+    document.addEventListener('DOMContentLoaded', function() {
+        // Track course card clicks
+        document.querySelectorAll('.course-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const moduleId = this.dataset.moduleId;
+                if (moduleId) {
+                    trackModuleInteraction(moduleId, 'module_start');
+                }
+            });
+        });
+
+        // Track learning session starts
+        document.querySelectorAll('.start-learning-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const moduleId = this.dataset.moduleId;
+                if (moduleId) {
+                    startLearningSession(moduleId);
+                }
+            });
+        });
+        
+        // Add maintenance notifications for learning links
+        addLearningMaintenanceNotifications();
+    });
+    
+    function addLearningMaintenanceNotifications() {
+        // Find all learning-related links
+        const learningLinks = document.querySelectorAll('a[href*="learn"]');
+        
+        learningLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Don't prevent default - let them go to learn page
+                // Just show a quick notification
+                showQuickMaintenanceNotification();
+            });
+        });
+    }
+    
+    function showQuickMaintenanceNotification() {
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300';
+        notification.innerHTML = `
+            <div class="flex items-center gap-3">
+                <i class="fas fa-info-circle text-xl"></i>
+                <div>
+                    <div class="font-semibold">Learning Modules Update</div>
+                    <div class="text-sm opacity-90">Enhanced features coming soon!</div>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white/70 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Slide in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+    
+    // Sanskrit Slokas rotation
+    const slokas = [
+        {
+            sanskrit: "सर्वे भवन्तु सुखिनः सर्वे सन्तु निरामयाः।<br>सर्वे भद्राणि पश्यन्तु मा कश्चिद्दुःखभाग्भवेत्॥",
+            translation: "May all beings be happy, may all be healthy.<br>May all see good fortune, may none suffer.",
+            source: "— Universal Prayer for Well-being"
+        },
+        {
+            sanskrit: "विद्या ददाति विनयं विनयाद्याति पात्रताम्।<br>पात्रत्वाद्धनमाप्नोति धनाद्धर्मं ततः सुखम्॥",
+            translation: "Knowledge gives humility, from humility comes worthiness.<br>From worthiness comes wealth, from wealth righteousness, then happiness.",
+            source: "— Hitopadesha"
+        },
+        {
+            sanskrit: "सत्यं वद धर्मं चर स्वाध्यायान्मा प्रमदः।<br>मातृदेवो भव पितृदेवो भव आचार्यदेवो भव॥",
+            translation: "Speak the truth, practice righteousness, never neglect learning.<br>Revere mother, father, and teacher as divine.",
+            source: "— Taittiriya Upanishad"
+        },
+        {
+            sanskrit: "वसुधैव कुटुम्बकम्।<br>अयं निजः परो वेति गणना लघुचेतसाम्॥",
+            translation: "The world is one family.<br>This is mine, that is his - such calculations are for the narrow-minded.",
+            source: "— Maha Upanishad"
+        },
+        {
+            sanskrit: "यत्र नार्यस्तु पूज्यन्ते रमन्ते तत्र देवताः।<br>यत्रैतास्तु न पूज्यन्ते सर्वास्तत्राफलाः क्रियाः॥",
+            translation: "Where women are honored, there the gods are pleased.<br>Where they are not honored, no sacred ritual bears fruit.",
+            source: "— Manusmriti"
+        },
+        {
+            sanskrit: "अहिंसा परमो धर्मः धर्म हिंसा तथैव च।<br>तस्मात् सर्वप्रयत्नेन हिंसां धर्मे निवारयेत्॥",
+            translation: "Non-violence is the highest virtue, as is righteous violence.<br>Therefore, one should avoid violence through all efforts in righteousness.",
+            source: "— Mahabharata"
+        }
+    ];
+    
+    let currentSlokaIndex = 0;
+    
+    function rotateSloka() {
+        const container = document.getElementById('slokaContainer');
+        const textEl = document.getElementById('slokaText');
+        const translationEl = document.getElementById('slokaTranslation');
+        const sourceEl = document.getElementById('slokaSource');
+        
+        // Fade out
+        container.style.opacity = '0';
+        
+        setTimeout(() => {
+            // Change to next sloka
+            currentSlokaIndex = (currentSlokaIndex + 1) % slokas.length;
+            const sloka = slokas[currentSlokaIndex];
+            
+            textEl.innerHTML = sloka.sanskrit;
+            translationEl.innerHTML = sloka.translation;
+            sourceEl.textContent = sloka.source;
+            
+            // Fade in
+            container.style.opacity = '1';
+        }, 250);
+    }
+    
+    // Auto-rotate slokas every 30 seconds
+    setInterval(rotateSloka, 30000);
+  </script>
+</body>
+</html>

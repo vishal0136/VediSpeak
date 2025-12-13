@@ -1,0 +1,65 @@
+<!-- Number Practice Component for Module 2 -->
+<div class="glass p-6 reveal">
+  <h3 class="text-xl font-semibold text-white mb-6">
+    <i class="fas fa-calculator text-blue-400 mr-2"></i>
+    Interactive Number Practice
+  </h3>
+  
+  <!-- Number Grid -->
+  <div class="grid grid-cols-5 md:grid-cols-10 gap-3 mb-6">
+    {% for num in range(0, 10) %}
+    <div class="letter-card glass p-3 text-center hover:bg-blue-500/10 transition cursor-pointer" 
+         onclick="practiceNumber('{{ num }}')">
+      <div class="text-lg font-bold text-white">{{ num }}</div>
+      <div class="text-xs text-slate-400 mt-1">{{ ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'][num] }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  
+  <!-- Advanced Numbers -->
+  <div class="mb-6">
+    <h4 class="font-semibold text-white mb-3">Advanced Numbers</h4>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {% for num in [10, 20, 50, 100] %}
+      <div class="letter-card glass p-3 text-center hover:bg-blue-500/10 transition cursor-pointer" 
+           onclick="practiceNumber('{{ num }}')">
+        <div class="text-lg font-bold text-white">{{ num }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <!-- Math Operations -->
+  <div class="glass p-4 bg-slate-800/30">
+    <h4 class="font-semibold text-white mb-4">Mathematical Operations</h4>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="text-center p-3 glass hover:bg-blue-500/10 transition cursor-pointer" onclick="practiceOperation('+')">
+        <div class="text-2xl text-blue-400">+</div>
+        <div class="text-xs text-slate-400">Addition</div>
+      </div>
+      <div class="text-center p-3 glass hover:bg-blue-500/10 transition cursor-pointer" onclick="practiceOperation('-')">
+        <div class="text-2xl text-blue-400">−</div>
+        <div class="text-xs text-slate-400">Subtraction</div>
+      </div>
+      <div class="text-center p-3 glass hover:bg-blue-500/10 transition cursor-pointer" onclick="practiceOperation('×')">
+        <div class="text-2xl text-blue-400">×</div>
+        <div class="text-xs text-slate-400">Multiplication</div>
+      </div>
+      <div class="text-center p-3 glass hover:bg-blue-500/10 transition cursor-pointer" onclick="practiceOperation('÷')">
+        <div class="text-2xl text-blue-400">÷</div>
+        <div class="text-xs text-slate-400">Division</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function practiceNumber(number) {
+  LearningUtils.showNotification(`Practicing number: ${number}`, 'info');
+}
+
+function practiceOperation(operation) {
+  const operations = {'+': 'Addition', '-': 'Subtraction', '×': 'Multiplication', '÷': 'Division'};
+  LearningUtils.showNotification(`Practicing operation: ${operations[operation]}`, 'info');
+}
+</script>

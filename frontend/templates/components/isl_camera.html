@@ -1,0 +1,75 @@
+<!-- ISL Camera Component -->
+<div id="camera-section" class="glass p-8 rounded-2xl component-card reveal">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-4">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+        <i class="fas fa-camera text-2xl text-white"></i>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-1">Camera Feed</h2>
+        <p class="text-slate-400">Real-time video capture for ISL recognition</p>
+      </div>
+    </div>
+    <div id="cameraStatus" class="status-badge status-idle">
+      <span class="w-2 h-2 rounded-full bg-current"></span>
+      <span>Ready</span>
+    </div>
+  </div>
+  
+  <!-- Camera Container -->
+  <div class="camera-container mb-6">
+    <video id="webcamVideo" autoplay playsinline></video>
+    <canvas id="overlayCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+    
+    <!-- Hand Detection Indicator -->
+    <div id="handIndicator" class="hand-indicator hidden">
+      <i class="fas fa-hand-paper mr-2"></i>
+      <span>Hand Detected</span>
+    </div>
+    
+    <!-- Camera Info -->
+    <div class="camera-info">
+      <span id="cameraInfo">No camera selected</span>
+    </div>
+  </div>
+  
+  <!-- Camera Controls -->
+  <div class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-white mb-2">
+        <i class="fas fa-video mr-2"></i>Camera Selection
+      </label>
+      <div class="flex gap-2">
+        <select id="cameraSelect" class="flex-1 px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white backdrop-blur-sm">
+          <option value="">Loading cameras...</option>
+        </select>
+        <button id="refreshCameras" class="btn btn-secondary px-4 py-3" title="Refresh Cameras">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="flex gap-3">
+      <button id="startBtn" class="btn btn-primary flex-1 text-lg py-3">
+        <i class="fas fa-play mr-2"></i>
+        Start Recognition
+      </button>
+      <button id="stopBtn" class="btn btn-danger flex-1 text-lg py-3 hidden">
+        <i class="fas fa-stop mr-2"></i>
+        Stop Recognition
+      </button>
+    </div>
+    
+    <!-- Camera Settings -->
+    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-600/30">
+      <div class="text-center">
+        <div class="text-sm text-slate-400 mb-1">Resolution</div>
+        <div class="text-white font-semibold" id="cameraResolution">640x480</div>
+      </div>
+      <div class="text-center">
+        <div class="text-sm text-slate-400 mb-1">Frame Rate</div>
+        <div class="text-white font-semibold" id="frameRate">30 FPS</div>
+      </div>
+    </div>
+  </div>
+</div>

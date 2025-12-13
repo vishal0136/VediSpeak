@@ -1,0 +1,135 @@
+<!-- Time & Calendar Practice Component for Module 5 -->
+<div class="glass p-6 reveal">
+  <h3 class="text-xl font-semibold text-white mb-6">
+    <i class="fas fa-clock text-emerald-400 mr-2"></i>
+    Time & Calendar Practice
+  </h3>
+  
+  <!-- Time Concepts -->
+  <div class="mb-8">
+    <h4 class="text-lg font-semibold text-white mb-4">Time Concepts</h4>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {% for time in [
+        {'english': 'Morning', 'hindi': 'सुबह', 'emoji': '🌅'},
+        {'english': 'Afternoon', 'hindi': 'दोपहर', 'emoji': '☀️'},
+        {'english': 'Evening', 'hindi': 'शाम', 'emoji': '🌆'},
+        {'english': 'Night', 'hindi': 'रात', 'emoji': '🌙'},
+        {'english': 'Today', 'hindi': 'आज', 'emoji': '📅'},
+        {'english': 'Tomorrow', 'hindi': 'कल', 'emoji': '➡️'},
+        {'english': 'Yesterday', 'hindi': 'कल', 'emoji': '⬅️'},
+        {'english': 'Week', 'hindi': 'सप्ताह', 'emoji': '📆'}
+      ] %}
+      <div class="letter-card glass p-3 text-center hover:bg-emerald-500/10 transition cursor-pointer" 
+           onclick="practiceTime('{{ time.english }}', '{{ time.hindi }}')">
+        <div class="text-2xl mb-2">{{ time.emoji }}</div>
+        <div class="font-semibold text-white text-sm">{{ time.english }}</div>
+        <div class="text-xs text-slate-400">{{ time.hindi }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <!-- Days of Week -->
+  <div class="mb-8">
+    <h4 class="text-lg font-semibold text-white mb-4">Days of the Week</h4>
+    <div class="grid grid-cols-2 md:grid-cols-7 gap-3">
+      {% for day in [
+        {'english': 'Monday', 'hindi': 'सोमवार', 'short': 'Mon'},
+        {'english': 'Tuesday', 'hindi': 'मंगलवार', 'short': 'Tue'},
+        {'english': 'Wednesday', 'hindi': 'बुधवार', 'short': 'Wed'},
+        {'english': 'Thursday', 'hindi': 'गुरुवार', 'short': 'Thu'},
+        {'english': 'Friday', 'hindi': 'शुक्रवार', 'short': 'Fri'},
+        {'english': 'Saturday', 'hindi': 'शनिवार', 'short': 'Sat'},
+        {'english': 'Sunday', 'hindi': 'रविवार', 'short': 'Sun'}
+      ] %}
+      <div class="letter-card glass p-3 text-center hover:bg-emerald-500/10 transition cursor-pointer" 
+           onclick="practiceTime('{{ day.english }}', '{{ day.hindi }}')">
+        <div class="text-lg font-bold text-emerald-400">{{ day.short }}</div>
+        <div class="text-sm text-white">{{ day.english }}</div>
+        <div class="text-xs text-slate-400">{{ day.hindi }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <!-- Months -->
+  <div class="mb-8">
+    <h4 class="text-lg font-semibold text-white mb-4">Months</h4>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {% for month in [
+        {'english': 'January', 'hindi': 'जनवरी', 'emoji': '❄️'},
+        {'english': 'February', 'hindi': 'फरवरी', 'emoji': '💝'},
+        {'english': 'March', 'hindi': 'मार्च', 'emoji': '🌸'},
+        {'english': 'April', 'hindi': 'अप्रैल', 'emoji': '🌷'},
+        {'english': 'May', 'hindi': 'मई', 'emoji': '🌺'},
+        {'english': 'June', 'hindi': 'जून', 'emoji': '☀️'},
+        {'english': 'July', 'hindi': 'जुलाई', 'emoji': '🌞'},
+        {'english': 'August', 'hindi': 'अगस्त', 'emoji': '🌻'},
+        {'english': 'September', 'hindi': 'सितंबर', 'emoji': '🍂'},
+        {'english': 'October', 'hindi': 'अक्टूबर', 'emoji': '🎃'},
+        {'english': 'November', 'hindi': 'नवंबर', 'emoji': '🍁'},
+        {'english': 'December', 'hindi': 'दिसंबर', 'emoji': '🎄'}
+      ] %}
+      <div class="letter-card glass p-3 text-center hover:bg-emerald-500/10 transition cursor-pointer" 
+           onclick="practiceTime('{{ month.english }}', '{{ month.hindi }}')">
+        <div class="text-xl mb-1">{{ month.emoji }}</div>
+        <div class="text-sm font-semibold text-white">{{ month.english }}</div>
+        <div class="text-xs text-slate-400">{{ month.hindi }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <!-- Interactive Clock -->
+  <div class="glass p-4 bg-slate-800/30">
+    <h4 class="font-semibold text-white mb-4">Digital Clock Practice</h4>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="text-center">
+        <div class="w-full h-32 bg-slate-700 rounded-lg flex items-center justify-center mb-4">
+          <div class="text-3xl font-mono text-emerald-400" id="digitalClock">12:00</div>
+        </div>
+        <div class="flex gap-2 justify-center">
+          <button onclick="setTime(9, 0)" class="px-3 py-1 bg-emerald-600 text-white rounded text-sm hover:bg-emerald-500 transition">9:00</button>
+          <button onclick="setTime(12, 30)" class="px-3 py-1 bg-emerald-600 text-white rounded text-sm hover:bg-emerald-500 transition">12:30</button>
+          <button onclick="setTime(15, 45)" class="px-3 py-1 bg-emerald-600 text-white rounded text-sm hover:bg-emerald-500 transition">3:45</button>
+          <button onclick="setTime(18, 0)" class="px-3 py-1 bg-emerald-600 text-white rounded text-sm hover:bg-emerald-500 transition">6:00</button>
+        </div>
+      </div>
+      
+      <div class="text-center">
+        <div class="w-full h-32 bg-slate-700 rounded-lg flex items-center justify-center mb-4">
+          <i class="fas fa-video text-4xl text-blue-400"></i>
+        </div>
+        <button onclick="startTimeDetection()" class="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition">
+          <i class="fas fa-clock mr-2"></i>Practice Time Signs
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function practiceTime(english, hindi) {
+  LearningUtils.showNotification(`Practicing: ${english} (${hindi})`, 'info');
+}
+
+function setTime(hours, minutes) {
+  const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  document.getElementById('digitalClock').textContent = timeStr;
+  LearningUtils.showNotification(`Practice signing: ${timeStr}`, 'info');
+}
+
+function startTimeDetection() {
+  LearningUtils.showNotification('Starting AI detection for time expressions...', 'success');
+}
+
+// Update clock every second
+setInterval(() => {
+  const now = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  const clockEl = document.getElementById('digitalClock');
+  if (clockEl && clockEl.textContent === '12:00') {
+    clockEl.textContent = timeStr;
+  }
+}, 1000);
+</script>

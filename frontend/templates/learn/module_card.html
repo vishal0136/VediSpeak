@@ -1,0 +1,47 @@
+<!-- Module Card Component -->
+<article class="glass p-6 module-card reveal">
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-lg bg-[rgba({{ module.color_rgb }},0.09)] flex items-center justify-center text-{{ module.color }}-300">
+        <i class="{{ module.icon }} text-xl"></i>
+      </div>
+      <div>
+        <h4 class="font-semibold text-lg">{{ module.title }}</h4>
+        <p class="text-[--muted] text-sm">{{ module.title_hindi }}</p>
+      </div>
+    </div>
+    <div class="text-{{ module.color }}-200 font-semibold text-sm">Module {{ module.id }}</div>
+  </div>
+
+  <p class="text-[--muted] text-sm mb-4">{{ module.description }}</p>
+
+  <div class="mb-4">
+    <div class="grid grid-cols-3 gap-2 text-xs text-slate-400 mb-3">
+      <div class="text-center">
+        <i class="fas fa-video text-{{ module.color }}-400"></i>
+        <div>{{ module.video_count }} Videos</div>
+      </div>
+      <div class="text-center">
+        <i class="fas fa-question-circle text-blue-400"></i>
+        <div>{{ module.quiz_count }} Quizzes</div>
+      </div>
+      <div class="text-center">
+        <i class="fas fa-tasks text-emerald-400"></i>
+        <div>{{ module.assignment_count }} Assignments</div>
+      </div>
+    </div>
+    <div class="text-xs text-slate-400 mb-2">
+      <i class="fas fa-youtube text-red-400 mr-1"></i>
+      ISLRTC Official Channel • {{ module.duration }}
+    </div>
+  </div>
+
+  <div class="flex gap-2">
+    <a href="{{ url_for('pages.learn_module', module_id=module.id) }}" class="flex-1 px-3 py-2 text-xs rounded-md bg-{{ module.color }}-400 text-black font-semibold hover:bg-{{ module.color }}-300 transition text-center">
+      <i class="fas fa-play mr-1"></i>Start Module
+    </a>
+    <button onclick="previewModule({{ module.id }})" class="px-3 py-2 text-xs rounded-md border border-white/6 hover:bg-white/5 transition">
+      <i class="fas fa-eye"></i>
+    </button>
+  </div>
+</article>

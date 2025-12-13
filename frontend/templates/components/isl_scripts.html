@@ -1,0 +1,1293 @@
+<script>
+// ===== ISL RECOGNITION SYSTEM =====
+// Socket.IO connection
+const socket = io({
+  autoConnect: true,
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionAttempts: 5
+});
+
+// Global variables
+let isRunning = false;
+let stream = null;
+let frameInterval = null;
+let recognizedText = '';
+let availableCameras = [];
+let selectedCameraId = null;
+let practiceMode = false;
+let practiceTarget = null;
+let practiceStartTime = null;
+let systemReady = false;
+let readinessCheckInterval = null;
+
+// DOM Elements
+const video = document.getElementById('webcamVideo');
+const canvas = document.getElementById('overlayCanvas');
+const ctx = canvas.getContext('2d');
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const currentLetter = document.getElementById('currentLetter');
+const confidenceBar = document.getElementById('confidenceBar');
+const confidenceText = document.getElementById('confidenceText');
+const textOutput = document.getElementById('textOutput');
+const handIndicator = document.getElementById('handIndicator');
+const cameraSelect = document.getElementById('cameraSelect');
+const cameraInfo = document.getElementById('cameraInfo');
+
+// ===== INITIALIZATION =====
+document.addEventListener('DOMContentLoaded', () => {
+  // Show system status and check readiness
+  showSystemStatus();
+  checkSystemReadiness();
+  
+  enumerateCameras();
+  
+  // Socket events
+  socket.on('connect', () => {
+    socket.emit('join_isl_room');
+    updateSocketStatus('connected');
+  });
+  
+  socket.on('disconnect', () => {
+    updateSocketStatus('disconnected');
+  });
+  
+  socket.on('isl_prediction', handlePrediction);
+  socket.on('isl_error', (data) => console.error('ISL Error:', data));
+  socket.on('isl_text_updated', (data) => updateTextDisplay(data.current_text));
+  socket.on('isl_text_cleared', () => updateTextDisplay(''));
+});
+
+// ===== CAMERA MANAGEMENT =====
+async function enumerateCameras() {
+  try {
+    console.log('Enumerating cameras...');
+    
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error('Camera access not supported in this browser');
+    }
+    
+    // Request permission first
+    let tempStream;
+    try {
+      tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      console.log('✅ Camera permission granted');
+    } catch (permError) {
+      console.warn('Camera permission needed for enumeration:', permError.message);
+      cameraSelect.innerHTML = '<option value="">❌ Camera permission required</option>';
+      updateCameraStatus('permission_denied');
+      return [];
+    }
+    
+    // Enumerate devices
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(device => device.kind === 'videoinput');
+    
+    console.log('Found cameras:', videoDevices.length);
+    
+    // Stop temporary stream
+    if (tempStream) {
+      tempStream.getTracks().forEach(track => track.stop());
+    }
+    
+    // Update camera list
+    availableCameras = videoDevices;
+    updateCameraSelect(videoDevices);
+    updateCameraStatus('ready');
+    
+    return videoDevices;
+    
+  } catch (error) {
+    console.error('Camera enumeration failed:', error);
+    cameraSelect.innerHTML = `<option value="">❌ ${error.message}</option>`;
+    updateCameraStatus('error');
+    return [];
+  }
+}
+
+function updateCameraSelect(cameras) {
+  if (cameras.length === 0) {
+    cameraSelect.innerHTML = '<option value="">❌ No cameras found</option>';
+    startBtn.disabled = true;
+    startBtn.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>No Cameras';
+    return;
+  }
+  
+  cameraSelect.innerHTML = '';
+  
+  cameras.forEach((camera, index) => {
+    const option = document.createElement('option');
+    option.value = camera.deviceId || 'default';
+    
+    let label = camera.label || `Camera ${index + 1}`;
+    if (!camera.label || camera.label.trim() === '') {
+      label = `Camera ${index + 1}`;
+    }
+    
+    // Add device type info
+    if (camera.label && camera.label.includes('front')) {
+      label += ' (Front)';
+    } else if (camera.label && camera.label.includes('back')) {
+      label += ' (Back)';
+    } else if (camera.label && camera.label.toLowerCase().includes('webcam')) {
+      label += ' (Webcam)';
+    } else if (camera.label && camera.label.toLowerCase().includes('usb')) {
+      label += ' (USB)';
+    }
+    
+    option.textContent = label;
+    
+    if (index === 0) {
+      option.selected = true;
+      selectedCameraId = camera.deviceId || 'default';
+    }
+    
+    cameraSelect.appendChild(option);
+  });
+  
+  const selectedOption = cameraSelect.options[cameraSelect.selectedIndex];
+  if (selectedOption) {
+    cameraInfo.textContent = selectedOption.textContent;
+  }
+  
+  console.log(`✅ Updated camera list with ${cameras.length} cameras`);
+  showNotification(`Found ${cameras.length} camera${cameras.length > 1 ? 's' : ''}`, 'success');
+}
+
+function getSelectedCameraConstraints() {
+  const selectedDeviceId = cameraSelect.value;
+  
+  const constraints = {
+    video: {
+      width: { ideal: 640 },
+      height: { ideal: 480 },
+      facingMode: 'user'
+    }
+  };
+  
+  if (selectedDeviceId && selectedDeviceId !== 'default' && selectedDeviceId !== '') {
+    constraints.video.deviceId = { exact: selectedDeviceId };
+    delete constraints.video.facingMode;
+  }
+  
+  console.log('Camera constraints:', constraints);
+  return constraints;
+}
+
+async function startWebcam() {
+  try {
+    const constraints = getSelectedCameraConstraints();
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
+    video.srcObject = stream;
+    
+    video.onloadedmetadata = () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      document.getElementById('cameraResolution').textContent = `${video.videoWidth}x${video.videoHeight}`;
+    };
+    
+    const selectedOption = cameraSelect.options[cameraSelect.selectedIndex];
+    if (selectedOption) {
+      cameraInfo.textContent = selectedOption.textContent;
+    }
+    
+    updateCameraStatus('active');
+    return true;
+  } catch (e) {
+    showNotification('Failed to access webcam: ' + e.message, 'error');
+    updateCameraStatus('error');
+    return false;
+  }
+}
+
+function stopWebcam() {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+  updateCameraStatus('stopped');
+}
+
+// ===== RECOGNITION PROCESSING =====
+function captureAndPredict() {
+  if (!isRunning || !video.videoWidth) return;
+  
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = video.videoWidth;
+  tempCanvas.height = video.videoHeight;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  // Draw image directly without flipping for ML processing
+  tempCtx.drawImage(video, 0, 0);
+  
+  const imageData = tempCanvas.toDataURL('image/jpeg', 0.8);
+  socket.emit('isl_frame', { image: imageData });
+}
+
+function handlePrediction(data) {
+  // Update current letter display
+  if (data.letter) {
+    currentLetter.textContent = data.letter;
+    currentLetter.style.opacity = data.is_stable ? '1' : '0.5';
+    
+    if (data.is_stable) {
+      currentLetter.style.transform = 'scale(1.1)';
+      setTimeout(() => {
+        currentLetter.style.transform = 'scale(1)';
+      }, 200);
+      
+      checkPracticeTarget(data.letter, data.is_stable);
+    }
+  } else {
+    currentLetter.textContent = '-';
+  }
+  
+  // Update stability indicator
+  const stabilityIndicator = document.getElementById('stabilityIndicator');
+  if (data.is_stable) {
+    stabilityIndicator.textContent = 'Stable Recognition';
+    stabilityIndicator.className = 'status-badge status-active';
+  } else if (data.letter) {
+    stabilityIndicator.textContent = 'Detecting...';
+    stabilityIndicator.className = 'status-badge status-processing';
+  } else {
+    stabilityIndicator.textContent = 'Waiting for sign...';
+    stabilityIndicator.className = 'status-badge status-idle';
+  }
+  
+  // Update confidence
+  const conf = Math.round((data.confidence || 0) * 100);
+  confidenceBar.style.width = conf + '%';
+  confidenceText.textContent = conf + '% confidence';
+  
+  // Enhanced confidence color coding
+  if (data.confidence >= 0.8) {
+    confidenceBar.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+  } else if (data.confidence >= 0.65) {
+    confidenceBar.style.background = 'linear-gradient(90deg, var(--accent), #d4a574)';
+  } else if (data.confidence >= 0.4) {
+    confidenceBar.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
+  } else {
+    confidenceBar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+  }
+  
+  // Update processing time
+  if (data.avg_processing_time) {
+    const processingTimeEl = document.getElementById('processingTime');
+    if (processingTimeEl) {
+      processingTimeEl.textContent = `${(data.avg_processing_time * 1000).toFixed(1)}ms`;
+    }
+  }
+  
+  // Update hand detection indicator
+  updateHandIndicator(data);
+  
+  // Update current word and text
+  if (data.current_word !== undefined) {
+    updateCurrentWordDisplay(data.current_word, data.word_suggestions || []);
+  }
+  
+  if (data.current_text !== undefined) {
+    updateTextDisplay(data.current_text);
+  }
+  
+  // Enhanced visualization
+  drawEnhancedVisualization(data);
+  
+  // Update translations if available
+  if (data.translations) {
+    updateTranslations(data.translations);
+  }
+  
+  // Update stats
+  updateRecognitionStats(data);
+}
+
+function updateHandIndicator(data) {
+  const handCount = data.hand_count || 0;
+  const bothHands = data.both_hands || false;
+  
+  if (handCount > 0) {
+    handIndicator.classList.remove('hidden');
+    
+    if (bothHands) {
+      handIndicator.innerHTML = '<i class="fas fa-hands mr-2"></i><span>Both Hands Detected</span>';
+      handIndicator.className = 'hand-indicator bg-green-500/90';
+    } else if (handCount === 1) {
+      handIndicator.innerHTML = '<i class="fas fa-hand-paper mr-2"></i><span>Single Hand Detected</span>';
+      handIndicator.className = 'hand-indicator bg-yellow-500/90';
+    } else {
+      handIndicator.innerHTML = `<i class="fas fa-hands mr-2"></i><span>${handCount} Hands Detected</span>`;
+      handIndicator.className = 'hand-indicator bg-blue-500/90';
+    }
+  } else {
+    handIndicator.classList.add('hidden');
+  }
+}
+
+function drawEnhancedVisualization(data) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw hand landmarks if available
+  if (data.hand_landmarks && data.hand_landmarks.length > 0) {
+    drawHandLandmarks(data.hand_landmarks);
+  }
+  
+  // Draw bounding box
+  if (data.bbox) {
+    drawEnhancedBoundingBox(data.bbox, data.confidence, data.hand_count, data.both_hands);
+  }
+}
+
+function drawHandLandmarks(landmarksList) {
+  const connections = [
+    [0, 1], [1, 2], [2, 3], [3, 4],
+    [0, 5], [5, 6], [6, 7], [7, 8],
+    [0, 9], [9, 10], [10, 11], [11, 12],
+    [0, 13], [13, 14], [14, 15], [15, 16],
+    [0, 17], [17, 18], [18, 19], [19, 20],
+    [5, 9], [9, 13], [13, 17]
+  ];
+  
+  const colors = ['#00ff00', '#ff0000', '#0000ff', '#ffff00', '#ff00ff'];
+  
+  landmarksList.forEach((landmarks, handIndex) => {
+    const color = colors[handIndex % colors.length];
+    
+    const points = landmarks.map(lm => ({
+      x: lm.x * canvas.width,
+      y: lm.y * canvas.height
+    }));
+    
+    // Draw connections
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    connections.forEach(([start, end]) => {
+      if (start < points.length && end < points.length) {
+        ctx.beginPath();
+        ctx.moveTo(points[start].x, points[start].y);
+        ctx.lineTo(points[end].x, points[end].y);
+        ctx.stroke();
+      }
+    });
+    
+    // Draw landmarks
+    ctx.fillStyle = color;
+    points.forEach((point, index) => {
+      ctx.beginPath();
+      
+      if (index === 0) {
+        ctx.arc(point.x, point.y, 8, 0, 2 * Math.PI);
+      } else if ([4, 8, 12, 16, 20].includes(index)) {
+        ctx.arc(point.x, point.y, 6, 0, 2 * Math.PI);
+      } else {
+        ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
+      }
+      
+      ctx.fill();
+      
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+  });
+}
+
+function drawEnhancedBoundingBox(bbox, confidence = 0, handCount = 0, bothHands = false) {
+  if (!bbox) return;
+  
+  const [x1, y1, x2, y2] = bbox;
+  
+  let boxColor, labelColor, labelBg;
+  
+  if (bothHands) {
+    boxColor = confidence >= 0.7 ? '#10b981' : '#059669';
+    labelColor = '#ffffff';
+    labelBg = '#10b981';
+  } else if (handCount === 1) {
+    boxColor = confidence >= 0.7 ? '#f59e0b' : '#d97706';
+    labelColor = '#ffffff';
+    labelBg = '#f59e0b';
+  } else {
+    boxColor = '#ef4444';
+    labelColor = '#ffffff';
+    labelBg = '#ef4444';
+  }
+  
+  // Draw bounding box
+  ctx.strokeStyle = boxColor;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+  
+  // Draw label
+  const label = bothHands ? `Both Hands (${Math.round(confidence * 100)}%)` : 
+               handCount === 1 ? `Single Hand (${Math.round(confidence * 100)}%)` :
+               `${handCount} Hands (${Math.round(confidence * 100)}%)`;
+  
+  ctx.font = '14px Inter, sans-serif';
+  const labelWidth = ctx.measureText(label).width + 16;
+  const labelHeight = 24;
+  
+  ctx.fillStyle = labelBg;
+  ctx.fillRect(x1, y1 - labelHeight - 5, labelWidth, labelHeight);
+  
+  ctx.fillStyle = labelColor;
+  ctx.fillText(label, x1 + 8, y1 - 8);
+  
+  // Draw corner indicators
+  const cornerSize = 15;
+  ctx.strokeStyle = boxColor;
+  ctx.lineWidth = 4;
+  
+  // Corners
+  ctx.beginPath();
+  ctx.moveTo(x1, y1 + cornerSize);
+  ctx.lineTo(x1, y1);
+  ctx.lineTo(x1 + cornerSize, y1);
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(x2 - cornerSize, y1);
+  ctx.lineTo(x2, y1);
+  ctx.lineTo(x2, y1 + cornerSize);
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(x1, y2 - cornerSize);
+  ctx.lineTo(x1, y2);
+  ctx.lineTo(x1 + cornerSize, y2);
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(x2 - cornerSize, y2);
+  ctx.lineTo(x2, y2);
+  ctx.lineTo(x2, y2 - cornerSize);
+  ctx.stroke();
+}
+
+// ===== TEXT MANAGEMENT =====
+function updateCurrentWordDisplay(currentWord, suggestions = []) {
+  const currentWordDisplay = document.getElementById('currentWordDisplay');
+  const wordSuggestions = document.getElementById('wordSuggestions');
+  const suggestionsList = document.getElementById('suggestionsList');
+  
+  if (currentWord && currentWord.length > 0) {
+    currentWordDisplay.innerHTML = `<span class="text-emerald-400">${currentWord}</span><span class="animate-pulse text-emerald-300">|</span>`;
+    
+    if (suggestions.length > 0) {
+      wordSuggestions.classList.remove('hidden');
+      suggestionsList.innerHTML = suggestions.map(suggestion => 
+        `<button class="suggestion-btn px-2 py-1 text-xs bg-blue-500/20 text-blue-300 rounded hover:bg-blue-500/30 transition" data-word="${suggestion}">${suggestion}</button>`
+      ).join('');
+      
+      document.querySelectorAll('.suggestion-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const word = e.target.dataset.word;
+          socket.emit('isl_force_word', { word: word });
+        });
+      });
+    } else {
+      wordSuggestions.classList.add('hidden');
+    }
+  } else {
+    currentWordDisplay.innerHTML = '<span class="text-slate-500 italic">No word being formed...</span>';
+    wordSuggestions.classList.add('hidden');
+  }
+}
+
+function updateTextDisplay(text) {
+  recognizedText = text;
+  if (text) {
+    const words = text.split(' ');
+    const lastWord = words[words.length - 1];
+    const previousWords = words.slice(0, -1).join(' ');
+    
+    if (previousWords) {
+      textOutput.innerHTML = `<span class="tracking-wider">${previousWords} <span class="text-emerald-300">${lastWord}</span></span>`;
+    } else {
+      textOutput.innerHTML = `<span class="tracking-wider text-emerald-300">${lastWord}</span>`;
+    }
+    
+    // Update word and character counts
+    document.getElementById('wordCount').textContent = words.filter(w => w.trim()).length;
+    document.getElementById('charCount').textContent = text.length;
+  } else {
+    textOutput.innerHTML = '<span class="text-slate-500 italic">Start recognition to see text here...</span>';
+    document.getElementById('wordCount').textContent = '0';
+    document.getElementById('charCount').textContent = '0';
+  }
+}
+
+// ===== SYSTEM STATUS MANAGEMENT =====
+function updateCameraStatus(status) {
+  const icon = document.getElementById('cameraStatusIcon');
+  const text = document.getElementById('cameraStatusText');
+  
+  switch (status) {
+    case 'active':
+      icon.className = 'fas fa-camera text-2xl text-green-400';
+      text.textContent = 'Active';
+      text.className = 'text-xs text-green-400';
+      break;
+    case 'ready':
+      icon.className = 'fas fa-camera text-2xl text-blue-400';
+      text.textContent = 'Ready';
+      text.className = 'text-xs text-blue-400';
+      break;
+    case 'error':
+      icon.className = 'fas fa-camera text-2xl text-red-400';
+      text.textContent = 'Error';
+      text.className = 'text-xs text-red-400';
+      break;
+    default:
+      icon.className = 'fas fa-camera text-2xl text-slate-400';
+      text.textContent = 'Not Connected';
+      text.className = 'text-xs text-slate-400';
+  }
+}
+
+function updateSocketStatus(status) {
+  const icon = document.getElementById('socketStatusIcon');
+  const text = document.getElementById('socketStatusText');
+  
+  switch (status) {
+    case 'connected':
+      icon.className = 'fas fa-plug text-2xl text-green-400';
+      text.textContent = 'Connected';
+      text.className = 'text-xs text-green-400';
+      break;
+    case 'disconnected':
+      icon.className = 'fas fa-plug text-2xl text-red-400';
+      text.textContent = 'Disconnected';
+      text.className = 'text-xs text-red-400';
+      break;
+    default:
+      icon.className = 'fas fa-plug text-2xl text-yellow-400';
+      text.textContent = 'Connecting...';
+      text.className = 'text-xs text-yellow-400';
+  }
+}
+
+function updateRecognitionStats(data) {
+  // Update recognition count
+  const countEl = document.getElementById('recognitionCount');
+  if (countEl && data.letter && data.is_stable) {
+    const current = parseInt(countEl.textContent) || 0;
+    countEl.textContent = current + 1;
+  }
+  
+  // Update accuracy rate
+  const accuracyEl = document.getElementById('accuracyRate');
+  if (accuracyEl && data.confidence) {
+    const confidence = Math.round(data.confidence * 100);
+    accuracyEl.textContent = confidence + '%';
+  }
+  
+  // Update frame rate
+  const frameRateEl = document.getElementById('currentFrameRate');
+  if (frameRateEl) {
+    frameRateEl.textContent = '6 FPS'; // Based on our 150ms interval
+  }
+}
+
+// ===== SYSTEM READINESS =====
+function showSystemStatus() {
+  const overlay = document.getElementById('systemStatusOverlay');
+  overlay.classList.remove('hidden');
+}
+
+function hideSystemStatus() {
+  const overlay = document.getElementById('systemStatusOverlay');
+  overlay.classList.add('hidden');
+}
+
+async function checkSystemReadiness() {
+  try {
+    const response = await fetch('/api/system/startup-status');
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      updateSystemStatus(result.startup);
+      
+      if (result.startup.all_ready) {
+        systemReady = true;
+        showReadyNotification();
+        if (readinessCheckInterval) {
+          clearInterval(readinessCheckInterval);
+          readinessCheckInterval = null;
+        }
+      } else {
+        if (!readinessCheckInterval) {
+          readinessCheckInterval = setInterval(checkSystemReadiness, 2000);
+        }
+      }
+    } else {
+      showSystemError(result.message || 'System check failed');
+    }
+  } catch (error) {
+    console.error('System readiness check failed:', error);
+    showSystemError('Failed to check system status');
+  }
+}
+
+function updateSystemStatus(startup) {
+  const statusIcon = document.getElementById('statusIcon');
+  const statusTitle = document.getElementById('statusTitle');
+  const statusMessage = document.getElementById('statusMessage');
+  const statusProgress = document.getElementById('statusProgress');
+  const componentStatus = document.getElementById('componentStatus');
+  const dismissBtn = document.getElementById('dismissStatusBtn');
+  
+  statusProgress.style.width = startup.overall_progress + '%';
+  
+  if (startup.all_ready) {
+    statusIcon.innerHTML = '<i class="fas fa-check-circle text-4xl text-emerald-400"></i>';
+    statusTitle.textContent = 'System Ready!';
+    statusMessage.textContent = startup.ready_message;
+    statusProgress.className = 'bg-emerald-500 h-2 rounded-full transition-all duration-500';
+    dismissBtn.classList.remove('hidden');
+  } else {
+    statusIcon.innerHTML = '<i class="fas fa-spinner fa-spin text-4xl text-blue-400"></i>';
+    statusTitle.textContent = 'Loading ISL System...';
+    statusMessage.textContent = startup.ready_message;
+    statusProgress.className = 'bg-blue-500 h-2 rounded-full transition-all duration-500';
+  }
+  
+  componentStatus.innerHTML = '';
+  if (startup.phases) {
+    startup.phases.forEach(phase => {
+      const statusItem = document.createElement('div');
+      statusItem.className = 'flex items-center justify-between text-sm';
+      
+      let iconClass, textClass;
+      if (phase.status === 'completed') {
+        iconClass = 'fas fa-check-circle text-emerald-400';
+        textClass = 'text-emerald-300';
+      } else if (phase.status === 'loading') {
+        iconClass = 'fas fa-spinner fa-spin text-blue-400';
+        textClass = 'text-blue-300';
+      } else {
+        iconClass = 'fas fa-exclamation-circle text-red-400';
+        textClass = 'text-red-300';
+      }
+      
+      statusItem.innerHTML = `
+        <div class="flex items-center gap-2">
+          <i class="${iconClass}"></i>
+          <span class="${textClass}">${phase.name}</span>
+        </div>
+        <span class="text-slate-400">${phase.progress}%</span>
+      `;
+      
+      componentStatus.appendChild(statusItem);
+    });
+  }
+}
+
+function showSystemError(message) {
+  const statusIcon = document.getElementById('statusIcon');
+  const statusTitle = document.getElementById('statusTitle');
+  const statusMessage = document.getElementById('statusMessage');
+  const statusProgress = document.getElementById('statusProgress');
+  
+  statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle text-4xl text-red-400"></i>';
+  statusTitle.textContent = 'System Error';
+  statusMessage.textContent = message;
+  statusProgress.style.width = '0%';
+  statusProgress.className = 'bg-red-500 h-2 rounded-full transition-all duration-500';
+}
+
+function showReadyNotification() {
+  setTimeout(() => {
+    showNotification('🎉 ISL Recognition System Ready! You can now start signing.', 'success');
+    
+    setTimeout(() => {
+      hideSystemStatus();
+    }, 3000);
+  }, 1000);
+}
+
+// ===== UTILITY FUNCTIONS =====
+function showNotification(message, type = 'info', duration = 5000) {
+  const notification = document.createElement('div');
+  
+  let bgColor, borderColor, iconClass;
+  switch (type) {
+    case 'success':
+      bgColor = 'bg-emerald-600';
+      borderColor = 'border-emerald-500';
+      iconClass = 'fas fa-check-circle';
+      break;
+    case 'error':
+      bgColor = 'bg-red-600';
+      borderColor = 'border-red-500';
+      iconClass = 'fas fa-exclamation-circle';
+      break;
+    case 'warning':
+      bgColor = 'bg-orange-600';
+      borderColor = 'border-orange-500';
+      iconClass = 'fas fa-exclamation-triangle';
+      break;
+    default:
+      bgColor = 'bg-blue-600';
+      borderColor = 'border-blue-500';
+      iconClass = 'fas fa-info-circle';
+  }
+  
+  notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${bgColor} ${borderColor} border-2 text-white max-w-md transform transition-all duration-300 translate-x-full`;
+  notification.innerHTML = `
+    <div class="flex items-start gap-3">
+      <i class="${iconClass} text-xl mt-1"></i>
+      <div class="flex-1">
+        <div class="font-semibold mb-1">ISL System</div>
+        <div class="text-sm opacity-90">${message}</div>
+      </div>
+      <button class="ml-2 text-white/70 hover:text-white" onclick="this.parentElement.parentElement.remove()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.transform = 'translateX(0)';
+  }, 100);
+  
+  setTimeout(() => {
+    notification.style.transform = 'translateX(100%)';
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.remove();
+      }
+    }, 300);
+  }, duration);
+}
+
+// ===== EVENT LISTENERS =====
+startBtn.addEventListener('click', async () => {
+  if (!systemReady) {
+    showNotification('⏳ System is still loading. Please wait for all components to be ready.', 'warning');
+    showSystemStatus();
+    checkSystemReadiness();
+    return false;
+  }
+  
+  if (await startWebcam()) {
+    isRunning = true;
+    startBtn.classList.add('hidden');
+    stopBtn.classList.remove('hidden');
+    
+    const cameraStatus = document.getElementById('cameraStatus');
+    cameraStatus.className = 'status-badge status-active';
+    cameraStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-current animate-pulse"></span><span>Recording</span>';
+    
+    const recognitionStatus = document.getElementById('recognitionStatus');
+    recognitionStatus.className = 'status-badge status-active';
+    recognitionStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-current animate-pulse"></span><span>Active</span>';
+    
+    frameInterval = setInterval(captureAndPredict, 150);
+    
+    showNotification('🤲 ISL Recognition started! Begin signing to see real-time translation.', 'success');
+  }
+});
+
+stopBtn.addEventListener('click', () => {
+  isRunning = false;
+  stopWebcam();
+  clearInterval(frameInterval);
+  
+  startBtn.classList.remove('hidden');
+  stopBtn.classList.add('hidden');
+  
+  const cameraStatus = document.getElementById('cameraStatus');
+  cameraStatus.className = 'status-badge status-idle';
+  cameraStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-current"></span><span>Stopped</span>';
+  
+  const recognitionStatus = document.getElementById('recognitionStatus');
+  recognitionStatus.className = 'status-badge status-idle';
+  recognitionStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-current"></span><span>Waiting</span>';
+  
+  cameraInfo.textContent = 'Camera stopped';
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  showNotification('ISL Recognition stopped', 'info');
+});
+
+// Text controls
+document.getElementById('clearBtn').addEventListener('click', () => {
+  socket.emit('isl_clear_text');
+});
+
+document.getElementById('backspaceBtn').addEventListener('click', () => {
+  socket.emit('isl_backspace');
+});
+
+document.getElementById('spaceBtn').addEventListener('click', () => {
+  socket.emit('isl_add_space');
+});
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+  navigator.clipboard.writeText(recognizedText).then(() => {
+    showNotification('Text copied to clipboard!', 'success');
+  });
+});
+
+document.getElementById('completeWordBtn').addEventListener('click', () => {
+  socket.emit('isl_force_word');
+});
+
+// Camera controls
+cameraSelect.addEventListener('change', (e) => {
+  selectedCameraId = e.target.value;
+  const selectedOption = e.target.options[e.target.selectedIndex];
+  if (selectedOption) {
+    cameraInfo.textContent = selectedOption.textContent;
+  }
+});
+
+// Enhanced refresh cameras with loading state
+document.getElementById('refreshCameras').addEventListener('click', async () => {
+  const refreshBtn = document.getElementById('refreshCameras');
+  const originalContent = refreshBtn.innerHTML;
+  
+  try {
+    // Show loading state
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    refreshBtn.disabled = true;
+    
+    // Add a small delay to show loading state
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Refresh cameras
+    const cameras = await enumerateCameras();
+    
+    if (cameras.length > 0) {
+      showNotification(`Found ${cameras.length} camera${cameras.length > 1 ? 's' : ''}`, 'success');
+    } else {
+      showNotification('No cameras found. Please check your camera connections.', 'warning');
+    }
+    
+  } catch (error) {
+    console.error('Camera refresh error:', error);
+    showNotification('Failed to refresh cameras: ' + error.message, 'error');
+  } finally {
+    // Restore button state
+    refreshBtn.innerHTML = originalContent;
+    refreshBtn.disabled = false;
+  }
+});
+
+// Enhanced system status controls
+document.getElementById('dismissStatusBtn').addEventListener('click', () => {
+  hideSystemStatus();
+  showNotification('ISL Recognition System is ready! Select a camera and click "Start Recognition" to begin.', 'info');
+});
+
+// System restart functionality
+document.getElementById('systemRestartBtn').addEventListener('click', async () => {
+  const restartBtn = document.getElementById('systemRestartBtn');
+  const originalContent = restartBtn.innerHTML;
+  
+  if (!confirm('Are you sure you want to restart the ISL system? This will stop any active recognition.')) {
+    return;
+  }
+  
+  try {
+    // Show loading state
+    restartBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Restarting...';
+    restartBtn.disabled = true;
+    
+    // Stop current recognition if running
+    if (isRunning) {
+      stopBtn.click();
+    }
+    
+    // Reset system state
+    systemReady = false;
+    
+    // Clear displays
+    currentLetter.textContent = '-';
+    confidenceBar.style.width = '0%';
+    confidenceText.textContent = '0% confidence';
+    textOutput.innerHTML = '<span class="text-slate-500 italic">Start recognition to see text here...</span>';
+    
+    // Show system status overlay
+    showSystemStatus();
+    
+    // Restart system check
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    checkSystemReadiness();
+    
+    showNotification('System restart initiated', 'info');
+    
+  } catch (error) {
+    console.error('System restart error:', error);
+    showNotification('Failed to restart system: ' + error.message, 'error');
+  } finally {
+    // Restore button state after delay
+    setTimeout(() => {
+      restartBtn.innerHTML = originalContent;
+      restartBtn.disabled = false;
+    }, 3000);
+  }
+});
+
+// Enhanced translation event listeners
+document.getElementById('refreshTranslationBtn').addEventListener('click', refreshTranslations);
+document.getElementById('exportTranscriptBtn').addEventListener('click', exportTranscript);
+document.getElementById('clearTranslationBtn').addEventListener('click', clearTranslationHistory);
+
+// Practice mode functionality
+document.getElementById('practiceMode').addEventListener('click', () => {
+  practiceMode = !practiceMode;
+  const btn = document.getElementById('practiceMode');
+  
+  if (practiceMode) {
+    btn.innerHTML = '<i class="fas fa-stop mr-1"></i>Stop Practice';
+    btn.className = 'btn btn-danger';
+    showNotification('Practice Mode ON: Click any letter to practice!', 'success');
+  } else {
+    btn.innerHTML = '<i class="fas fa-graduation-cap mr-1"></i>Practice Mode';
+    btn.className = 'btn btn-secondary';
+    practiceTarget = null;
+    showNotification('Practice Mode OFF', 'info');
+  }
+});
+
+// Practice letter functionality
+document.querySelectorAll('.practice-letter').forEach(button => {
+  button.addEventListener('click', (e) => {
+    const letter = e.target.dataset.letter;
+    showPracticeTip(letter);
+  });
+});
+
+function showPracticeTip(letter) {
+  const tips = {
+    'A': 'Make a fist with thumb pointing up (closed fist, thumb extended)',
+    'E': 'Curl all fingers down touching thumb (fingertips touch thumb)',
+    'I': 'Hold up pinky finger only (little finger extended)',
+    'O': 'Make an O shape with thumb and index finger (circle shape)',
+    'U': 'Hold up index and middle fingers together (two fingers up)',
+    'B': 'Hold four fingers up straight, thumb across palm (flat hand, thumb tucked)',
+    'C': 'Curve fingers like holding a cup (curved hand shape)',
+    'D': 'Point index finger up, other fingers touch thumb (one finger pointing)',
+    'F': 'Touch thumb to index finger, other fingers up (OK sign with three fingers up)',
+    'G': 'Point index finger sideways, thumb up (L-shape sideways)',
+    'H': 'Hold index and middle fingers sideways (two fingers horizontal)',
+    '0': 'Make an O shape with thumb and index finger (perfect circle)',
+    '1': 'Hold up index finger only (one finger pointing up)',
+    '2': 'Hold up index and middle fingers (peace sign)',
+    '3': 'Hold up thumb, index, and middle fingers (three fingers)',
+    '4': 'Hold up four fingers, thumb folded (four fingers straight)',
+    '5': 'Hold up all five fingers spread (open hand, fingers apart)'
+  };
+  
+  const tip = tips[letter] || 'Practice this sign clearly and hold steady for 2-3 seconds';
+  
+  const notification = document.createElement('div');
+  notification.className = 'fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg bg-blue-600 text-white max-w-sm';
+  notification.innerHTML = `
+    <div class="flex items-start gap-3">
+      <div class="text-2xl font-bold">${letter}</div>
+      <div>
+        <div class="font-semibold mb-1">ISL Sign for "${letter}"</div>
+        <div class="text-sm">${tip}</div>
+        ${practiceMode ? '<div class="text-xs mt-2 text-blue-200">Practice this sign in front of the camera!</div>' : ''}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    setTimeout(() => notification.remove(), 300);
+  }, 5000);
+  
+  if (practiceMode) {
+    practiceTarget = letter;
+    practiceStartTime = Date.now();
+    showNotification(`Practice Mode: Show the sign for "${letter}"`, 'info');
+  }
+}
+
+function checkPracticeTarget(predictedLetter, isStable) {
+  if (practiceMode && practiceTarget && isStable && predictedLetter === practiceTarget) {
+    const practiceTime = (Date.now() - practiceStartTime) / 1000;
+    showNotification(`✅ Perfect! You signed "${predictedLetter}" in ${practiceTime.toFixed(1)}s`, 'success');
+    
+    setTimeout(() => {
+      const letters = ['A', 'E', 'I', 'O', 'U', 'B', 'C', 'D', 'F', 'G', '1', '2', '3', '4', '5'];
+      const currentIndex = letters.indexOf(practiceTarget);
+      const nextLetter = letters[(currentIndex + 1) % letters.length];
+      showPracticeTip(nextLetter);
+    }, 2000);
+  }
+}
+
+// ===== ENHANCED TRANSLATION FUNCTIONS =====
+function updateTranslations(translations) {
+  const englishTextEl = document.getElementById('englishText');
+  const hindiTextEl = document.getElementById('hindiText');
+  const romanHindiTextEl = document.getElementById('romanHindiText');
+  const translationStatusEl = document.getElementById('translationStatus');
+  const translationCountEl = document.getElementById('translationCount');
+  
+  if (translations.english) {
+    englishTextEl.innerHTML = `<span class="tracking-wider">${translations.english}</span>`;
+  }
+  
+  if (translations.hindi) {
+    hindiTextEl.innerHTML = `<span class="tracking-wider font-hindi">${translations.hindi}</span>`;
+  }
+  
+  if (translations.roman_hindi) {
+    romanHindiTextEl.innerHTML = `<span class="tracking-wider">${translations.roman_hindi}</span>`;
+  }
+  
+  if (translations.english && translations.english.trim()) {
+    translationStatusEl.textContent = 'Active';
+    translationStatusEl.className = 'text-emerald-400 font-semibold';
+    
+    const wordCount = translations.english.trim().split(/\s+/).length;
+    translationCountEl.textContent = wordCount;
+  } else {
+    translationStatusEl.textContent = 'Waiting';
+    translationStatusEl.className = 'text-slate-400 font-semibold';
+    translationCountEl.textContent = '0';
+  }
+}
+
+// Enhanced refresh translations with loading states
+async function refreshTranslations() {
+  const refreshBtn = document.getElementById('refreshTranslationBtn');
+  const originalContent = refreshBtn.innerHTML;
+  
+  try {
+    // Show loading state
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    refreshBtn.disabled = true;
+    
+    const response = await fetch('/api/translation/isl-auto', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        target_languages: ['hi', 'hi-rom']
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.status === 'success' && result.translations) {
+      const translations = {
+        english: result.isl_text,
+        hindi: result.translations.translations.hi?.translated_text || result.isl_text,
+        roman_hindi: result.translations.translations['hi-rom']?.translated_text || result.isl_text
+      };
+      
+      updateTranslations(translations);
+      showNotification('Translations refreshed successfully!', 'success');
+    } else {
+      throw new Error(result.message || 'Failed to refresh translations');
+    }
+  } catch (error) {
+    console.error('Translation refresh error:', error);
+    showNotification('Failed to refresh translations: ' + error.message, 'error');
+  } finally {
+    // Restore button state
+    refreshBtn.innerHTML = originalContent;
+    refreshBtn.disabled = false;
+  }
+}
+
+// Enhanced export transcript with multiple formats
+async function exportTranscript() {
+  const exportBtn = document.getElementById('exportTranscriptBtn');
+  const originalContent = exportBtn.innerHTML;
+  
+  try {
+    // Show loading state
+    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    exportBtn.disabled = true;
+    
+    // Get current format preference or default to detailed
+    const format = localStorage.getItem('transcriptFormat') || 'detailed';
+    
+    const response = await fetch('/api/translation/export', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        format: format,
+        file_format: 'txt',
+        include_timestamps: true,
+        include_confidence: true
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      // Create and download file
+      const blob = new Blob([result.export.content], { type: 'text/plain;charset=utf-8' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = result.export.filename || `isl_transcript_${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      showNotification('Transcript exported successfully!', 'success');
+      
+      // Update export statistics
+      updateExportStats();
+    } else {
+      throw new Error(result.message || 'Export failed');
+    }
+  } catch (error) {
+    console.error('Export error:', error);
+    showNotification('Failed to export transcript: ' + error.message, 'error');
+  } finally {
+    // Restore button state
+    exportBtn.innerHTML = originalContent;
+    exportBtn.disabled = false;
+  }
+}
+
+// Enhanced clear translation history with confirmation
+async function clearTranslationHistory() {
+  const clearBtn = document.getElementById('clearTranslationBtn');
+  const originalContent = clearBtn.innerHTML;
+  
+  // Show confirmation dialog
+  if (!confirm('Are you sure you want to clear all translation history? This action cannot be undone.')) {
+    return;
+  }
+  
+  try {
+    // Show loading state
+    clearBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    clearBtn.disabled = true;
+    
+    const response = await fetch('/api/translation/clear', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      // Clear displays with animation
+      const elements = [
+        { id: 'englishText', placeholder: '🇺🇸 English text will appear here...' },
+        { id: 'hindiText', placeholder: '🇮🇳 हिंदी अनुवाद यहाँ दिखेगा...' },
+        { id: 'romanHindiText', placeholder: '🌐 Roman Hindi text will appear here...' }
+      ];
+      
+      elements.forEach(({ id, placeholder }) => {
+        const element = document.getElementById(id);
+        element.style.opacity = '0';
+        setTimeout(() => {
+          element.innerHTML = `<span class="text-slate-500 italic">${placeholder}</span>`;
+          element.style.opacity = '1';
+        }, 200);
+      });
+      
+      // Reset counters
+      document.getElementById('translationStatus').textContent = 'Ready';
+      document.getElementById('translationStatus').className = 'text-slate-400 font-semibold';
+      document.getElementById('translationCount').textContent = '0';
+      
+      showNotification('Translation history cleared successfully!', 'success');
+      
+      // Update clear statistics
+      updateClearStats();
+    } else {
+      throw new Error(result.message || 'Clear operation failed');
+    }
+  } catch (error) {
+    console.error('Clear history error:', error);
+    showNotification('Failed to clear history: ' + error.message, 'error');
+  } finally {
+    // Restore button state
+    clearBtn.innerHTML = originalContent;
+    clearBtn.disabled = false;
+  }
+}
+
+// Auto-refresh translations with smart intervals
+let autoRefreshInterval = null;
+let autoRefreshEnabled = false;
+
+function toggleAutoRefresh() {
+  autoRefreshEnabled = !autoRefreshEnabled;
+  
+  if (autoRefreshEnabled) {
+    // Start auto-refresh every 5 seconds when recognition is active
+    autoRefreshInterval = setInterval(() => {
+      if (isRunning && recognizedText && recognizedText.trim()) {
+        refreshTranslations();
+      }
+    }, 5000);
+    
+    showNotification('Auto-refresh enabled', 'info');
+  } else {
+    // Stop auto-refresh
+    if (autoRefreshInterval) {
+      clearInterval(autoRefreshInterval);
+      autoRefreshInterval = null;
+    }
+    
+    showNotification('Auto-refresh disabled', 'info');
+  }
+}
+
+// Update export statistics
+function updateExportStats() {
+  const exports = parseInt(localStorage.getItem('isl_exports') || '0') + 1;
+  localStorage.setItem('isl_exports', exports);
+}
+
+// Update clear statistics
+function updateClearStats() {
+  const clears = parseInt(localStorage.getItem('isl_clears') || '0') + 1;
+  localStorage.setItem('isl_clears', clears);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.code === 'Space') {
+    e.preventDefault();
+    if (isRunning) {
+      stopBtn.click();
+    } else {
+      startBtn.click();
+    }
+  }
+  
+  if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !window.getSelection().toString()) {
+    e.preventDefault();
+    const copyBtn = document.getElementById('copyBtn');
+    if (copyBtn) {
+      copyBtn.click();
+    }
+  }
+});
+
+// Show keyboard shortcuts on first visit
+if (!localStorage.getItem('islKeyboardShortcutsShown')) {
+  setTimeout(() => {
+    showNotification('💡 Tip: Use Ctrl+Space to start/stop recognition, Ctrl+C to copy text!', 'info', 8000);
+    localStorage.setItem('islKeyboardShortcutsShown', 'true');
+  }, 3000);
+}
+</script>

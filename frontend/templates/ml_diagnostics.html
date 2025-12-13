@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ML Diagnostics — VediSpeak</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-1: #0b1220;
+      --card: #0f1724;
+      --accent: #b9834a;
+      --muted: #98a0a6;
+    }
+    
+    body {
+      background: linear-gradient(180deg, var(--bg-1) 0%, #07101a 100%);
+      color: #e6eef6;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto;
+    }
+    
+    .glass {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px);
+      border-radius: 14px;
+    }
+    
+    .status-good { color: #10b981; }
+    .status-warning { color: #f59e0b; }
+    .status-error { color: #ef4444; }
+    
+    .diagnostic-item {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen antialiased">
+  {% include 'components/navigation.html' %}
+  
+  <div class="max-w-6xl mx-auto px-6 py-8">
+    <!-- Header -->
+    <div class="glass p-6 mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-4">
+          <a href="{{ url_for('pages.dashboard') }}" class="p-2 rounded-lg glass hover:bg-white/10 transition">
+            <i class="fas fa-arrow-left"></i>
+          </a>
+          <div>
+            <h1 class="text-2xl font-bold text-white">ML System Diagnostics</h1>
+            <p class="text-slate-400 text-sm">Check the status of the ISL recognition system</p>
+          </div>
+        </div>
+        
+        <button onclick="runDiagnostics()" class="px-4 py-2 bg-accent text-black font-semibold rounded-lg hover:bg-accent/80 transition">
+          <i class="fas fa-sync mr-2"></i>Refresh
+        </button>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+      <!-- System Status -->
+      <div class="glass p-6">
+        <h2 class="text-xl font-semibold text-white mb-6">System Status</h2>
+        
+        <div id="systemStatus" class="space-y-4">
+          <div class="diagnostic-item">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-300">Loading diagnostics...</span>
+              <i class="fas fa-spinner fa-spin text-accent"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model Information -->
+      <div class="glass p-6">
+        <h2 class="text-xl font-semibold text-white mb-6">Model Information</h2>
+        
+        <div id="modelInfo" class="space-y-4">
+          <div class="diagnostic-item">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-300">Loading model info...</span>
+              <i class="fas fa-spinner fa-spin text-accent"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dependencies -->
+      <div class="glass p-6">
+        <h2 class="text-xl font-semibold text-white mb-6">Dependencies</h2>
+        
+        <div id="dependencies" class="space-y-4">
+          <div class="diagnostic-item">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-300">Checking dependencies...</span>
+              <i class="fas fa-spinner fa-spin text-accent"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- File Status -->
+      <div class="glass p-6">
+        <h2 class="text-xl font-semibold text-white mb-6">Model Files</h2>
+        
+        <div id="fileStatus" class="space-y-4">
+          <div class="diagnostic-item">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-300">Checking files...</span>
+              <i class="fas fa-spinner fa-spin text-accent"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="glass p-6 mt-8">
+      <h2 class="text-xl font-semibold text-white mb-6">Quick Actions</h2>
+      
+      <div class="grid md:grid-cols-4 gap-4">
+        <button onclick="testISLStatus()" class="p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition">
+          <i class="fas fa-heartbeat text-2xl mb-2"></i>
+          <div class="font-semibold">Test ISL Status</div>
+        </button>
+        
+        <button onclick="getClasses()" class="p-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition">
+          <i class="fas fa-list text-2xl mb-2"></i>
+          <div class="font-semibold">Get Classes</div>
+        </button>
+        
+        <button onclick="getPerformance()" class="p-4 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition">
+          <i class="fas fa-chart-line text-2xl mb-2"></i>
+          <div class="font-semibold">Performance</div>
+        </button>
+        
+        <button onclick="testPrediction()" class="p-4 bg-orange-600 text-white rounded-lg hover:bg-orange-500 transition">
+          <i class="fas fa-brain text-2xl mb-2"></i>
+          <div class="font-semibold">Test Prediction</div>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Live Performance Monitor -->
+    <div class="glass p-6 mt-8">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-semibold text-white">Live Performance Monitor</h2>
+        <button onclick="toggleMonitoring()" id="monitorBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition">
+          <i class="fas fa-play mr-2"></i>Start Monitoring
+        </button>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-slate-800/50 p-4 rounded-lg">
+          <div class="text-sm text-slate-400 mb-1">Processing Time</div>
+          <div id="processingTime" class="text-2xl font-bold text-blue-400">0ms</div>
+        </div>
+        <div class="bg-slate-800/50 p-4 rounded-lg">
+          <div class="text-sm text-slate-400 mb-1">Frames Processed</div>
+          <div id="framesProcessed" class="text-2xl font-bold text-emerald-400">0</div>
+        </div>
+        <div class="bg-slate-800/50 p-4 rounded-lg">
+          <div class="text-sm text-slate-400 mb-1">System Status</div>
+          <div id="systemStatus" class="text-2xl font-bold text-green-400">Ready</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="glass p-6 mt-8 hidden">
+      <h2 class="text-xl font-semibold text-white mb-6">Test Results</h2>
+      <pre id="resultContent" class="text-sm text-slate-300 bg-slate-800/50 p-4 rounded-lg overflow-auto"></pre>
+    </div>
+  </div>
+
+  <script>
+    async function runDiagnostics() {
+      try {
+        const response = await fetch('/api/isl/diagnostics');
+        const data = await response.json();
+        
+        displaySystemStatus(data.system);
+        displayModelInfo(data.model);
+        displayDependencies(data.dependencies);
+        displayFileStatus(data.files);
+        
+      } catch (error) {
+        console.error('Diagnostics failed:', error);
+        showError('Failed to load diagnostics');
+      }
+    }
+    
+    function displaySystemStatus(system) {
+      const container = document.getElementById('systemStatus');
+      container.innerHTML = `
+        <div class="diagnostic-item">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Python Version</span>
+            <span class="text-white">${system.python_version.split(' ')[0]}</span>
+          </div>
+        </div>
+        <div class="diagnostic-item">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Platform</span>
+            <span class="text-white">${system.platform}</span>
+          </div>
+        </div>
+        <div class="diagnostic-item">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Working Directory</span>
+            <span class="text-white text-xs">${system.working_directory}</span>
+          </div>
+        </div>
+      `;
+    }
+    
+    function displayModelInfo(model) {
+      const container = document.getElementById('modelInfo');
+      const statusClass = model.loaded ? 'status-good' : 'status-error';
+      const statusIcon = model.loaded ? 'fa-check-circle' : 'fa-times-circle';
+      
+      container.innerHTML = `
+        <div class="diagnostic-item">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Model Loaded</span>
+            <span class="${statusClass}">
+              <i class="fas ${statusIcon} mr-2"></i>
+              ${model.loaded ? 'Yes' : 'No'}
+            </span>
+          </div>
+        </div>
+        <div class="diagnostic-item">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Device</span>
+            <span class="text-white">${model.device || 'Unknown'}</span>
+          </div>
+        </div>
+        <div class="diagnostic-item">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Classes</span>
+            <span class="text-white">${model.classes_count || 0}</span>
+          </div>
+        </div>
+        <div class="diagnostic-item">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">MediaPipe</span>
+            <span class="${model.mediapipe_available ? 'status-good' : 'status-error'}">
+              <i class="fas ${model.mediapipe_available ? 'fa-check-circle' : 'fa-times-circle'} mr-2"></i>
+              ${model.mediapipe_available ? 'Available' : 'Not Available'}
+            </span>
+          </div>
+        </div>
+      `;
+    }
+    
+    function displayDependencies(deps) {
+      const container = document.getElementById('dependencies');
+      let html = '';
+      
+      Object.entries(deps).forEach(([name, info]) => {
+        const hasError = info.error;
+        const statusClass = hasError ? 'status-error' : 'status-good';
+        const statusIcon = hasError ? 'fa-times-circle' : 'fa-check-circle';
+        
+        html += `
+          <div class="diagnostic-item">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-300 capitalize">${name}</span>
+              <span class="${statusClass}">
+                <i class="fas ${statusIcon} mr-2"></i>
+                ${hasError ? 'Error' : (info.version || 'OK')}
+              </span>
+            </div>
+            ${hasError ? `<div class="text-xs text-red-400 mt-1">${info.error}</div>` : ''}
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+    
+    function displayFileStatus(files) {
+      const container = document.getElementById('fileStatus');
+      let html = '';
+      
+      Object.entries(files).forEach(([path, info]) => {
+        const statusClass = info.exists ? 'status-good' : 'status-error';
+        const statusIcon = info.exists ? 'fa-check-circle' : 'fa-times-circle';
+        
+        html += `
+          <div class="diagnostic-item">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-300 text-sm">${path}</span>
+              <span class="${statusClass}">
+                <i class="fas ${statusIcon} mr-2"></i>
+                ${info.exists ? `${info.size_mb}MB` : 'Missing'}
+              </span>
+            </div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+    
+    async function testISLStatus() {
+      try {
+        const response = await fetch('/api/isl/status');
+        const data = await response.json();
+        showResults('ISL Status', data);
+      } catch (error) {
+        showResults('ISL Status Error', { error: error.message });
+      }
+    }
+    
+    async function getClasses() {
+      try {
+        const response = await fetch('/api/isl/classes');
+        const data = await response.json();
+        showResults('ISL Classes', data);
+      } catch (error) {
+        showResults('Classes Error', { error: error.message });
+      }
+    }
+    
+    async function getPerformance() {
+      try {
+        const response = await fetch('/api/isl/performance');
+        const data = await response.json();
+        showResults('Performance Metrics', data);
+      } catch (error) {
+        showResults('Performance Error', { error: error.message });
+      }
+    }
+    
+    function showResults(title, data) {
+      const resultsDiv = document.getElementById('results');
+      const contentDiv = document.getElementById('resultContent');
+      
+      contentDiv.textContent = `${title}:\n\n${JSON.stringify(data, null, 2)}`;
+      resultsDiv.classList.remove('hidden');
+    }
+    
+    function showError(message) {
+      const containers = ['systemStatus', 'modelInfo', 'dependencies', 'fileStatus'];
+      containers.forEach(id => {
+        document.getElementById(id).innerHTML = `
+          <div class="diagnostic-item">
+            <div class="flex items-center justify-between">
+              <span class="text-red-400">${message}</span>
+              <i class="fas fa-exclamation-triangle text-red-400"></i>
+            </div>
+          </div>
+        `;
+      });
+    }
+    
+    async function testPrediction() {
+      try {
+        // Create a simple test image (base64 encoded 1x1 pixel)
+        const testImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA60e6kgAAAABJRU5ErkJggg==';
+        
+        const response = await fetch('/api/isl/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ image: testImage })
+        });
+        
+        const data = await response.json();
+        showResults('Prediction Test', data);
+      } catch (error) {
+        showResults('Prediction Test Error', { error: error.message });
+      }
+    }
+    
+    let monitoringInterval = null;
+    let isMonitoring = false;
+    
+    function toggleMonitoring() {
+      const btn = document.getElementById('monitorBtn');
+      
+      if (isMonitoring) {
+        // Stop monitoring
+        clearInterval(monitoringInterval);
+        isMonitoring = false;
+        btn.innerHTML = '<i class="fas fa-play mr-2"></i>Start Monitoring';
+        btn.className = 'px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition';
+      } else {
+        // Start monitoring
+        isMonitoring = true;
+        btn.innerHTML = '<i class="fas fa-stop mr-2"></i>Stop Monitoring';
+        btn.className = 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition';
+        
+        monitoringInterval = setInterval(updatePerformanceMetrics, 2000);
+        updatePerformanceMetrics(); // Initial update
+      }
+    }
+    
+    async function updatePerformanceMetrics() {
+      try {
+        const response = await fetch('/api/isl/status');
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.model_info) {
+          const info = data.model_info;
+          
+          document.getElementById('processingTime').textContent = 
+            `${(info.avg_processing_time * 1000).toFixed(1)}ms`;
+          document.getElementById('framesProcessed').textContent = 
+            info.frames_processed || 0;
+          document.getElementById('systemStatus').textContent = 
+            info.model_loaded ? 'Running' : 'Stopped';
+          document.getElementById('systemStatus').className = 
+            `text-2xl font-bold ${info.model_loaded ? 'text-green-400' : 'text-red-400'}`;
+        }
+      } catch (error) {
+        console.error('Failed to update performance metrics:', error);
+        document.getElementById('systemStatus').textContent = 'Error';
+        document.getElementById('systemStatus').className = 'text-2xl font-bold text-red-400';
+      }
+    }
+    
+    // Run diagnostics on page load
+    document.addEventListener('DOMContentLoaded', runDiagnostics);
+  </script>
+</body>
+</html>

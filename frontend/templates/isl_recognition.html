@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ISL Recognition Tool — VediSpeak</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Socket.IO -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+
+  <style>
+    :root{
+      --bg-1:#0b1220;
+      --card:#0f1724;
+      --accent:#b9834a;
+      --muted:#98a0a6;
+      --primary: #10b981;
+      --secondary: #3b82f6;
+      --warning: #f59e0b;
+      --error: #ef4444;
+    }
+
+    body{ 
+      background: linear-gradient(180deg,var(--bg-1) 0%, #07101a 100%);
+      color:#e6eef6;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px);
+      border-radius: 14px;
+    }
+
+    .mandala {
+      opacity: 0.06;
+      filter: blur(0.6px);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 600ms ease, transform 600ms ease;
+      will-change: transform, opacity;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .parallax {
+      transform: translateY(0);
+      transition: transform 0.2s linear;
+      will-change: transform;
+    }
+
+    .component-card {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .component-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(185,131,74,0.15);
+    }
+
+    .component-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(185,131,74,0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .component-card:hover::before {
+      left: 100%;
+    }
+
+    .status-badge {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-idle {
+      background: rgba(148, 163, 184, 0.2);
+      color: #94a3b8;
+      border-color: rgba(148, 163, 184, 0.3);
+    }
+
+    .status-active {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--primary);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .status-processing {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .btn {
+      background: linear-gradient(90deg, rgba(185,131,74,0.12), rgba(185,131,74,0.06));
+      border: 1px solid rgba(185,131,74,0.22);
+      color: var(--accent);
+      padding: .6rem 1.05rem;
+      border-radius: 999px;
+      font-weight: 600;
+      display:inline-flex;
+      gap:.6rem;
+      align-items:center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: linear-gradient(90deg, rgba(185,131,74,0.18), rgba(185,131,74,0.12));
+      border-color: rgba(185,131,74,0.35);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #059669);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #059669, #047857);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--secondary), #1d4ed8);
+      color: white;
+      border-color: var(--secondary);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--error), #dc2626);
+      color: white;
+      border-color: var(--error);
+    }
+
+    .camera-container {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #1e293b;
+      border: 2px solid rgba(148, 163, 184, 0.2);
+      aspect-ratio: 16/9;
+    }
+
+    #webcamVideo {
+      transform: scaleX(-1);
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .prediction-display {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05));
+      border: 2px solid rgba(16, 185, 129, 0.3);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .sign-letter {
+      font-size: 5rem;
+      font-weight: 900;
+      color: var(--primary);
+      text-shadow: 0 0 40px rgba(16, 185, 129, 0.5);
+      line-height: 1;
+      margin: 1rem 0;
+    }
+
+    .confidence-meter {
+      height: 8px;
+      background: rgba(148, 163, 184, 0.2);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+
+    .confidence-progress {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 4px;
+    }
+
+    .hand-indicator {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.9);
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .camera-info {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #e2e8f0;
+      font-size: 0.875rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .text-output {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 16px;
+      padding: 2rem;
+      min-height: 200px;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    .floating-element {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #b9834a, #d4a574);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .practice-letter {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .practice-letter:hover {
+      transform: scale(1.1) rotate(3deg);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Hindi font styling */
+    .font-hindi {
+      font-family: 'Noto Sans Devanagari', 'Mangal', 'Kruti Dev 010', sans-serif;
+      font-size: 1.1em;
+      line-height: 1.6;
+    }
+
+    a:focus, button:focus { outline: 3px solid rgba(185,131,74,0.14); outline-offset: 4px; }
+  </style>
+</head>
+<body class="min-h-screen antialiased">
+
+  <!-- Navigation -->
+  {% include 'components/navigation.html' %}
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="relative overflow-hidden py-20">
+    <!-- decorative mandala top-left -->
+    <svg class="absolute -left-28 -top-28 w-96 h-96 mandala parallax" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <g fill="none" stroke="#b8834a">
+        <circle cx="100" cy="100" r="36" stroke-opacity="0.12"></circle>
+        <path d="M100 0 L110 40 L140 60 L110 80 L100 120 L90 80 L60 60 L90 40 Z" stroke-opacity="0.08"></path>
+      </g>
+    </svg>
+
+    <!-- floating elements -->
+    <div class="absolute top-20 right-20 w-4 h-4 bg-emerald-400/20 rounded-full floating-element"></div>
+    <div class="absolute top-40 right-40 w-2 h-2 bg-emerald-400/30 rounded-full floating-element" style="animation-delay: -2s;"></div>
+    <div class="absolute bottom-40 left-20 w-3 h-3 bg-emerald-400/25 rounded-full floating-element" style="animation-delay: -4s;"></div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      <!-- Hero Content -->
+      <div class="text-center mb-16 reveal">
+        <p class="text-emerald-300 text-lg font-serif italic mb-4">"हस्त मुद्रा से संवाद" — Communication through hand gestures</p>
+        <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6">
+          <span class="gradient-text">ISL</span> <span class="text-white">Recognition</span>
+        </h1>
+        <p class="text-slate-300 text-xl max-w-3xl mx-auto mb-8">
+          Revolutionary Indian Sign Language recognition using advanced computer vision and machine learning 
+          for real-time hand gesture detection and translation.
+        </p>
+        
+        <!-- Quick Stats -->
+        <div class="stats-grid max-w-2xl mx-auto mb-8">
+          <div class="stat-item">
+            <div class="text-2xl font-bold text-emerald-400">26+</div>
+            <div class="text-sm text-slate-400">ISL Letters</div>
+          </div>
+          <div class="stat-item">
+            <div class="text-2xl font-bold text-blue-400">Real-time</div>
+            <div class="text-sm text-slate-400">Recognition</div>
+          </div>
+          <div class="stat-item">
+            <div class="text-2xl font-bold text-purple-400">AI-Powered</div>
+            <div class="text-sm text-slate-400">ML Engine</div>
+          </div>
+          <div class="stat-item">
+            <div class="text-2xl font-bold text-amber-400">Multi-cam</div>
+            <div class="text-sm text-slate-400">Support</div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-4 items-center justify-center">
+          <button id="quickStartBtn" class="btn btn-primary text-lg px-8 py-3">
+            <i class="fa-solid fa-play"></i> Quick Start
+          </button>
+          <a href="{{ url_for('pages.learn') }}" class="text-slate-300 hover:text-white transition flex items-center gap-2">
+            <i class="fa-solid fa-graduation-cap text-[--muted]"></i> Learn ISL
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MAIN INTERFACE SECTION ===== -->
+  <section class="py-20 bg-[rgba(255,255,255,0.01)]">
+    <div class="max-w-7xl mx-auto px-6">
+      
+      <!-- Camera & Recognition Components -->
+      <div class="grid lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- Camera Component -->
+        {% include 'components/isl_camera.html' %}
+        
+        <!-- Recognition Display Component -->
+        {% include 'components/isl_recognition_display.html' %}
+        
+      </div>
+
+      <!-- Text Output Component -->
+      {% include 'components/isl_text_output.html' %}
+
+      <!-- Translation & Learning Components -->
+      <div class="grid lg:grid-cols-2 gap-8 mt-8">
+        
+        <!-- Multi-Language Translation Component -->
+        {% include 'components/isl_translation.html' %}
+        
+        <!-- ISL Learning Academy Component -->
+        {% include 'components/isl_learning.html' %}
+        
+      </div>
+
+      <!-- System Status & Controls -->
+      {% include 'components/isl_system_status.html' %}
+
+    </div>
+  </section>
+
+  <!-- ===== FEATURES SECTION ===== -->
+  <section class="py-20">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16 reveal">
+        <h2 class="text-4xl font-bold text-white mb-4">ISL Recognition Features</h2>
+        <p class="text-slate-400 text-lg max-w-3xl mx-auto">
+          Advanced features designed to make Indian Sign Language recognition accurate, 
+          accessible, and educational for everyone.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Real-time Recognition -->
+        <div class="glass p-8 text-center reveal component-card">
+          <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-video text-3xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Real-time Detection</h3>
+          <p class="text-slate-400">
+            Instant hand gesture recognition with live camera feed processing at 30+ FPS for smooth interaction.
+          </p>
+        </div>
+
+        <!-- Multi-camera Support -->
+        <div class="glass p-8 text-center reveal component-card">
+          <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-camera text-3xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Multi-Camera Support</h3>
+          <p class="text-slate-400">
+            Switch between multiple cameras seamlessly with automatic device detection and selection.
+          </p>
+        </div>
+
+        <!-- ISL Learning -->
+        <div class="glass p-8 text-center reveal component-card">
+          <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-graduation-cap text-3xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Interactive Learning</h3>
+          <p class="text-slate-400">
+            Built-in ISL alphabet learning with practice modes, tips, and real-time feedback for improvement.
+          </p>
+        </div>
+
+        <!-- Translation -->
+        <div class="glass p-8 text-center reveal component-card">
+          <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-language text-3xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Multi-Language Output</h3>
+          <p class="text-slate-400">
+            Translate recognized signs to English, Hindi (Devanagari), and Roman Hindi for comprehensive communication.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS SECTION ===== -->
+  <section id="how-it-works" class="py-20 bg-[rgba(255,255,255,0.01)]">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16 reveal">
+        <h2 class="text-4xl font-bold text-white mb-4">How ISL Recognition Works</h2>
+        <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+          Simple steps to start using our advanced ISL recognition system.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-4 gap-8">
+        <!-- Step 1 -->
+        <div class="text-center reveal">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-black">
+            1
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Select Camera</h3>
+          <p class="text-slate-400">
+            Choose your preferred camera from available devices and grant camera permissions.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="text-center reveal">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-black">
+            2
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Start Recognition</h3>
+          <p class="text-slate-400">
+            Click start and position your hands in front of the camera for optimal detection.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="text-center reveal">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-black">
+            3
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Sign Letters</h3>
+          <p class="text-slate-400">
+            Perform ISL alphabet signs clearly and hold steady for accurate recognition.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="text-center reveal">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-black">
+            4
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-4">Get Translation</h3>
+          <p class="text-slate-400">
+            View real-time text output and multi-language translations of your signs.
+          </p>
+        </div>
+      </div>
+
+      <!-- CTA Section -->
+      <div class="text-center mt-16 reveal">
+        <div class="glass p-8 rounded-2xl max-w-2xl mx-auto">
+          <h3 class="text-2xl font-bold text-white mb-4">Ready to Start Signing?</h3>
+          <p class="text-slate-400 mb-6">
+            Experience the future of sign language communication with our AI-powered ISL recognition system.
+          </p>
+          <div class="flex flex-wrap gap-4 justify-center">
+            <button id="startRecognitionBtn" class="btn btn-primary text-lg px-8 py-3">
+              <i class="fa-solid fa-hand-paper"></i> Start ISL Recognition
+            </button>
+            <a href="{{ url_for('pages.learn') }}" class="btn text-lg px-8 py-3">
+              <i class="fa-solid fa-book mr-2"></i> Learn ISL Alphabet
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Include JavaScript Components -->
+  {% include 'components/isl_scripts.html' %}
+
+  <script>
+    // Reveal on scroll with staggered animation
+    const io = new IntersectionObserver(entries => {
+      entries.forEach((e, index) => {
+        if(e.isIntersecting){
+          setTimeout(() => {
+            e.target.classList.add('visible');
+          }, index * 100); // Stagger the animations
+          io.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.12});
+    
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // Enhanced parallax with smooth scrolling
+    const parallaxEls = document.querySelectorAll('.parallax');
+    let ticking = false;
+    
+    function updateParallax() {
+      const scrolled = window.scrollY;
+      parallaxEls.forEach((el, i) => {
+        const modifier = 0.15 + (i * 0.03);
+        el.style.transform = `translateY(${scrolled * modifier * 0.02}px)`;
+      });
+      ticking = false;
+    }
+    
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    }, {passive: true});
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    // Quick start functionality
+    document.getElementById('quickStartBtn').addEventListener('click', () => {
+      document.querySelector('#camera-section').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+      // Auto-start camera after scroll
+      setTimeout(() => {
+        const startBtn = document.getElementById('startBtn');
+        if (startBtn && !startBtn.classList.contains('hidden')) {
+          startBtn.click();
+        }
+      }, 1000);
+    });
+
+    // Start recognition button
+    document.getElementById('startRecognitionBtn').addEventListener('click', () => {
+      document.querySelector('#camera-section').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+      setTimeout(() => {
+        const startBtn = document.getElementById('startBtn');
+        if (startBtn && !startBtn.classList.contains('hidden')) {
+          startBtn.click();
+        }
+      }, 1000);
+    });
+
+    // Add loading animation
+    window.addEventListener('load', () => {
+      document.body.classList.add('loaded');
+    });
+  </script>
+</body>
+</html>

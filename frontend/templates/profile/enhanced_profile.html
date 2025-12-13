@@ -1,0 +1,100 @@
+{% extends "components/base_layout.html" %}
+
+{% block title %}User Profile — VediSpeak{% endblock %}
+
+{% block extra_styles %}
+.task-item {
+  transition: all 0.3s ease;
+}
+.task-item:hover {
+  transform: translateX(4px);
+  background: rgba(255,255,255,0.05);
+}
+
+.task-completed {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.activity-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.sidebar {
+  width:84px;
+  position:fixed;
+  right:22px;
+  top:120px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  z-index:60;
+}
+
+.sb-item {
+  width:64px; height:64px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:12px;
+  background: rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.03);
+  transition: transform .18s, box-shadow .18s;
+  cursor:pointer;
+}
+
+.sb-item:hover{
+  transform: translateY(-6px) scale(1.02);
+  box-shadow:0 8px 30px rgba(99,102,241,0.06);
+}
+
+.sb-item.active{
+  background: linear-gradient(180deg, rgba(185,131,74,0.06), rgba(185,131,74,0.02));
+  box-shadow:0 10px 40px rgba(185,131,74,0.12);
+  border-color: rgba(185,131,74,0.14);
+}
+
+@media (max-width: 900px) {
+  .sidebar { display:none; }
+}
+{% endblock %}
+
+{% block content %}
+<!-- Set sidebar flag for navigation -->
+{% set show_sidebar = true %}
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-6 py-8">
+  
+  <!-- Profile Header -->
+  {% include 'components/profile_header.html' %}
+
+  <!-- Stats Overview -->
+  {% include 'components/stats_overview.html' %}
+
+  <!-- Real-time Task Manager & Activity Tracker -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    {% include 'components/task_manager.html' %}
+    {% include 'components/activity_tracker.html' %}
+  </div>
+
+  <!-- Progress Charts & Analytics -->
+  {% include 'components/charts_analytics.html' %}
+
+  <!-- Recent Achievements & Live Feed -->
+  {% include 'components/achievements_feed.html' %}
+
+</main>
+{% endblock %}
+
+{% block scripts %}
+{% include 'components/profile_scripts.html' %}
+{% endblock %}

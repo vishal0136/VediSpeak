@@ -1,0 +1,133 @@
+<!-- ISL Learning Academy Component -->
+<div class="glass p-8 rounded-2xl component-card reveal">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-4">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+        <i class="fas fa-graduation-cap text-2xl text-white"></i>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-1">ISL Learning Academy</h2>
+        <p class="text-slate-400">Master ISL signs and improve recognition</p>
+      </div>
+    </div>
+    <button id="practiceMode" class="btn btn-secondary">
+      <i class="fas fa-graduation-cap mr-1"></i>Practice Mode
+    </button>
+  </div>
+  
+  <!-- Practice Sections -->
+  <div class="space-y-6">
+    <!-- Vowels Section -->
+    <div class="p-6 bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border border-emerald-500/30 rounded-xl">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
+            <i class="fas fa-hand-peace text-emerald-400 text-lg"></i>
+          </div>
+          <div>
+            <h4 class="text-lg font-bold text-emerald-400">Vowels (स्वर)</h4>
+            <p class="text-emerald-300/70 text-sm">Essential foundation signs</p>
+          </div>
+        </div>
+        <button class="btn btn-primary px-4 py-2" id="practiceVowels">
+          <i class="fas fa-play mr-1"></i>Practice
+        </button>
+      </div>
+      <div class="grid grid-cols-5 gap-3">
+        <button class="practice-letter p-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 hover:text-emerald-200 font-bold text-xl transition-all duration-300 hover:scale-110" data-letter="A" data-type="vowel">A</button>
+        <button class="practice-letter p-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 hover:text-emerald-200 font-bold text-xl transition-all duration-300 hover:scale-110" data-letter="E" data-type="vowel">E</button>
+        <button class="practice-letter p-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 hover:text-emerald-200 font-bold text-xl transition-all duration-300 hover:scale-110" data-letter="I" data-type="vowel">I</button>
+        <button class="practice-letter p-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 hover:text-emerald-200 font-bold text-xl transition-all duration-300 hover:scale-110" data-letter="O" data-type="vowel">O</button>
+        <button class="practice-letter p-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 hover:text-emerald-200 font-bold text-xl transition-all duration-300 hover:scale-110" data-letter="U" data-type="vowel">U</button>
+      </div>
+    </div>
+
+    <!-- Consonants Section -->
+    <div class="p-6 bg-gradient-to-r from-blue-500/15 to-indigo-500/15 border border-blue-500/30 rounded-xl">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
+            <i class="fas fa-hand-rock text-blue-400 text-lg"></i>
+          </div>
+          <div>
+            <h4 class="text-lg font-bold text-blue-400">Common Consonants (व्यंजन)</h4>
+            <p class="text-blue-300/70 text-sm">Building blocks of words</p>
+          </div>
+        </div>
+        <button class="btn btn-primary px-4 py-2" id="practiceConsonants">
+          <i class="fas fa-play mr-1"></i>Practice
+        </button>
+      </div>
+      <div class="grid grid-cols-6 gap-2">
+        <button class="practice-letter p-3 rounded-lg bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 hover:text-blue-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="B" data-type="consonant">B</button>
+        <button class="practice-letter p-3 rounded-lg bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 hover:text-blue-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="C" data-type="consonant">C</button>
+        <button class="practice-letter p-3 rounded-lg bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 hover:text-blue-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="D" data-type="consonant">D</button>
+        <button class="practice-letter p-3 rounded-lg bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 hover:text-blue-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="F" data-type="consonant">F</button>
+        <button class="practice-letter p-3 rounded-lg bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 hover:text-blue-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="G" data-type="consonant">G</button>
+        <button class="practice-letter p-3 rounded-lg bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 hover:text-blue-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="H" data-type="consonant">H</button>
+      </div>
+    </div>
+
+    <!-- Numbers Section -->
+    <div class="p-6 bg-gradient-to-r from-orange-500/15 to-red-500/15 border border-orange-500/30 rounded-xl">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
+            <i class="fas fa-hashtag text-orange-400 text-lg"></i>
+          </div>
+          <div>
+            <h4 class="text-lg font-bold text-orange-400">Numbers (संख्याएं)</h4>
+            <p class="text-orange-300/70 text-sm">Essential counting signs</p>
+          </div>
+        </div>
+        <button class="btn btn-primary px-4 py-2" id="practiceNumbers">
+          <i class="fas fa-play mr-1"></i>Practice
+        </button>
+      </div>
+      <div class="grid grid-cols-6 gap-2">
+        <button class="practice-letter p-3 rounded-lg bg-orange-500/20 hover:bg-orange-500/40 text-orange-300 hover:text-orange-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="0" data-type="number">0</button>
+        <button class="practice-letter p-3 rounded-lg bg-orange-500/20 hover:bg-orange-500/40 text-orange-300 hover:text-orange-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="1" data-type="number">1</button>
+        <button class="practice-letter p-3 rounded-lg bg-orange-500/20 hover:bg-orange-500/40 text-orange-300 hover:text-orange-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="2" data-type="number">2</button>
+        <button class="practice-letter p-3 rounded-lg bg-orange-500/20 hover:bg-orange-500/40 text-orange-300 hover:text-orange-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="3" data-type="number">3</button>
+        <button class="practice-letter p-3 rounded-lg bg-orange-500/20 hover:bg-orange-500/40 text-orange-300 hover:text-orange-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="4" data-type="number">4</button>
+        <button class="practice-letter p-3 rounded-lg bg-orange-500/20 hover:bg-orange-500/40 text-orange-300 hover:text-orange-200 font-bold text-lg transition-all duration-300 hover:scale-110" data-letter="5" data-type="number">5</button>
+      </div>
+    </div>
+
+    <!-- ISL Certification Info -->
+    <div class="p-6 bg-gradient-to-r from-purple-500/15 to-pink-500/15 border border-purple-500/30 rounded-xl">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+          <i class="fas fa-award text-purple-400 text-lg"></i>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold text-purple-400">ISL Certification & Standards</h4>
+          <p class="text-purple-300/70 text-sm">Government-approved curriculum</p>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="p-4 rounded-lg bg-green-500/10 border border-green-500/20 hover:scale-105 transition-transform cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fas fa-certificate text-green-400"></i>
+            <span class="font-semibold text-green-400 text-sm">Research Centre</span>
+          </div>
+          <span class="text-slate-300 text-xs">Based on ISL Research and Training Centre standards</span>
+        </div>
+        <div class="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:scale-105 transition-transform cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fas fa-graduation-cap text-blue-400"></i>
+            <span class="font-semibold text-blue-400 text-sm">Curriculum</span>
+          </div>
+          <span class="text-slate-300 text-xs">Follows government-approved ISL curriculum</span>
+        </div>
+        <div class="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20 hover:scale-105 transition-transform cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fas fa-book text-purple-400"></i>
+            <span class="font-semibold text-purple-400 text-sm">Educational</span>
+          </div>
+          <span class="text-slate-300 text-xs">Educational tool for ISL learning and practice</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

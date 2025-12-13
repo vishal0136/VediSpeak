@@ -1,0 +1,159 @@
+{% extends 'components/base_learning.html' %}
+
+{% block page_title %}Module 1: ISL Alphabet & Fingerspelling — NPTEL-SWAYAM{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <!-- Module Header -->
+  {% include 'module/header.html' with context %}
+
+  <div class="grid lg:grid-cols-4 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-3 space-y-6">
+      
+      <!-- NPTEL Course Info -->
+      <div class="glass p-6 reveal">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-white">
+            <i class="fas fa-graduation-cap text-blue-400 mr-2"></i>
+            NPTEL-SWAYAM: ISL Alphabet & Fingerspelling
+          </h2>
+          <div class="text-sm text-emerald-400">
+            <i class="fas fa-wifi mr-1"></i>Live Session
+          </div>
+        </div>
+        
+        <!-- Content Tabs -->
+        <div class="flex gap-1 mb-6 bg-slate-800/50 p-1 rounded-lg">
+          <button onclick="showWeekContent('practice')" id="practiceTab" class="week-tab active flex-1 px-4 py-2 text-sm font-medium text-white rounded-md">
+            <i class="fas fa-hand mr-2"></i>Practice
+          </button>
+          <button onclick="showWeekContent('videos')" id="videosTab" class="week-tab flex-1 px-4 py-2 text-sm font-medium text-slate-400 rounded-md">
+            <i class="fas fa-video mr-2"></i>Videos
+          </button>
+          <button onclick="showWeekContent('quiz')" id="quizTab" class="week-tab flex-1 px-4 py-2 text-sm font-medium text-slate-400 rounded-md">
+            <i class="fas fa-question-circle mr-2"></i>Quiz
+          </button>
+        </div>
+        
+        <!-- Practice Content -->
+        <div id="practiceContent" class="content-section">
+          {% include 'courses/components/alphabet_practice.html' %}
+        </div>
+        
+        <!-- Videos Content -->
+        <div id="videosContent" class="week-content hidden">
+          {% include 'module/video_player.html' %}
+        </div>
+        
+        <!-- Quiz Content -->
+        <div id="quizContent" class="week-content hidden">
+          {% include 'module/quiz.html' %}
+        </div>
+      </div>
+
+      <!-- Progress Actions -->
+      <div class="flex gap-4 reveal">
+        <button onclick="updateProgress(100)" class="flex-1 px-6 py-3 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-500 transition">
+          <i class="fas fa-check mr-2"></i>Complete Module
+        </button>
+        <button onclick="updateProgress(currentProgress)" class="px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-500 transition">
+          <i class="fas fa-save mr-2"></i>Save Progress
+        </button>
+        <button onclick="showUpcomingModulesModal()" class="px-6 py-3 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-500 transition">
+          <i class="fas fa-rocket mr-2"></i>What's Next?
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- Module Progress -->
+      <div class="glass p-6 reveal">
+        <h3 class="text-lg font-semibold text-white mb-4">Module Progress</h3>
+        <div class="text-center mb-4">
+          <div class="text-3xl font-bold text-amber-400">{{ progress.progress_percentage if progress else 0 }}%</div>
+          <div class="text-sm text-slate-400">Complete</div>
+        </div>
+        <div class="progress-bar mb-4">
+          <div class="progress-fill bg-amber-500" style="width: {{ progress.progress_percentage if progress else 0 }}%"></div>
+        </div>
+        
+        <!-- Learning Stats -->
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-slate-300">Letters Learned</span>
+            <span class="text-amber-400">{{ (progress.progress_percentage if progress else 0) * 26 // 100 }}/26</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-300">Practice Time</span>
+            <span class="text-blue-400">{{ progress.time_spent_minutes if progress else 0 }}min</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Tips -->
+      <div class="glass p-6 reveal">
+        <h3 class="text-lg font-semibold text-white mb-4">Alphabet Tips</h3>
+        <div class="space-y-3 text-sm text-slate-300">
+          <div class="flex items-start gap-2">
+            <i class="fas fa-hand text-amber-400 mt-1"></i>
+            <span>Keep your hand steady and clear</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <i class="fas fa-eye text-blue-400 mt-1"></i>
+            <span>Practice in front of a mirror</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <i class="fas fa-repeat text-emerald-400 mt-1"></i>
+            <span>Repeat each letter 5-10 times</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <!-- Upcoming Modules Modal -->
+  {% include 'components/upcoming_modules_modal.html' %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/module_learning.js') }}"></script>
+<script>
+  // Module 1 specific data
+  window.moduleData = {
+    id: 1,
+    title: 'ISL Alphabet & Fingerspelling',
+    type: 'alphabet'
+  };
+  window.progressData = {{ progress|tojson if progress else 'null' }};
+  
+  let currentProgress = {{ progress.progress_percentage if progress else 0 }};
+  
+  function updateProgress(newProgress) {
+    currentProgress = newProgress;
+    
+    // Update real-time tracking
+    RealtimeTracker.updateProgress(1, {
+      progress_percentage: newProgress,
+      time_spent_minutes: Math.floor((Date.now() - startTime) / 60000)
+    });
+    
+    // Update UI and save to server
+    LearningUtils.showNotification(`Progress updated: ${newProgress}%`, 'success');
+  }
+  
+  // Track module start
+  RealtimeTracker.logActivity('module_start', {
+    module_id: 1,
+    description: 'Started ISL Alphabet & Fingerspelling module'
+  });
+  
+  // Start learning session
+  RealtimeTracker.startSession('study', 1);
+  
+  let startTime = Date.now();
+</script>
+{% endblock %}

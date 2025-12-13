@@ -1,0 +1,18 @@
+<!-- Level Section Component -->
+<div class="mb-16">
+  <div class="flex items-center justify-between mb-8">
+    <h4 class="text-2xl font-semibold text-{{ level.color }}-300 reveal flex items-center gap-3">
+      <i class="{{ level.icon }}"></i>
+      {{ level.name }}
+    </h4>
+    <div class="text-sm text-slate-400 reveal">
+      <i class="fa-solid fa-clock mr-1"></i> {{ level.duration }} • {{ level.certificate }}
+    </div>
+  </div>
+  
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for module in modules %}
+      {% include 'learn/module_card.html' %}
+    {% endfor %}
+  </div>
+</div>

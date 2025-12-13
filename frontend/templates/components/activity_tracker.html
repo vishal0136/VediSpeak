@@ -1,0 +1,55 @@
+<!-- Activity Tracker Section -->
+<section class="glass p-6 reveal">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-semibold flex items-center gap-2">
+      <i class="fa-solid fa-chart-line text-sky-300"></i>
+      Activity Tracker
+    </h2>
+    <div class="flex gap-2">
+      <button id="startTimerBtn" class="px-3 py-1 rounded-lg bg-green-500/20 text-green-300 hover:bg-green-500/30 transition text-sm">
+        <i class="fa-solid fa-play mr-1"></i>Start
+      </button>
+      <button id="pauseTimerBtn" class="px-3 py-1 rounded-lg bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30 transition text-sm hidden">
+        <i class="fa-solid fa-pause mr-1"></i>Pause
+      </button>
+    </div>
+  </div>
+
+  <!-- Current Session -->
+  <div class="mb-4 p-4 rounded-lg bg-gradient-to-r from-sky-500/10 to-indigo-500/10 border border-sky-500/20">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-sm text-[--muted]">Current Session</span>
+      <span id="sessionStatus" class="px-2 py-1 rounded-full bg-gray-500/20 text-gray-300 text-xs">Inactive</span>
+    </div>
+    <div class="text-2xl font-mono font-bold" id="currentTimer">00:00:00</div>
+    <div class="text-sm text-[--muted] mt-1">Ready to start focus session</div>
+  </div>
+
+  <!-- Today's Activities -->
+  <div id="activityFeed" class="space-y-3 max-h-48 overflow-y-auto">
+    <!-- Activities will be populated here by JavaScript -->
+    <div class="text-center text-[--muted] py-4">
+      <i class="fa-solid fa-clock text-2xl mb-2"></i>
+      <p>No activities yet today</p>
+      <p class="text-xs">Start a session to begin tracking!</p>
+    </div>
+  </div>
+
+  <!-- Weekly Summary -->
+  <div class="mt-4 pt-4 border-t border-white/10">
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div>
+        <div class="text-lg font-bold" id="weeklyHours">{{ stats.weekly_hours or '0.0' }}h</div>
+        <div class="text-xs text-[--muted]">This Week</div>
+      </div>
+      <div>
+        <div class="text-lg font-bold" id="weeklyTasks">{{ stats.weekly_tasks or 0 }}</div>
+        <div class="text-xs text-[--muted]">Tasks Done</div>
+      </div>
+      <div>
+        <div class="text-lg font-bold" id="weeklyXP">{{ stats.weekly_xp or 0 }}</div>
+        <div class="text-xs text-[--muted]">XP Earned</div>
+      </div>
+    </div>
+  </div>
+</section>

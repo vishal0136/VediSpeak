@@ -1,0 +1,406 @@
+<!-- Quiz Component -->
+<div class="grid lg:grid-cols-3 gap-6">
+  <!-- Quiz Types -->
+  <div class="lg:col-span-2 space-y-4">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-white">
+        <i class="fas fa-clipboard-list text-blue-400 mr-2"></i>
+        NPTEL-SWAYAM Assessments
+      </h3>
+      <span class="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-full">
+        Week {{ ((module.module_order or 1) - 1) // 2 + 1 }} Assessments
+      </span>
+    </div>
+    
+    <!-- Weekly Quiz -->
+    <div class="glass p-6 rounded-lg">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
+            <i class="fas fa-question-circle text-blue-400 text-xl"></i>
+          </div>
+          <div>
+            <h4 class="font-semibold text-white">Weekly Quiz</h4>
+            <p class="text-sm text-slate-400">Multiple choice questions on module content</p>
+          </div>
+        </div>
+        <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-sm rounded-full">
+          <i class="fas fa-check mr-1"></i>Available
+        </span>
+      </div>
+      
+      <div class="grid grid-cols-4 gap-4 mb-4 text-center text-sm">
+        <div>
+          <div class="font-semibold text-blue-400">{{ quiz.questions|length if quiz and quiz.questions else 10 }}</div>
+          <div class="text-slate-400">Questions</div>
+        </div>
+        <div>
+          <div class="font-semibold text-purple-400">{{ quiz.time_limit if quiz and quiz.time_limit else 15 }}</div>
+          <div class="text-slate-400">Minutes</div>
+        </div>
+        <div>
+          <div class="font-semibold text-emerald-400">3</div>
+          <div class="text-slate-400">Attempts</div>
+        </div>
+        <div>
+          <div class="font-semibold text-orange-400">{{ progress.quiz_score if progress and progress.quiz_score else '--' }}</div>
+          <div class="text-slate-400">Best Score</div>
+        </div>
+      </div>
+      
+      <div class="flex gap-3">
+        <button onclick="startQuiz('weekly')" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition">
+          <i class="fas fa-play mr-2"></i>Start Quiz
+        </button>
+        <button onclick="reviewQuiz()" class="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-500 transition">
+          <i class="fas fa-eye mr-2"></i>Review
+        </button>
+      </div>
+    </div>
+    
+    <!-- Practical Assessment -->
+    <div class="glass p-6 rounded-lg">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center">
+            <i class="fas fa-camera text-purple-400 text-xl"></i>
+          </div>
+          <div>
+            <h4 class="font-semibold text-white">Practical Assessment</h4>
+            <p class="text-sm text-slate-400">Live sign recognition and performance test</p>
+          </div>
+        </div>
+        <span class="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-sm rounded-full">
+          <i class="fas fa-clock mr-1"></i>Due Soon
+        </span>
+      </div>
+      
+      <div class="grid grid-cols-4 gap-4 mb-4 text-center text-sm">
+        <div>
+          <div class="font-semibold text-blue-400">20</div>
+          <div class="text-slate-400">Signs</div>
+        </div>
+        <div>
+          <div class="font-semibold text-purple-400">30</div>
+          <div class="text-slate-400">Minutes</div>
+        </div>
+        <div>
+          <div class="font-semibold text-emerald-400">80%</div>
+          <div class="text-slate-400">Pass Mark</div>
+        </div>
+        <div>
+          <div class="font-semibold text-orange-400">1</div>
+          <div class="text-slate-400">Attempt</div>
+        </div>
+      </div>
+      
+      <div class="flex gap-3">
+        <button onclick="startPracticalTest()" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition">
+          <i class="fas fa-camera mr-2"></i>Start Test
+        </button>
+        <button onclick="practiceMode()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition">
+          <i class="fas fa-dumbbell mr-2"></i>Practice
+        </button>
+      </div>
+    </div>
+    
+    <!-- Final Exam -->
+    <div class="glass p-6 rounded-lg opacity-60">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-slate-600 flex items-center justify-center">
+            <i class="fas fa-graduation-cap text-slate-400 text-xl"></i>
+          </div>
+          <div>
+            <h4 class="font-semibold text-white">Final Examination</h4>
+            <p class="text-sm text-slate-400">Comprehensive assessment for certification</p>
+          </div>
+        </div>
+        <span class="px-3 py-1 bg-slate-600 text-slate-400 text-sm rounded-full">
+          <i class="fas fa-lock mr-1"></i>Locked
+        </span>
+      </div>
+      
+      <div class="grid grid-cols-4 gap-4 mb-4 text-center text-sm">
+        <div>
+          <div class="font-semibold text-slate-400">50</div>
+          <div class="text-slate-400">Questions</div>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-400">120</div>
+          <div class="text-slate-400">Minutes</div>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-400">60%</div>
+          <div class="text-slate-400">Pass Mark</div>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-400">1</div>
+          <div class="text-slate-400">Attempt</div>
+        </div>
+      </div>
+      
+      <button disabled class="w-full px-4 py-2 bg-slate-700 text-slate-500 rounded-lg cursor-not-allowed">
+        <i class="fas fa-lock mr-2"></i>Complete all modules to unlock
+      </button>
+    </div>
+  </div>
+  
+  <!-- Quiz Statistics & Leaderboard -->
+  <div class="space-y-4">
+    <div class="glass p-4 rounded-lg">
+      <h4 class="font-semibold text-white mb-3">
+        <i class="fas fa-chart-bar text-emerald-400 mr-2"></i>
+        Your Performance
+      </h4>
+      
+      <div class="space-y-3">
+        <div class="flex justify-between">
+          <span class="text-slate-300">Quiz Average:</span>
+          <span class="text-emerald-400 font-semibold">{{ progress.quiz_score if progress and progress.quiz_score else 0 }}%</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-300">Assignments:</span>
+          <span class="text-blue-400 font-semibold">{{ progress.assignments_completed if progress and progress.assignments_completed else '2' }}/{{ module.assignment_count or 3 }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-300">Participation:</span>
+          <span class="text-purple-400 font-semibold">{{ progress.participation if progress and progress.participation else '95' }}%</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-300">Overall Grade:</span>
+          <span class="text-orange-400 font-semibold">{{ progress.overall_grade if progress and progress.overall_grade else 'A-' }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="glass p-4 rounded-lg">
+      <h4 class="font-semibold text-white mb-3">
+        <i class="fas fa-trophy text-yellow-400 mr-2"></i>
+        Class Leaderboard
+      </h4>
+      
+      <div class="space-y-2">
+        <div class="flex items-center gap-3 p-2 bg-yellow-500/10 rounded-lg">
+          <div class="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center text-xs font-bold text-black">1</div>
+          <div class="flex-1">
+            <div class="text-sm font-medium text-white">Priya S.</div>
+            <div class="text-xs text-slate-400">98% avg</div>
+          </div>
+          <i class="fas fa-crown text-yellow-400"></i>
+        </div>
+        
+        <div class="flex items-center gap-3 p-2 bg-slate-700/50 rounded-lg">
+          <div class="w-6 h-6 rounded-full bg-slate-500 flex items-center justify-center text-xs font-bold text-white">2</div>
+          <div class="flex-1">
+            <div class="text-sm font-medium text-white">Rahul K.</div>
+            <div class="text-xs text-slate-400">95% avg</div>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-3 p-2 bg-emerald-500/10 rounded-lg">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-xs font-bold text-white">5</div>
+          <div class="flex-1">
+            <div class="text-sm font-medium text-white">You</div>
+            <div class="text-xs text-slate-400">{{ progress.quiz_score if progress and progress.quiz_score else 85 }}% avg</div>
+          </div>
+          <i class="fas fa-user text-emerald-400"></i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="glass p-4 rounded-lg">
+      <h4 class="font-semibold text-white mb-3">
+        <i class="fas fa-calendar text-blue-400 mr-2"></i>
+        Upcoming Deadlines
+      </h4>
+      
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span class="text-slate-300">Assignment 2</span>
+          <span class="text-yellow-400">2 days</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-300">Weekly Quiz</span>
+          <span class="text-emerald-400">5 days</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-300">Peer Review</span>
+          <span class="text-blue-400">1 week</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quiz Interface (Hidden by default) -->
+<div id="quizInterface" class="hidden">
+  <div class="glass p-6 rounded-lg mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-lg font-semibold text-white">Weekly Quiz - Module {{ module.module_order or 1 }}</h3>
+        <p class="text-sm text-slate-400">{{ module.title }}</p>
+      </div>
+      <div class="text-right">
+        <div class="text-sm text-slate-400">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">{{ quiz.questions|length if quiz and quiz.questions else 10 }}</span></div>
+        <div class="text-lg font-bold text-emerald-400" id="quizTimer">{{ quiz.time_limit if quiz and quiz.time_limit else 15 }}:00</div>
+      </div>
+    </div>
+    
+    <div class="w-full bg-slate-700 rounded-full h-2 mb-6">
+      <div id="quizProgress" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 10%"></div>
+    </div>
+    
+    <!-- Question Area -->
+    <div id="questionArea" class="mb-6">
+      {% if quiz and quiz.questions and quiz.questions|length > 0 %}
+        <div class="mb-4">
+          <h4 class="text-lg font-semibold text-white mb-3" id="questionText">{{ quiz.questions[0].text }}</h4>
+          <div class="text-sm text-slate-400 mb-4">
+            <i class="fas fa-info-circle mr-1"></i>
+            Select the most appropriate answer based on ISLRTC standards.
+          </div>
+        </div>
+        
+        <div class="space-y-3" id="optionsContainer">
+          {% for option in quiz.questions[0].options %}
+            <div class="quiz-option p-4 rounded-lg border border-slate-600 hover:border-emerald-400 transition cursor-pointer" onclick="selectQuizOption({{ loop.index0 }})">
+              <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded-full border-2 border-slate-400 flex items-center justify-center">
+                  <div class="w-3 h-3 rounded-full bg-emerald-400 hidden option-dot"></div>
+                </div>
+                <span class="text-white">{{ option }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <!-- Default question when no quiz data provided -->
+        <div class="mb-4">
+          <h4 class="text-lg font-semibold text-white mb-3">Which hand shape is used for the letter 'A' in ISL?</h4>
+          <div class="text-sm text-slate-400 mb-4">
+            <i class="fas fa-info-circle mr-1"></i>
+            Select the most appropriate answer based on ISLRTC standards.
+          </div>
+        </div>
+        
+        <div class="space-y-3">
+          <div class="quiz-option p-4 rounded-lg border border-slate-600 hover:border-emerald-400 transition cursor-pointer" onclick="selectQuizOption(0)">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded-full border-2 border-slate-400 flex items-center justify-center">
+                <div class="w-3 h-3 rounded-full bg-emerald-400 hidden option-dot"></div>
+              </div>
+              <span class="text-white">Closed fist with thumb extended upward</span>
+            </div>
+          </div>
+          
+          <div class="quiz-option p-4 rounded-lg border border-slate-600 hover:border-emerald-400 transition cursor-pointer" onclick="selectQuizOption(1)">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded-full border-2 border-slate-400 flex items-center justify-center">
+                <div class="w-3 h-3 rounded-full bg-emerald-400 hidden option-dot"></div>
+              </div>
+              <span class="text-white">Open palm facing forward</span>
+            </div>
+          </div>
+          
+          <div class="quiz-option p-4 rounded-lg border border-slate-600 hover:border-emerald-400 transition cursor-pointer" onclick="selectQuizOption(2)">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded-full border-2 border-slate-400 flex items-center justify-center">
+                <div class="w-3 h-3 rounded-full bg-emerald-400 hidden option-dot"></div>
+              </div>
+              <span class="text-white">Index finger pointing upward</span>
+            </div>
+          </div>
+          
+          <div class="quiz-option p-4 rounded-lg border border-slate-600 hover:border-emerald-400 transition cursor-pointer" onclick="selectQuizOption(3)">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded-full border-2 border-slate-400 flex items-center justify-center">
+                <div class="w-3 h-3 rounded-full bg-emerald-400 hidden option-dot"></div>
+              </div>
+              <span class="text-white">Closed fist with thumb tucked inside</span>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+    
+    <!-- Navigation Buttons -->
+    <div class="flex justify-between">
+      <button id="prevQuestionBtn" class="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-500 transition" disabled>
+        <i class="fas fa-arrow-left mr-2"></i>Previous
+      </button>
+      <div class="flex gap-3">
+        <button class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-500 transition">
+          <i class="fas fa-flag mr-2"></i>Flag for Review
+        </button>
+        <button id="nextQuestionBtn" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition">
+          Next<i class="fas fa-arrow-right ml-2"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Question Navigator -->
+  <div class="glass p-4 rounded-lg">
+    <h4 class="font-semibold text-white mb-3">Question Navigator</h4>
+    <div class="grid grid-cols-10 gap-2" id="questionNavigator">
+      {% if quiz and quiz.questions %}
+        {% for question in quiz.questions %}
+          <div class="w-8 h-8 rounded {% if loop.index == 1 %}bg-emerald-500{% else %}bg-slate-600{% endif %} flex items-center justify-center text-white text-sm font-semibold cursor-pointer" onclick="goToQuestion({{ loop.index0 }})">{{ loop.index }}</div>
+        {% endfor %}
+      {% else %}
+        <!-- Default navigator -->
+        {% for i in range(1, 11) %}
+          <div class="w-8 h-8 rounded {% if i == 1 %}bg-emerald-500{% else %}bg-slate-600{% endif %} flex items-center justify-center text-white text-sm cursor-pointer">{{ i }}</div>
+        {% endfor %}
+      {% endif %}
+    </div>
+    <div class="flex items-center gap-4 mt-3 text-xs text-slate-400">
+      <div class="flex items-center gap-1">
+        <div class="w-3 h-3 rounded bg-emerald-500"></div>
+        <span>Current</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <div class="w-3 h-3 rounded bg-blue-500"></div>
+        <span>Answered</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <div class="w-3 h-3 rounded bg-amber-500"></div>
+        <span>Flagged</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <div class="w-3 h-3 rounded bg-slate-600"></div>
+        <span>Not Visited</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Assessment Start Screen -->
+<div id="assessmentStart" class="text-center py-12">
+  <i class="fas fa-clipboard-list text-6xl text-slate-400 mb-6"></i>
+  <h3 class="text-2xl font-bold text-white mb-4">NPTEL Style Assessment</h3>
+  <p class="text-slate-300 mb-6 max-w-2xl mx-auto">
+    This assessment follows NPTEL standards with timed questions, multiple choice format, 
+    and instant feedback. Complete all video lessons before attempting.
+  </p>
+  
+  <div class="grid md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+    <div class="glass p-4 rounded-lg">
+      <div class="text-2xl font-bold text-blue-400">{{ quiz.questions|length if quiz and quiz.questions else 10 }}</div>
+      <div class="text-sm text-slate-400">Questions</div>
+    </div>
+    <div class="glass p-4 rounded-lg">
+      <div class="text-2xl font-bold text-emerald-400">{{ quiz.time_limit if quiz and quiz.time_limit else 15 }}</div>
+      <div class="text-sm text-slate-400">Minutes</div>
+    </div>
+    <div class="glass p-4 rounded-lg">
+      <div class="text-2xl font-bold text-purple-400">{{ quiz.passing_score if quiz and quiz.passing_score else 70 }}%</div>
+      <div class="text-sm text-slate-400">Pass Mark</div>
+    </div>
+  </div>
+  
+  <button onclick="startQuizAssessment()" class="px-8 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition font-semibold">
+    <i class="fas fa-play mr-2"></i>Start Assessment
+  </button>
+</div>

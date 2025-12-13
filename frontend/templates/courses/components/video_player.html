@@ -1,0 +1,74 @@
+<!-- NPTEL-Style YouTube Video Player Component -->
+<div class="swayam-card p-4 mb-4">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-semibold text-white">
+      <i class="fab fa-youtube text-red-500 mr-2"></i>
+      ISLRTC Official Channel
+    </h3>
+    <div class="flex items-center gap-2">
+      <span class="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded-full">
+        <i class="fas fa-circle text-red-500 mr-1 animate-pulse"></i>Live
+      </span>
+      <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">HD</span>
+    </div>
+  </div>
+  
+  <!-- YouTube Video Embed -->
+  <div class="video-container mb-4" id="mainVideoContainer">
+    <iframe 
+      id="mainVideo"
+      src="https://www.youtube.com/embed/{{ video_id or 'dQw4w9WgXcQ' }}?enablejsapi=1"
+      title="ISL Learning Video"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+  
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h4 class="font-semibold text-white" id="currentVideoTitle">{{ video_title or 'Introduction to ISL' }}</h4>
+      <p class="text-sm text-slate-400">ISLRTC Official • Module {{ module_number or 1 }}</p>
+    </div>
+    <button onclick="toggleAIDetection()" class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full hover:bg-emerald-500/30 transition">
+      <i class="fas fa-robot mr-1"></i>AI Detection
+    </button>
+  </div>
+  
+  <!-- Video Controls -->
+  <div class="flex items-center gap-2 flex-wrap">
+    <button onclick="previousVideo()" class="px-3 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-500 transition text-sm">
+      <i class="fas fa-step-backward mr-1"></i>Previous
+    </button>
+    <button onclick="nextVideo()" class="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition text-sm">
+      <i class="fas fa-step-forward mr-1"></i>Next
+    </button>
+    <button onclick="toggleCaptions()" class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition text-sm">
+      <i class="fas fa-closed-captioning mr-1"></i>CC
+    </button>
+    <button onclick="toggleSpeed()" class="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition text-sm">
+      <i class="fas fa-tachometer-alt mr-1"></i>1x
+    </button>
+  </div>
+</div>
+
+<style>
+.video-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.video-container iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+.swayam-card {
+  background: linear-gradient(135deg, rgba(234,88,12,0.1), rgba(234,88,12,0.05));
+  border: 1px solid rgba(234,88,12,0.2);
+  border-radius: 12px;
+}
+</style>

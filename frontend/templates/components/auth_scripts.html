@@ -1,0 +1,317 @@
+<!-- Auth Scripts Component -->
+<script>
+// Enhanced UI interactions with animations
+const tabLogin = document.getElementById('tabLogin');
+const tabSignup = document.getElementById('tabSignup');
+const loginPanel = document.getElementById('loginPanel');
+const signupPanel = document.getElementById('signupPanel');
+const switchToLogin = document.getElementById('switchToLogin');
+const openForgot = document.getElementById('openForgot');
+const forgotModal = document.getElementById('forgotModal');
+const closeForgot = document.getElementById('closeForgot');
+const cancelForgot = document.getElementById('cancelForgot');
+
+const forgotStep1 = document.getElementById('forgotStep1');
+const forgotStep2 = document.getElementById('forgotStep2');
+const sendOtpBtn = document.getElementById('sendOtpBtn');
+const backToStep1 = document.getElementById('backToStep1');
+const resetPwdBtn = document.getElementById('resetPwdBtn');
+const forgotMsg1 = document.getElementById('forgotMsg1');
+const forgotMsg2 = document.getElementById('forgotMsg2');
+
+// Enhanced tab switching with animations
+function switchToLoginTab() {
+  tabLogin.classList.add('btn-primary');
+  tabSignup.classList.remove('btn-primary');
+  
+  signupPanel.style.display = 'none';
+  loginPanel.style.display = 'block';
+  loginPanel.style.animation = 'slideInUp 0.6s ease-out';
+}
+
+function switchToSignupTab() {
+  tabSignup.classList.add('btn-primary');
+  tabLogin.classList.remove('btn-primary');
+  
+  loginPanel.style.display = 'none';
+  signupPanel.style.display = 'block';
+  signupPanel.style.animation = 'slideInUp 0.6s ease-out';
+}
+
+tabLogin.addEventListener('click', switchToLoginTab);
+tabSignup.addEventListener('click', switchToSignupTab);
+switchToLogin?.addEventListener('click', switchToLoginTab);
+
+// Modal interactions
+openForgot.addEventListener('click', () => {
+  forgotModal.classList.add('open');
+  forgotModal.setAttribute('aria-hidden', 'false');
+  forgotStep1.style.display = 'block';
+  forgotStep2.style.display = 'none';
+  forgotMsg1.style.display = 'none';
+  forgotMsg2.style.display = 'none';
+});
+
+function closeForgotModal() {
+  forgotModal.classList.remove('open');
+  forgotModal.setAttribute('aria-hidden', 'true');
+}
+
+closeForgot.addEventListener('click', closeForgotModal);
+cancelForgot.addEventListener('click', closeForgotModal);
+
+// Enhanced OTP sending with loading states
+sendOtpBtn.addEventListener('click', async () => {
+  forgotMsg1.style.display = 'none';
+  forgotMsg1.innerText = '';
+  
+  const email = document.getElementById('forgotEmail').value.trim();
+  const phone = document.getElementById('forgotPhone').value.trim();
+  
+  if (!email && !phone) {
+    forgotMsg1.className = 'msg warn';
+    forgotMsg1.style.display = 'block';
+    forgotMsg1.innerText = 'Please enter your email or phone number';
+    return;
+  }
+
+  // Add loading state
+  sendOtpBtn.disabled = true;
+  sendOtpBtn.classList.add('loading');
+  sendOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+
+  try {
+    const payload = email ? { email } : { phone };
+    const res = await fetch('/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (data.status === 'success') {
+      forgotMsg1.className = 'msg info';
+      forgotMsg1.style.display = 'block';
+      forgotMsg1.innerText = 'OTP sent successfully! Check your email or phone.';
+      
+      setTimeout(() => {
+        forgotStep1.style.display = 'none';
+        forgotStep2.style.display = 'block';
+      }, 1000);
+    } else {
+      forgotMsg1.className = 'msg error';
+      forgotMsg1.style.display = 'block';
+      forgotMsg1.innerText = data.message || 'Failed to send OTP';
+    }
+  } catch (e) {
+    forgotMsg1.className = 'msg error';
+    forgotMsg1.style.display = 'block';
+    forgotMsg1.innerText = 'Network error. Please try again.';
+  } finally {
+    sendOtpBtn.disabled = false;
+    sendOtpBtn.classList.remove('loading');
+    sendOtpBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Send OTP';
+  }
+});
+
+backToStep1?.addEventListener('click', () => {
+  forgotStep2.style.display = 'none';
+  forgotStep1.style.display = 'block';
+});
+
+// Enhanced password reset
+resetPwdBtn.addEventListener('click', async () => {
+  forgotMsg2.style.display = 'none';
+  forgotMsg2.innerText = '';
+  
+  const otp = document.getElementById('forgotOtp').value.trim();
+  const new_password = document.getElementById('forgotNewPassword').value.trim();
+  
+  if (!otp || !new_password) {
+    forgotMsg2.className = 'msg warn';
+    forgotMsg2.style.display = 'block';
+    forgotMsg2.innerText = 'Please enter both OTP and new password';
+    return;
+  }
+
+  resetPwdBtn.disabled = true;
+  resetPwdBtn.classList.add('loading');
+  resetPwdBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Verifying...';
+
+  try {
+    let res = await fetch('/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ otp })
+    });
+    let data = await res.json();
+
+    if (data.status !== 'success') {
+      forgotMsg2.className = 'msg error';
+      forgotMsg2.style.display = 'block';
+      forgotMsg2.innerText = data.message || 'OTP verification failed';
+      return;
+    }
+
+    res = await fetch('/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ new_password })
+    });
+    data = await res.json();
+
+    if (data.status === 'success') {
+      forgotMsg2.className = 'msg info';
+      forgotMsg2.style.display = 'block';
+      forgotMsg2.innerText = 'Password updated successfully! Please login.';
+      setTimeout(closeForgotModal, 2000);
+    } else {
+      forgotMsg2.className = 'msg error';
+      forgotMsg2.style.display = 'block';
+      forgotMsg2.innerText = data.message || 'Password reset failed';
+    }
+  } catch (e) {
+    forgotMsg2.className = 'msg error';
+    forgotMsg2.style.display = 'block';
+    forgotMsg2.innerText = 'Network error. Please try again.';
+  } finally {
+    resetPwdBtn.disabled = false;
+    resetPwdBtn.classList.remove('loading');
+    resetPwdBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Reset Password';
+  }
+});
+
+// Enhanced form submissions
+document.getElementById("signupForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  
+  const submitBtn = document.getElementById("submitSignup");
+  const msgBox = document.getElementById("signupMessage");
+  
+  const payload = {
+    name: document.getElementById("name").value.trim(),
+    email: document.getElementById("signupEmail").value.trim(),
+    phone: document.getElementById("signupPhone").value.trim(),
+    password: document.getElementById("signupPassword").value.trim()
+  };
+
+  submitBtn.disabled = true;
+  submitBtn.classList.add('loading');
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
+
+  try {
+    const res = await fetch("/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    msgBox.style.display = "block";
+    msgBox.innerText = data.message || (data.error || 'Server error');
+
+    if (data.status === "success") {
+      msgBox.className = "msg info";
+      setTimeout(() => window.location.href = "/dashboard", 1500);
+    } else {
+      msgBox.className = "msg error";
+    }
+  } catch (e) {
+    msgBox.style.display = "block";
+    msgBox.className = "msg error";
+    msgBox.innerText = "Network error. Please try again.";
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.classList.remove('loading');
+    submitBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>Create Account';
+  }
+});
+
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  
+  const loginBtn = document.getElementById("loginBtn");
+  const payload = {
+    email: document.getElementById("loginEmail").value.trim(),
+    password: document.getElementById("loginPassword").value.trim()
+  };
+
+  loginBtn.disabled = true;
+  loginBtn.classList.add('loading');
+  loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Signing In...';
+
+  try {
+    const res = await fetch("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (data.status === "success") {
+      window.location.href = "/dashboard";
+    } else {
+      showNotification(data.message || 'Login failed', 'error');
+    }
+  } catch (e) {
+    showNotification('Network error. Please try again.', 'error');
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.classList.remove('loading');
+    loginBtn.innerHTML = '<i class="fas fa-arrow-right mr-2"></i>Sign In';
+  }
+});
+
+// Notification system
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+    type === 'success' ? 'bg-green-600' : 
+    type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+  } text-white`;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// Initialize with login tab
+switchToLoginTab();
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && forgotModal.classList.contains('open')) {
+    closeForgotModal();
+  }
+});
+
+// Add input focus animations
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('focus', () => {
+    input.parentElement.style.transform = 'scale(1.01)';
+  });
+  
+  input.addEventListener('blur', () => {
+    input.parentElement.style.transform = 'scale(1)';
+  });
+});
+
+// Reveal animation on load
+document.addEventListener('DOMContentLoaded', () => {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  });
+
+  document.querySelectorAll('.reveal').forEach(el => {
+    observer.observe(el);
+  });
+});
+</script>

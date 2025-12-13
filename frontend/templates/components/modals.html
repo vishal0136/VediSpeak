@@ -1,0 +1,95 @@
+<!-- Profile Update Modal -->
+<div id="profileModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="glass max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold">Update Profile</h2>
+        <button id="closeModalBtn" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+
+      <form id="profileUpdateForm" class="space-y-6">
+        <!-- Profile Photo -->
+        <div class="flex items-center gap-6">
+          <div class="relative">
+            <img id="profilePreview" src="https://i.pravatar.cc/120" alt="Profile" class="w-24 h-24 rounded-full border-4 border-amber-300/20">
+            <label for="profilePhotoInput" class="absolute bottom-0 right-0 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center cursor-pointer hover:bg-amber-300 transition">
+              <i class="fa-solid fa-camera text-black text-sm"></i>
+            </label>
+            <input type="file" id="profilePhotoInput" accept="image/*" class="hidden">
+          </div>
+          <div>
+            <h3 class="font-semibold">Profile Photo</h3>
+            <p class="text-sm text-[--muted]">Upload a new profile picture</p>
+          </div>
+        </div>
+
+        <!-- Basic Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Full Name</label>
+            <input type="text" id="usernameInput" value="{{ user.username or '' }}" 
+                   class="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 focus:border-amber-300 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Email</label>
+            <input type="email" value="{{ user.email or '' }}" disabled
+                   class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 opacity-60 cursor-not-allowed">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2">Profession</label>
+          <input type="text" id="professionInput" value="{{ user.profession or '' }}" 
+                 placeholder="e.g., Software Developer, Data Scientist"
+                 class="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 focus:border-amber-300 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2">Bio</label>
+          <textarea id="bioInput" rows="4" placeholder="Tell us about yourself..."
+                    class="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 focus:border-amber-300 focus:outline-none resize-none">{{ user.bio or '' }}</textarea>
+        </div>
+
+        <!-- Skills Section -->
+        <div>
+          <label class="block text-sm font-medium mb-2">Skills</label>
+          <div id="skillsContainer" class="flex flex-wrap gap-2 mb-3">
+            <!-- Skills will be populated here -->
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="skillInput" placeholder="Add a skill..." 
+                   class="flex-1 bg-white/5 border border-white/20 rounded-lg px-3 py-2 focus:border-amber-300 focus:outline-none">
+            <button type="button" id="addSkillBtn" class="px-4 py-2 bg-amber-400/20 text-amber-300 rounded-lg hover:bg-amber-400/30 transition">
+              Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Resume Upload -->
+        <div>
+          <label class="block text-sm font-medium mb-2">Resume</label>
+          <div class="border-2 border-dashed border-white/20 rounded-lg p-6 text-center hover:border-amber-300/50 transition">
+            <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" class="hidden">
+            <label for="resumeInput" class="cursor-pointer">
+              <i class="fa-solid fa-cloud-upload-alt text-3xl text-[--muted] mb-2 block"></i>
+              <p class="text-sm text-[--muted]">Click to upload resume (PDF, DOC, DOCX)</p>
+              <p id="resumeFileName" class="text-xs text-amber-300 mt-1 hidden"></p>
+            </label>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 pt-4">
+          <button type="submit" class="flex-1 px-6 py-3 bg-amber-400 text-black rounded-lg hover:bg-amber-300 transition font-medium">
+            <i class="fa-solid fa-save mr-2"></i>Save Changes
+          </button>
+          <button type="button" id="cancelUpdateBtn" class="px-6 py-3 border border-white/20 rounded-lg hover:bg-white/5 transition">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

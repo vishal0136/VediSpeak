@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>About — VediSpeak ISL Recognition System</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* ===== Theme colors & utilities (matching dashboard) ===== */
+    :root{
+      --bg-1:#0b1220;   /* deep slate */
+      --card:#0f1724;   /* card dark */
+      --accent:#b9834a; /* earthy gold */
+      --muted:#98a0a6;  /* muted text */
+    }
+
+    body{ 
+      background: linear-gradient(180deg,var(--bg-1) 0%, #07101a 100%); 
+      color:#e6eef6; 
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; 
+    }
+
+    /* subtle frosted glass card */
+    .glass {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px);
+      border-radius: 14px;
+    }
+
+    /* decorative mandala style (light) */
+    .mandala {
+      opacity: 0.06;
+      filter: blur(0.6px);
+    }
+
+    /* scroll reveal - base */
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 600ms ease, transform 600ms ease;
+      will-change: transform, opacity;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* small parallax for decorative svgs */
+    .parallax {
+      transform: translateY(0);
+      transition: transform 0.2s linear;
+      will-change: transform;
+    }
+
+    /* CTA button */
+    .cta {
+      background: linear-gradient(90deg, rgba(185,131,74,0.12), rgba(185,131,74,0.06));
+      border: 1px solid rgba(185,131,74,0.22);
+      color: var(--accent);
+      padding: .6rem 1.05rem;
+      border-radius: 999px;
+      font-weight: 600;
+      display:inline-flex;
+      gap:.6rem;
+      align-items:center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .cta:hover {
+      background: rgba(185,131,74,0.15);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    /* gentle focus */
+    a:focus, button:focus { outline: 3px solid rgba(185,131,74,0.14); outline-offset: 4px; }
+
+    /* Feature cards with hover effects */
+    .feature-card {
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    /* Glass effect for dropdown */
+    .glass {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px);
+      border-radius: 14px;
+    }
+
+    /* small responsive tweaks */
+    @media (max-width:768px){
+      .hero-title { font-size: clamp(2rem, 6vw, 3rem); }
+      .hero-sub { font-size: clamp(.9rem, 3.2vw, 1.05rem); }
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased">
+  <!-- ===== NAV ===== -->
+  <header class="sticky top-0 z-40 backdrop-blur bg-[rgba(2,6,11,0.45)] border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="{{ url_for('pages.dashboard') }}" class="flex items-center gap-3" aria-label="VediSpeak Home">
+        <!-- VediSpeak Lotus Logo -->
+        <div class="w-11 h-11 flex items-center justify-center">
+          <img src="{{ url_for('static', filename='images/vedispeak-logo.png') }}" 
+               alt="VediSpeak Logo" 
+               class="w-11 h-11 object-contain">
+        </div>
+        <div>
+          <div class="text-sm font-semibold text-amber-200 leading-none">VediSpeak</div>
+          <div class="text-xs text-[--muted]">Learn • Speak • Rise</div>
+        </div>
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="hidden lg:flex items-center gap-6 text-sm text-slate-200">
+        <a href="{{ url_for('pages.dashboard') }}" class="hover:text-white transition">Home</a>
+        <a href="{{ url_for('pages.stt_tts') }}" class="hover:text-white transition">Tools</a>
+        <a href="{{ url_for('pages.learn') }}" class="hover:text-white transition">Learn</a>
+        <a href="{{ url_for('pages.about_us') }}" class="text-white font-semibold">About</a>
+      </nav>
+
+      <!-- User Profile Section -->
+      <div class="flex items-center gap-3">
+        <!-- Mobile menu button -->
+        <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors">
+          <i class="fas fa-bars text-white text-lg"></i>
+        </button>
+
+        <!-- Notifications -->
+        <button class="hidden sm:block p-2 rounded-full hover:bg-white/5 transition" aria-label="Notifications">
+          <i class="fa-regular fa-bell text-[--muted] hover:text-white transition"></i>
+        </button>
+        
+        <!-- User Profile Dropdown -->
+        <div class="relative group">
+          <button class="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] px-3 py-2 rounded-full hover:bg-[rgba(255,255,255,0.06)] transition" aria-label="User menu">
+            <!-- Dynamic Profile Photo -->
+            <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-amber-400/20">
+              {% if user is defined and user and user.profile_photo %}
+                <img src="{{ url_for('pages.uploaded_file', filename=user.profile_photo) }}" 
+                     alt="Profile" 
+                     class="w-full h-full object-cover"
+                     id="navProfilePhoto"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="w-full h-full bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-sm font-semibold" style="display: none;">
+                  {{ ((user.username if user is defined and user else session.username if session is defined and session.username else 'User')[0]).upper() }}
+                </div>
+              {% else %}
+                <div class="w-full h-full bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-sm font-semibold">
+                  {{ ((user.username if user is defined and user and user.username else session.username if session is defined and session.username else 'User')[0]).upper() }}
+                </div>
+              {% endif %}
+            </div>
+            <span class="hidden sm:block text-sm font-medium">{{ user.username if user is defined and user and user.username else session.username if session is defined and session.username else 'User' }}</span>
+            <i class="fa-solid fa-chevron-down text-xs text-[--muted]"></i>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div class="absolute right-0 top-full mt-2 w-48 glass rounded-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <a href="{{ url_for('profile.user_profile') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
+              <i class="fa-solid fa-user text-[--muted]"></i>
+              View Profile
+            </a>
+            <a href="{{ url_for('profile.settings') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
+              <i class="fa-solid fa-cog text-[--muted]"></i>
+              Settings
+            </a>
+            <a href="{{ url_for('pages.ml_diagnostics') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
+              <i class="fa-solid fa-brain text-[--muted]"></i>
+              ML Diagnostics
+            </a>
+            <a href="{{ url_for('pages.learn') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
+              <i class="fa-solid fa-graduation-cap text-[--muted]"></i>
+              My Learning
+            </a>
+            <div class="border-t border-white/10 my-2"></div>
+            <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition text-red-400">
+              <i class="fa-solid fa-sign-out-alt text-red-400"></i>
+              Sign Out
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobile-menu" class="lg:hidden hidden bg-[rgba(2,6,11,0.95)] border-t border-slate-700">
+      <nav class="px-6 py-4 space-y-3">
+        <a href="{{ url_for('pages.dashboard') }}" class="block py-2 text-slate-300 hover:text-white transition">
+          <i class="fas fa-home mr-3"></i>Home
+        </a>
+        <a href="{{ url_for('pages.stt_tts') }}" class="block py-2 text-slate-300 hover:text-white transition">
+          <i class="fas fa-tools mr-3"></i>Tools
+        </a>
+        <a href="{{ url_for('pages.learn') }}" class="block py-2 text-slate-300 hover:text-white transition">
+          <i class="fas fa-graduation-cap mr-3"></i>Learn
+        </a>
+        <a href="{{ url_for('pages.about_us') }}" class="block py-2 text-white font-semibold">
+          <i class="fas fa-info-circle mr-3"></i>About
+        </a>
+        <div class="border-t border-white/10 my-2"></div>
+        <a href="{{ url_for('profile.user_profile') }}" class="block py-2 text-slate-300 hover:text-white transition">
+          <i class="fas fa-user mr-3"></i>Profile
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-red-400 hover:text-red-300 transition">
+          <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <main>
+    <section class="relative overflow-hidden">
+      <!-- decorative mandala top-left -->
+      <svg class="absolute -left-20 -top-28 w-96 h-96 mandala parallax" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+        <g fill="none" stroke="#b8834a">
+          <circle cx="100" cy="100" r="36" stroke-opacity="0.12"></circle>
+          <path d="M100 0 L110 40 L140 60 L110 80 L100 120 L90 80 L60 60 L90 40 Z" stroke-opacity="0.08"></path>
+        </g>
+      </svg>
+
+      <div class="max-w-6xl mx-auto px-6 py-20 relative z-10">
+        <div class="text-center">
+          <div class="reveal">
+            <p class="text-amber-300 text-sm font-serif italic mb-2">"हाथों से बात, दिल से प्यार" — Talk with hands, love with heart</p>
+
+            <h1 class="hero-title text-4xl md:text-5xl font-extrabold leading-tight mb-6">
+              <i class="fas fa-hands text-amber-300 mr-4"></i>
+              About VediSpeak
+            </h1>
+
+            <p class="hero-sub text-slate-300 max-w-3xl mx-auto mb-8 text-lg leading-relaxed">
+              A student project that turned into something pretty cool. We're building AI tools to make 
+              Indian Sign Language learning fun, accessible, and actually useful.
+            </p>
+
+            <div class="flex flex-wrap gap-3 items-center justify-center mb-8">
+              <a href="/isl-recognition" class="cta" role="button">
+                <i class="fa-solid fa-video" aria-hidden></i> Try ISL Recognition
+              </a>
+
+              <a href="{{ url_for('pages.learn') }}" class="cta" role="button">
+                <i class="fa-solid fa-graduation-cap" aria-hidden></i> Start Learning
+              </a>
+            </div>
+
+            <div class="text-base text-slate-400 max-w-2xl mx-auto">
+              <q class="italic text-lg">"Small project, big dreams!"</q>
+              <div class="mt-3 text-sm text-[--muted] leading-relaxed">
+                Built by students • Tested by real users • Made with ♥ and lots of chai ☕
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- skyline decorative footer svg (minimal lines) -->
+      <svg class="absolute bottom-0 left-0 w-full h-36 parallax" viewBox="0 0 1400 200" preserveAspectRatio="none" aria-hidden>
+        <g stroke="#b8834a" stroke-opacity="0.12" fill="none" stroke-width="2">
+          <!-- stylized skyline line art -->
+          <path d="M0,120 L60,120 L90,80 L150,80 L200,120 L260,120 L320,60 L380,120 L440,120 L500,70 L560,120 L620,120 L680,50 L740,120 L800,120 L860,90 L920,120 L980,120 L1040,75 L1100,120 L1160,120 L1220,60 L1280,120 L1340,120 L1400,120" />
+        </g>
+      </svg>
+    </section>
+
+    <!-- ===== WHAT WE BUILT ===== -->
+    <section id="features" class="py-16 bg-[rgba(255,255,255,0.02)] border-t border-white/4">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold mb-4 reveal bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent">
+            What We Actually Built 🛠️
+          </h2>
+          <p class="text-slate-300 max-w-2xl mx-auto text-lg leading-relaxed reveal">
+            Three simple tools that work. No fancy marketing - just honest tech that does what it says.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- ISL Recognition -->
+          <div class="glass p-6 feature-card reveal">
+            <div class="text-amber-300 text-3xl mb-4">
+              <i class="fas fa-hands"></i>
+            </div>
+            <h3 class="font-semibold text-lg mb-3">ISL Recognition</h3>
+            <p class="text-[--muted] text-sm leading-relaxed">
+              Wave your hands, get words instantly. Our AI watches your signs and translates them in real-time. 
+              Works with both hands, understands Indian Sign Language, and gets better the more you use it.
+            </p>
+          </div>
+          
+          <!-- Voice Tools -->
+          <div class="glass p-6 feature-card reveal">
+            <div class="text-sky-300 text-3xl mb-4">
+              <i class="fas fa-microphone"></i>
+            </div>
+            <h3 class="font-semibold text-lg mb-3">Voice Tools</h3>
+            <p class="text-[--muted] text-sm leading-relaxed">
+              Talk to your computer, watch it type. Type something, hear it spoken back. 
+              Great for accessibility, note-taking, or just showing off to friends.
+            </p>
+          </div>
+          
+          <!-- Multi-Language Support -->
+          <div class="glass p-6 feature-card reveal">
+            <div class="text-indigo-300 text-3xl mb-4">
+              <i class="fas fa-language"></i>
+            </div>
+            <h3 class="font-semibold text-lg mb-3">Multi-Language Magic</h3>
+            <p class="text-[--muted] text-sm leading-relaxed">
+              Translate your signs into 14+ Indian languages instantly. From Hindi to Tamil, 
+              Bengali to Gujarati - breaking language barriers one gesture at a time.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== OUR STORY ===== -->
+    <section class="py-16">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div class="reveal">
+            <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent">
+              How It All Started 💫
+            </h3>
+            <p class="text-slate-300 text-lg leading-relaxed mb-6">
+              Started as a college project by a bunch of students who thought "Hey, what if we could make 
+              sign language learning actually fun?" Turns out, with some AI magic and a lot of chai, 
+              we built something that people actually want to use!
+            </p>
+            <ul class="grid gap-3 text-base text-slate-300">
+              <li class="flex items-start gap-3">
+                <i class="fa-solid fa-heart text-rose-400 mt-1"></i> 
+                <span><strong>Keep it real</strong> - Built with Indian culture in mind</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <i class="fa-solid fa-users text-sky-400 mt-1"></i> 
+                <span><strong>Community first</strong> - Made with feedback from real users</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <i class="fa-solid fa-rocket text-emerald-400 mt-1"></i> 
+                <span><strong>Always improving</strong> - We're constantly adding cool new stuff</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="reveal">
+            <div class="glass p-6 border border-white/6 rounded-2xl">
+              <div class="flex gap-3 mb-4">
+                <div class="w-2 bg-amber-300 rounded"></div>
+                <div>
+                  <h4 class="font-semibold">Made by students, for everyone</h4>
+                  <p class="text-[--muted] text-sm">Real feedback from real people learning ISL.</p>
+                </div>
+              </div>
+
+              <div class="flex gap-3 mb-4">
+                <div class="w-2 bg-sky-300 rounded"></div>
+                <div>
+                  <h4 class="font-semibold">Works on potato internet</h4>
+                  <p class="text-[--muted] text-sm">Optimized for Indian internet speeds - we get it!</p>
+                </div>
+              </div>
+
+              <div class="flex gap-3">
+                <div class="w-2 bg-indigo-300 rounded"></div>
+                <div>
+                  <h4 class="font-semibold">Try, fail, learn, repeat</h4>
+                  <p class="text-[--muted] text-sm">Practice makes perfect, and our AI is pretty patient!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== QUICK STATS ===== -->
+    <section class="py-16 bg-[rgba(255,255,255,0.02)] border-t border-white/4">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold mb-4 reveal">By the Numbers 📊</h2>
+          <p class="text-slate-300 max-w-2xl mx-auto reveal">
+            Some cool stats about what we've built (and we're pretty proud of them!)
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-4 gap-6">
+          <div class="glass p-6 text-center reveal">
+            <div class="text-3xl font-bold text-amber-300 mb-2">100%</div>
+            <div class="text-[--muted] text-sm">Model Accuracy</div>
+          </div>
+          <div class="glass p-6 text-center reveal">
+            <div class="text-3xl font-bold text-sky-300 mb-2">0.42s</div>
+            <div class="text-[--muted] text-sm">Processing Time</div>
+          </div>
+          <div class="glass p-6 text-center reveal">
+            <div class="text-3xl font-bold text-emerald-300 mb-2">14+</div>
+            <div class="text-[--muted] text-sm">Indian Languages</div>
+          </div>
+          <div class="glass p-6 text-center reveal">
+            <div class="text-3xl font-bold text-indigo-300 mb-2">36</div>
+            <div class="text-[--muted] text-sm">ISL Signs Supported</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TECH STACK ===== -->
+    <section class="py-16">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold mb-4 reveal">Built With ⚡</h2>
+          <p class="text-[--muted] max-w-2xl mx-auto reveal">
+            The tech stack that makes the magic happen
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- AI & ML -->
+          <div class="glass p-6 reveal">
+            <div class="text-amber-300 text-2xl mb-4">
+              <i class="fas fa-brain"></i>
+            </div>
+            <h4 class="font-semibold text-lg mb-2">AI & Machine Learning</h4>
+            <p class="text-[--muted] text-sm">
+              PyTorch, EfficientNet-B0, MediaPipe for hand detection, and custom neural networks for ISL recognition
+            </p>
+          </div>
+          
+          <!-- Backend -->
+          <div class="glass p-6 reveal">
+            <div class="text-sky-300 text-2xl mb-4">
+              <i class="fab fa-python"></i>
+            </div>
+            <h4 class="font-semibold text-lg mb-2">Backend & APIs</h4>
+            <p class="text-[--muted] text-sm">
+              Python Flask, RESTful APIs, WebSocket support, and Google Translate integration
+            </p>
+          </div>
+          
+          <!-- Frontend -->
+          <div class="glass p-6 reveal">
+            <div class="text-indigo-300 text-2xl mb-4">
+              <i class="fab fa-js-square"></i>
+            </div>
+            <h4 class="font-semibold text-lg mb-2">Frontend & UI</h4>
+            <p class="text-[--muted] text-sm">
+              JavaScript, WebRTC for video capture, Tailwind CSS, and responsive design
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="pt-12 pb-8 border-t border-white/10">
+      <div class="max-w-6xl mx-auto px-6 text-center">
+        <div class="mb-6 reveal">
+          <h4 class="font-semibold text-xl mb-3">Want to Help Out? 🤗</h4>
+          <p class="text-slate-300 max-w-2xl mx-auto">
+            This little project could use some friends! Found a bug? Have an idea? Just think ISL is cool? 
+            We'd love to hear from you.
+          </p>
+        </div>
+
+        <div class="flex items-center justify-center gap-6 mb-6 reveal">
+          <a href="#" class="w-12 h-12 rounded-full bg-[rgba(255,255,255,0.03)] flex items-center justify-center text-[--muted] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
+            <i class="fa-brands fa-github fa-lg"></i>
+          </a>
+          <a href="#" class="w-12 h-12 rounded-full bg-[rgba(255,255,255,0.03)] flex items-center justify-center text-[--muted] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
+            <i class="fa-brands fa-linkedin fa-lg"></i>
+          </a>
+          <a href="#" class="w-12 h-12 rounded-full bg-[rgba(255,255,255,0.03)] flex items-center justify-center text-[--muted] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
+            <i class="fa-brands fa-twitter fa-lg"></i>
+          </a>
+        </div>
+
+        <div class="text-[--muted] text-sm reveal">
+          <p class="text-lg font-semibold text-white mb-2">VediSpeak — Where Hands Meet AI 🤖</p>
+          <p>© 2025 VediSpeak • Made with ♥ and lots of chai ☕ • A student project that got out of hand</p>
+          <p class="mt-2 italic text-amber-200">"हाथों से बात, दिल से प्यार" — Talk with hands, love with heart.</p>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ===== SCRIPTS: IntersectionObserver (reveal) + Parallax + Mobile Menu ===== -->
+  <script>
+    // Reveal on scroll using IntersectionObserver (matching dashboard)
+    (function(){
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            e.target.classList.add('visible');
+            io.unobserve(e.target);
+          }
+        });
+      }, {threshold: 0.12});
+
+      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    })();
+
+    // parallax decorative elements (matching dashboard)
+    (function(){
+      const parallaxEls = document.querySelectorAll('.parallax');
+      if(!parallaxEls.length) return;
+      window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        parallaxEls.forEach((el, i) => {
+          const modifier = 0.15 + (i * 0.03);
+          el.style.transform = `translateY(${scrolled * modifier * 0.02}px)`;
+        });
+      }, {passive:true});
+    })();
+
+    // Mobile menu toggle
+    (function(){
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      if(mobileMenuBtn && mobileMenu) {
+        const menuIcon = mobileMenuBtn.querySelector('i');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+          const isHidden = mobileMenu.classList.contains('hidden');
+          
+          if(isHidden) {
+            mobileMenu.classList.remove('hidden');
+            if(menuIcon) {
+              menuIcon.classList.remove('fa-bars');
+              menuIcon.classList.add('fa-times');
+            }
+          } else {
+            mobileMenu.classList.add('hidden');
+            if(menuIcon) {
+              menuIcon.classList.remove('fa-times');
+              menuIcon.classList.add('fa-bars');
+            }
+          }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+          if(!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+            mobileMenu.classList.add('hidden');
+            if(menuIcon) {
+              menuIcon.classList.remove('fa-times');
+              menuIcon.classList.add('fa-bars');
+            }
+          }
+        });
+      }
+    })();
+
+    // Profile photo update functionality
+    function updateNavbarProfilePhoto(photoUrl) {
+      const navProfilePhoto = document.getElementById('navProfilePhoto');
+      const fallbackDiv = navProfilePhoto ? navProfilePhoto.nextElementSibling : null;
+      
+      if (navProfilePhoto && photoUrl) {
+        navProfilePhoto.src = photoUrl;
+        navProfilePhoto.style.display = 'block';
+        if (fallbackDiv) fallbackDiv.style.display = 'none';
+      } else if (fallbackDiv) {
+        if (navProfilePhoto) navProfilePhoto.style.display = 'none';
+        fallbackDiv.style.display = 'flex';
+      }
+    }
+
+    // Listen for profile photo updates from other pages
+    window.addEventListener('profilePhotoUpdated', function(event) {
+      updateNavbarProfilePhoto(event.detail.photoUrl);
+    });
+
+    // Check for profile photo updates on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const storedPhotoUrl = localStorage.getItem('userProfilePhoto');
+      if (storedPhotoUrl) {
+        updateNavbarProfilePhoto(storedPhotoUrl);
+      }
+    });
+  </script>
+</body>
+</html>

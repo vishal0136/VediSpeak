@@ -1,0 +1,117 @@
+<!-- Forgot Password Modal Component -->
+<div id="forgotModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-label="Forgot password">
+  <div class="modal-card glass">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h3 class="text-xl font-bold text-white">Reset Password</h3>
+        <p class="text-slate-400 text-sm">We'll help you get back in</p>
+      </div>
+      <button id="closeForgot" class="btn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div id="forgotStep1">
+      <div id="forgotMsg1" class="msg info" style="display:none;"></div>
+
+      <div class="input-group">
+        <label for="forgotEmail">
+          <i class="fas fa-envelope mr-2 text-amber-400"></i>
+          Email Address
+        </label>
+        <input id="forgotEmail" type="email" placeholder="Enter your email">
+      </div>
+
+      <div class="flex items-center gap-4 my-4">
+        <div class="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
+        <span class="text-slate-400 text-sm">or</span>
+        <div class="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
+      </div>
+
+      <div class="input-group">
+        <label for="forgotPhone">
+          <i class="fas fa-phone mr-2 text-amber-400"></i>
+          Phone Number
+        </label>
+        <input id="forgotPhone" type="tel" placeholder="+91 9876543210">
+      </div>
+
+      <div class="flex justify-between gap-4">
+        <button id="cancelForgot" class="btn flex-1">
+          <i class="fas fa-times mr-2"></i>
+          Cancel
+        </button>
+        <button id="sendOtpBtn" class="btn btn-primary flex-1">
+          <i class="fas fa-paper-plane mr-2"></i>
+          Send OTP
+        </button>
+      </div>
+    </div>
+
+    <div id="forgotStep2" style="display:none;">
+      <div id="forgotMsg2" class="msg info" style="display:none;"></div>
+
+      <div class="input-group">
+        <label for="forgotOtp">
+          <i class="fas fa-shield-alt mr-2 text-amber-400"></i>
+          Enter OTP
+        </label>
+        <input id="forgotOtp" maxlength="6" type="text" placeholder="123456">
+      </div>
+
+      <div class="input-group">
+        <label for="forgotNewPassword">
+          <i class="fas fa-lock mr-2 text-amber-400"></i>
+          New Password
+        </label>
+        <input id="forgotNewPassword" type="password" placeholder="Create new password">
+      </div>
+
+      <div class="flex justify-between gap-4">
+        <button id="backToStep1" class="btn flex-1">
+          <i class="fas fa-arrow-left mr-2"></i>
+          Back
+        </button>
+        <button id="resetPwdBtn" class="btn btn-primary flex-1">
+          <i class="fas fa-check mr-2"></i>
+          Reset Password
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.modal-backdrop {
+  position: fixed; 
+  inset: 0; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  background: rgba(11,18,32,0.8); 
+  backdrop-filter: blur(8px);
+  z-index: 60; 
+  opacity: 0; 
+  pointer-events: none; 
+  transition: all 0.3s ease;
+}
+
+.modal-backdrop.open { 
+  opacity: 1; 
+  pointer-events: auto; 
+}
+
+.modal-card { 
+  width: 480px; 
+  max-width: 92%; 
+  border-radius: 16px; 
+  padding: 32px; 
+  box-sizing: border-box;
+  animation: modalSlideIn 0.4s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+</style>

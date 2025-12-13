@@ -1,0 +1,84 @@
+<!-- Progress Charts & Analytics Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  
+  <!-- Weekly Progress Chart -->
+  <section class="glass p-6 reveal">
+    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+      <i class="fa-solid fa-chart-area text-indigo-300"></i>
+      Weekly Progress
+    </h2>
+    <div class="h-64">
+      <canvas id="weeklyChart"></canvas>
+    </div>
+  </section>
+
+  <!-- Skill Progress -->
+  <section class="glass p-6 reveal">
+    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+      <i class="fa-solid fa-brain text-purple-300"></i>
+      Skill Development
+    </h2>
+    <div class="space-y-4" id="skillProgressContainer">
+      <!-- ISL Learning Progress -->
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span>ISL Alphabet & Fingerspelling</span>
+          <span>{{ learning_stats.module_1_progress or 0 }}%</span>
+        </div>
+        <div class="w-full bg-white/10 rounded-full h-2">
+          <div class="bg-gradient-to-r from-amber-400 to-amber-600 h-2 rounded-full" style="width: {{ learning_stats.module_1_progress or 0 }}%"></div>
+        </div>
+      </div>
+      
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span>Numbers & Mathematical Concepts</span>
+          <span>{{ learning_stats.module_2_progress or 0 }}%</span>
+        </div>
+        <div class="w-full bg-white/10 rounded-full h-2">
+          <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full" style="width: {{ learning_stats.module_2_progress or 0 }}%"></div>
+        </div>
+      </div>
+      
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span>Family & Relationships</span>
+          <span>{{ learning_stats.module_3_progress or 0 }}%</span>
+        </div>
+        <div class="w-full bg-white/10 rounded-full h-2">
+          <div class="bg-gradient-to-r from-orange-400 to-orange-600 h-2 rounded-full" style="width: {{ learning_stats.module_3_progress or 0 }}%"></div>
+        </div>
+      </div>
+      
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span>Colors, Shapes & Objects</span>
+          <span>{{ learning_stats.module_4_progress or 0 }}%</span>
+        </div>
+        <div class="w-full bg-white/10 rounded-full h-2">
+          <div class="bg-gradient-to-r from-purple-400 to-purple-600 h-2 rounded-full" style="width: {{ learning_stats.module_4_progress or 0 }}%"></div>
+        </div>
+      </div>
+      
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span>Time & Calendar Concepts</span>
+          <span>{{ learning_stats.module_5_progress or 0 }}%</span>
+        </div>
+        <div class="w-full bg-white/10 rounded-full h-2">
+          <div class="bg-gradient-to-r from-emerald-400 to-emerald-600 h-2 rounded-full" style="width: {{ learning_stats.module_5_progress or 0 }}%"></div>
+        </div>
+      </div>
+      
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span>Basic Grammar & Sentence Structure</span>
+          <span>{{ learning_stats.module_6_progress or 0 }}%</span>
+        </div>
+        <div class="w-full bg-white/10 rounded-full h-2">
+          <div class="bg-gradient-to-r from-pink-400 to-pink-600 h-2 rounded-full" style="width: {{ learning_stats.module_6_progress or 0 }}%"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

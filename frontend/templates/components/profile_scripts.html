@@ -1,0 +1,813 @@
+<!-- JavaScript for Real-time Profile Features -->
+<script>
+// Real-time WebSocket Connection
+const socket = io();
+
+// Task Management System with Backend Integration
+class TaskManager {
+  constructor() {
+    this.tasks = [];
+    this.init();
+  }
+
+  async init() {
+    await this.loadTasks();
+    this.bindEvents();
+    this.setupSocketListeners();
+  }
+
+  async loadTasks() {
+    try {
+      const response = await fetch('/api/profile/tasks');
+      const data = await response.json();
+      if (data.success) {
+        this.tasks = data.data;
+        this.renderTasks();
+        this.updateStats();
+      }
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+      this.showNotification('Error loading tasks', 'error');
+    }
+  }
+
+  setupSocketListeners() {
+    socket.on('task_created', (data) => {
+      this.tasks.unshift(data);
+      this.renderTasks();
+      this.updateStats();
+      this.showNotification('New task created!', 'success');
+    });
+
+    socket.on('task_updated', (data) => {
+      const taskIndex = this.tasks.findIndex(t => t.id === data.task_id);
+      if (taskIndex > -1) {
+        Object.assign(this.tasks[taskIndex], data.updates);
+        this.renderTasks();
+        this.updateStats();
+      }
+    });
+
+    socket.on('task_deleted', (data) => {
+      this.tasks = this.tasks.filter(t => t.id !== data.task_id);
+      this.renderTasks();
+      this.updateStats();
+      this.showNotification('Task deleted', 'info');
+    });
+  }
+
+  bindEvents() {
+    document.getElementById('addTaskBtn').addEventListener('click', () => this.showAddForm());
+    document.getElementById('saveTaskBtn').addEventListener('click', () => this.addTask());
+    document.getElementById('cancelTaskBtn').addEventListener('click', () => this.hideAddForm());
+    document.getElementById('taskInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') this.addTask();
+    });
+  }
+
+  showAddForm() {
+    document.getElementById('addTaskForm').classList.remove('hidden');
+    document.getElementById('taskInput').focus();
+  }
+
+  hideAddForm() {
+    document.getElementById('addTaskForm').classList.add('hidden');
+    document.getElementById('taskInput').value = '';
+  }
+
+  async addTask() {
+    const input = document.getElementById('taskInput');
+    const priority = document.getElementById('taskPriority').value;
+    
+    if (input.value.trim()) {
+      try {
+        const response = await fetch('/api/profile/tasks', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text: input.value.trim(),
+            priority: priority
+          })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          this.hideAddForm();
+          this.showNotification('Task created successfully!', 'success');
+        } else {
+          this.showNotification(data.error || 'Error creating task', 'error');
+        }
+      } catch (error) {
+        console.error('Error creating task:', error);
+        this.showNotification('Error creating task', 'error');
+      }
+    }
+  }
+
+  async toggleTask(id) {
+    const task = this.tasks.find(t => t.id === id);
+    if (task) {
+      try {
+        const response = await fetch(`/api/profile/tasks/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            completed: !task.completed
+          })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          const action = !task.completed ? 'Completed' : 'Reopened';
+          this.showNotification(`${action} task!`, 'success');
+        } else {
+          this.showNotification(data.error || 'Error updating task', 'error');
+        }
+      } catch (error) {
+        console.error('Error updating task:', error);
+        this.showNotification('Error updating task', 'error');
+      }
+    }
+  }
+
+  async deleteTask(id) {
+    if (confirm('Are you sure you want to delete this task?')) {
+      try {
+        const response = await fetch(`/api/profile/tasks/${id}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          this.showNotification('Task deleted successfully!', 'success');
+        } else {
+          this.showNotification(data.error || 'Error deleting task', 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        this.showNotification('Error deleting task', 'error');
+      }
+    }
+  }
+
+  renderTasks() {
+    const taskList = document.getElementById('taskList');
+    const todayTasks = this.tasks.filter(task => {
+      const taskDate = new Date(task.created_at).toDateString();
+      const today = new Date().toDateString();
+      return taskDate === today || !task.completed;
+    });
+
+    taskList.innerHTML = todayTasks.map(task => {
+      const priorityColors = {
+        high: 'border-red-400/30 bg-red-400/5',
+        medium: 'border-yellow-400/30 bg-yellow-400/5',
+        low: 'border-green-400/30 bg-green-400/5'
+      };
+
+      return `
+        <div class="task-item flex items-center gap-3 p-3 rounded-lg border ${priorityColors[task.priority]} ${task.completed ? 'task-completed' : ''}">
+          <button onclick="taskManager.toggleTask(${task.id})" 
+                  class="w-5 h-5 rounded-full border-2 flex items-center justify-center ${task.completed ? 'bg-green-500 border-green-500' : 'border-white/30 hover:border-green-400'}">
+            ${task.completed ? '<i class="fa-solid fa-check text-white text-xs"></i>' : ''}
+          </button>
+          <div class="flex-1">
+            <div class="text-sm ${task.completed ? 'line-through opacity-60' : ''}">${task.text}</div>
+            <div class="text-xs text-[--muted] mt-1">
+              <span class="capitalize">${task.priority}</span> priority
+              ${task.completed && task.completed_at ? `• Completed ${new Date(task.completed_at).toLocaleTimeString()}` : ''}
+            </div>
+          </div>
+          <button onclick="taskManager.deleteTask(${task.id})" 
+                  class="w-6 h-6 rounded hover:bg-red-500/20 text-red-400 hover:text-red-300 transition">
+            <i class="fa-solid fa-trash text-xs"></i>
+          </button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateStats() {
+    const todayTasks = this.tasks.filter(task => {
+      const taskDate = new Date(task.created_at).toDateString();
+      const today = new Date().toDateString();
+      return taskDate === today;
+    });
+    
+    const completed = todayTasks.filter(task => task.completed).length;
+    const total = todayTasks.length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    document.getElementById('completedTasks').textContent = completed;
+    document.getElementById('totalTasks').textContent = total;
+    document.getElementById('taskProgress').textContent = `${percentage}%`;
+    document.getElementById('taskProgressBar').style.width = `${percentage}%`;
+  }
+
+  showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
+    
+    const colors = {
+      success: 'bg-green-500 text-white',
+      error: 'bg-red-500 text-white',
+      warning: 'bg-yellow-500 text-black',
+      info: 'bg-blue-500 text-white'
+    };
+    
+    notification.className += ` ${colors[type] || colors.info}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    setTimeout(() => {
+      notification.classList.add('translate-x-full');
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 300);
+    }, 3000);
+  }
+}
+
+// Activity Tracker System with Backend Integration
+class ActivityTracker {
+  constructor() {
+    this.activities = [];
+    this.currentSession = {
+      sessionId: null,
+      startTime: null,
+      isActive: false,
+      totalTime: 0
+    };
+    this.init();
+  }
+
+  async init() {
+    this.bindEvents();
+    this.setupSocketListeners();
+    await this.loadActivities();
+    await this.loadStats();
+    this.updateTimer();
+    setInterval(() => this.updateTimer(), 1000);
+    setInterval(() => this.loadStats(), 30000);
+  }
+
+  async loadActivities() {
+    try {
+      const response = await fetch('/api/profile/activities');
+      const data = await response.json();
+      if (data.success) {
+        this.activities = data.data;
+        this.renderActivityFeed();
+      }
+    } catch (error) {
+      console.error('Error loading activities:', error);
+    }
+  }
+
+  async loadStats() {
+    try {
+      const response = await fetch('/api/profile/stats');
+      const data = await response.json();
+      if (data.success) {
+        this.updateStatsDisplay(data.data);
+      }
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  }
+
+  setupSocketListeners() {
+    socket.on('session_started', (data) => {
+      this.currentSession.sessionId = data.session_id;
+      this.currentSession.startTime = new Date(data.start_time);
+      this.currentSession.isActive = true;
+      this.updateSessionUI();
+    });
+
+    socket.on('session_ended', (data) => {
+      this.currentSession.isActive = false;
+      this.currentSession.sessionId = null;
+      this.updateSessionUI();
+      this.loadActivities();
+    });
+
+    socket.on('activity_logged', (data) => {
+      this.activities.unshift(data.activity);
+      this.renderActivityFeed();
+    });
+
+    socket.on('stats_updated', (data) => {
+      this.updateStatsDisplay(data.stats);
+    });
+  }
+
+  bindEvents() {
+    document.getElementById('startTimerBtn').addEventListener('click', () => this.startSession());
+    document.getElementById('pauseTimerBtn').addEventListener('click', () => this.pauseSession());
+  }
+
+  async startSession() {
+    try {
+      const response = await fetch('/api/profile/session/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'study'
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        taskManager.showNotification('Focus session started!', 'success');
+      } else {
+        taskManager.showNotification(data.error || 'Error starting session', 'error');
+      }
+    } catch (error) {
+      console.error('Error starting session:', error);
+      taskManager.showNotification('Error starting session', 'error');
+    }
+  }
+
+  async pauseSession() {
+    if (this.currentSession.sessionId) {
+      try {
+        const response = await fetch(`/api/profile/session/${this.currentSession.sessionId}/end`, {
+          method: 'POST'
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          taskManager.showNotification(`Session completed! Duration: ${data.data.duration} minutes`, 'success');
+        } else {
+          taskManager.showNotification(data.error || 'Error ending session', 'error');
+        }
+      } catch (error) {
+        console.error('Error ending session:', error);
+        taskManager.showNotification('Error ending session', 'error');
+      }
+    }
+  }
+
+  updateSessionUI() {
+    const startBtn = document.getElementById('startTimerBtn');
+    const pauseBtn = document.getElementById('pauseTimerBtn');
+    const status = document.getElementById('sessionStatus');
+
+    if (this.currentSession.isActive) {
+      startBtn.classList.add('hidden');
+      pauseBtn.classList.remove('hidden');
+      status.textContent = 'Active';
+      status.className = 'px-2 py-1 rounded-full bg-green-500/20 text-green-300 text-xs';
+    } else {
+      startBtn.classList.remove('hidden');
+      pauseBtn.classList.add('hidden');
+      status.textContent = 'Inactive';
+      status.className = 'px-2 py-1 rounded-full bg-gray-500/20 text-gray-300 text-xs';
+    }
+  }
+
+  updateTimer() {
+    let totalMs = this.currentSession.totalTime;
+    
+    if (this.currentSession.isActive && this.currentSession.startTime) {
+      totalMs += Date.now() - this.currentSession.startTime.getTime();
+    }
+    
+    const hours = Math.floor(totalMs / (1000 * 60 * 60));
+    const minutes = Math.floor((totalMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((totalMs % (1000 * 60)) / 1000);
+    
+    const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('currentTimer').textContent = timeString;
+  }
+
+  updateStatsDisplay(stats) {
+    if (stats.today_hours !== undefined) {
+      const todayHoursEl = document.getElementById('todayHours');
+      if (todayHoursEl) todayHoursEl.textContent = stats.today_hours;
+    }
+
+    if (stats.active_sessions !== undefined) {
+      const activeSessionsEl = document.getElementById('activeSessions');
+      if (activeSessionsEl) activeSessionsEl.textContent = stats.active_sessions;
+    }
+
+    if (stats.streak_days !== undefined) {
+      const streakDaysEl = document.getElementById('streakDays');
+      if (streakDaysEl) streakDaysEl.textContent = stats.streak_days;
+    }
+  }
+
+  async addActivity(description, type) {
+    socket.emit('update_activity', {
+      description: description,
+      type: type
+    });
+  }
+
+  renderActivityFeed() {
+    const feed = document.getElementById('activityFeed');
+    const recentActivities = this.activities.slice(0, 10);
+    
+    feed.innerHTML = recentActivities.map(activity => {
+      const timeAgo = this.getTimeAgo(activity.created_at);
+      const typeColors = {
+        task_completed: 'bg-green-400',
+        task_created: 'bg-blue-400',
+        session_started: 'bg-purple-400',
+        session_ended: 'bg-indigo-400',
+        achievement_earned: 'bg-yellow-400'
+      };
+      
+      return `
+        <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition">
+          <div class="w-2 h-2 rounded-full ${typeColors[activity.activity_type] || 'bg-gray-400'}"></div>
+          <div class="flex-1">
+            <div class="text-sm">${activity.description}</div>
+            <div class="text-xs text-[--muted]">${timeAgo}</div>
+          </div>
+          <div class="text-xs text-green-400">+${activity.xp_earned || 0} XP</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  getTimeAgo(timestamp) {
+    const now = new Date();
+    const time = new Date(timestamp);
+    const diffMs = now - time;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} minutes ago`;
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    return time.toLocaleDateString();
+  }
+}
+
+// Profile Management System
+class ProfileManager {
+  constructor() {
+    this.skills = ['Python', 'JavaScript', 'Machine Learning', 'Web Development'];
+    this.init();
+  }
+
+  init() {
+    this.bindEvents();
+    this.renderSkills();
+    this.setupSocketListeners();
+  }
+
+  bindEvents() {
+    document.getElementById('editProfileBtn').addEventListener('click', () => this.openModal());
+    document.getElementById('closeModalBtn').addEventListener('click', () => this.closeModal());
+    document.getElementById('cancelUpdateBtn').addEventListener('click', () => this.closeModal());
+    document.getElementById('profileUpdateForm').addEventListener('submit', (e) => this.handleSubmit(e));
+    document.getElementById('addSkillBtn').addEventListener('click', () => this.addSkill());
+    document.getElementById('skillInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.addSkill();
+      }
+    });
+
+    document.getElementById('profilePhotoInput').addEventListener('change', (e) => this.handlePhotoUpload(e));
+    document.getElementById('resumeInput').addEventListener('change', (e) => this.handleResumeUpload(e));
+  }
+
+  setupSocketListeners() {
+    socket.on('profile_updated', (data) => {
+      this.closeModal();
+      taskManager.showNotification('Profile updated successfully!', 'success');
+      setTimeout(() => location.reload(), 1000);
+    });
+  }
+
+  openModal() {
+    document.getElementById('profileModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeModal() {
+    document.getElementById('profileModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  }
+
+  async handleSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('username', document.getElementById('usernameInput').value);
+    formData.append('profession', document.getElementById('professionInput').value);
+    formData.append('bio', document.getElementById('bioInput').value);
+
+    const photoFile = document.getElementById('profilePhotoInput').files[0];
+    if (photoFile) {
+      formData.append('profile_photo', photoFile);
+    }
+
+    const resumeFile = document.getElementById('resumeInput').files[0];
+    if (resumeFile) {
+      formData.append('resume', resumeFile);
+    }
+
+    try {
+      const response = await fetch('/api/profile/update', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        taskManager.showNotification(data.error || 'Error updating profile', 'error');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      taskManager.showNotification('Error updating profile', 'error');
+    }
+  }
+
+  handlePhotoUpload(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('profilePreview').src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  handleResumeUpload(e) {
+    const file = e.target.files[0];
+    if (file) {
+      document.getElementById('resumeFileName').textContent = file.name;
+      document.getElementById('resumeFileName').classList.remove('hidden');
+    }
+  }
+
+  addSkill() {
+    const input = document.getElementById('skillInput');
+    const skill = input.value.trim();
+    
+    if (skill && !this.skills.includes(skill)) {
+      this.skills.push(skill);
+      this.renderSkills();
+      input.value = '';
+    }
+  }
+
+  removeSkill(skill) {
+    this.skills = this.skills.filter(s => s !== skill);
+    this.renderSkills();
+  }
+
+  renderSkills() {
+    const container = document.getElementById('skillsContainer');
+    container.innerHTML = this.skills.map(skill => `
+      <span class="px-3 py-1 bg-amber-400/20 text-amber-300 rounded-full text-sm flex items-center gap-2">
+        ${skill}
+        <button onclick="profileManager.removeSkill('${skill}')" class="w-4 h-4 rounded-full hover:bg-amber-400/30 flex items-center justify-center">
+          <i class="fa-solid fa-times text-xs"></i>
+        </button>
+      </span>
+    `).join('');
+  }
+}
+
+// Chart Management
+class ChartManager {
+  constructor() {
+    this.init();
+  }
+
+  init() {
+    this.createWeeklyChart();
+  }
+
+  async createWeeklyChart() {
+    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    
+    // Get real weekly data
+    let weeklyData = {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      studyHours: [0, 0, 0, 0, 0, 0, 0],
+      tasksCompleted: [0, 0, 0, 0, 0, 0, 0]
+    };
+    
+    try {
+      // Fetch weekly progress data
+      const response = await fetch('/api/profile/weekly-progress');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          // Process the weekly data
+          const today = new Date();
+          const weekStart = new Date(today.setDate(today.getDate() - today.getDay() + 1)); // Monday
+          
+          for (let i = 0; i < 7; i++) {
+            const currentDate = new Date(weekStart);
+            currentDate.setDate(weekStart.getDate() + i);
+            const dateStr = currentDate.toISOString().split('T')[0];
+            
+            // Find activity for this date
+            const dayActivity = data.data.activity.find(a => a.date === dateStr);
+            const dayTasks = data.data.tasks.find(t => t.date === dateStr);
+            
+            weeklyData.studyHours[i] = dayActivity ? (dayActivity.study_minutes / 60) : 0;
+            weeklyData.tasksCompleted[i] = dayTasks ? dayTasks.completed_tasks : 0;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading weekly data:', error);
+      // Use default data if API fails
+    }
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: weeklyData.labels,
+        datasets: [{
+          label: 'Study Hours',
+          data: weeklyData.studyHours,
+          borderColor: 'rgb(185, 131, 74)',
+          backgroundColor: 'rgba(185, 131, 74, 0.1)',
+          tension: 0.4,
+          fill: true
+        }, {
+          label: 'Tasks Completed',
+          data: weeklyData.tasksCompleted,
+          borderColor: 'rgb(34, 197, 94)',
+          backgroundColor: 'rgba(34, 197, 94, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#e6eef6'
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: '#98a0a6'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            }
+          },
+          x: {
+            ticks: {
+              color: '#98a0a6'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+// Animation and UI Effects
+class UIEffects {
+  constructor() {
+    this.init();
+  }
+
+  init() {
+    this.setupRevealAnimation();
+    this.setupLiveUpdates();
+  }
+
+  setupRevealAnimation() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    });
+
+    document.querySelectorAll('.reveal').forEach(el => {
+      observer.observe(el);
+    });
+  }
+
+  setupLiveUpdates() {
+    // Update stats every 30 seconds with real data
+    setInterval(() => {
+      this.updateLiveStats();
+    }, 30000);
+  }
+
+  async updateLiveStats() {
+    try {
+      const response = await fetch('/api/profile/stats');
+      const data = await response.json();
+      
+      if (data.success) {
+        const stats = data.data;
+        
+        // Update today's hours
+        const todayHours = document.getElementById('todayHours');
+        if (todayHours && stats.today && stats.today.today_hours !== undefined) {
+          todayHours.textContent = stats.today.today_hours;
+        }
+        
+        // Update active sessions
+        const activeSessions = document.getElementById('activeSessions');
+        if (activeSessions && stats.active_sessions !== undefined) {
+          activeSessions.textContent = stats.active_sessions;
+        }
+        
+        // Update streak days
+        const streakDays = document.getElementById('streakDays');
+        if (streakDays && stats.streak_days !== undefined) {
+          streakDays.textContent = stats.streak_days;
+        }
+        
+        // Update task counts
+        if (stats.today) {
+          const completedTasks = document.getElementById('completedTasks');
+          const totalTasks = document.getElementById('totalTasks');
+          const tasksRemaining = document.getElementById('tasksRemaining');
+          
+          if (completedTasks && stats.today.today_completed_tasks !== undefined) {
+            completedTasks.textContent = stats.today.today_completed_tasks;
+          }
+          if (totalTasks && stats.today.today_total_tasks !== undefined) {
+            totalTasks.textContent = stats.today.today_total_tasks;
+          }
+          if (tasksRemaining && stats.today.today_total_tasks !== undefined && stats.today.today_completed_tasks !== undefined) {
+            const remaining = stats.today.today_total_tasks - stats.today.today_completed_tasks;
+            tasksRemaining.textContent = `${remaining} remaining`;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error updating live stats:', error);
+    }
+  }
+}
+
+// Initialize all systems
+let taskManager, activityTracker, chartManager, uiEffects, profileManager;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize socket connection
+  socket.on('connect', () => {
+    console.log('Connected to server');
+    socket.emit('join_profile_room', {});
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Disconnected from server');
+  });
+
+  socket.on('error', (error) => {
+    console.error('Socket error:', error);
+    if (taskManager) {
+      taskManager.showNotification('Connection error occurred', 'error');
+    }
+  });
+
+  // Initialize components
+  taskManager = new TaskManager();
+  activityTracker = new ActivityTracker();
+  chartManager = new ChartManager();
+  uiEffects = new UIEffects();
+  profileManager = new ProfileManager();
+
+  // Add initial activity
+  setTimeout(() => {
+    activityTracker.addActivity('Viewed profile dashboard', 'session');
+  }, 1000);
+});
+
+// Handle page unload
+window.addEventListener('beforeunload', () => {
+  socket.emit('leave_profile_room', {});
+});
+</script>

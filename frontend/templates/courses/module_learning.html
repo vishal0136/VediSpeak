@@ -1,0 +1,169 @@
+{% extends "components/base_learning.html" %}
+
+{% block page_title %}{{ module.title }} — NPTEL-SWAYAM ISL Course{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <!-- Module Header Component -->
+  {% include 'module/header.html' %}
+
+  <div class="grid lg:grid-cols-4 gap-6">
+    <!-- Main Content Area -->
+    <div class="lg:col-span-3 space-y-6">
+      
+      <!-- NPTEL-Style Content Tabs -->
+      <div class="glass p-6 reveal">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-white">
+            <i class="fas fa-graduation-cap text-blue-400 mr-2"></i>
+            NPTEL-SWAYAM Learning Platform
+          </h2>
+          <div class="flex items-center gap-4">
+            <div class="text-sm text-slate-400">
+              <i class="fas fa-users mr-1"></i>
+              <span id="activeUsers">{{ active_learners or 1247 }}</span> active learners
+            </div>
+            <div class="text-sm text-emerald-400">
+              <i class="fas fa-wifi mr-1"></i>
+              Live Session
+            </div>
+          </div>
+        </div>
+        
+        <!-- Week Navigation Tabs -->
+        <div class="flex gap-1 mb-6 bg-slate-800/50 p-1 rounded-lg">
+          <button onclick="showWeekContent('lectures')" id="lecturesTab" class="week-tab active flex-1 px-4 py-2 text-sm font-medium text-white rounded-md">
+            <i class="fas fa-video mr-2"></i>Video Lectures
+          </button>
+          <button onclick="showWeekContent('assignments')" id="assignmentsTab" class="week-tab flex-1 px-4 py-2 text-sm font-medium text-slate-400 rounded-md">
+            <i class="fas fa-tasks mr-2"></i>Assignments
+          </button>
+          <button onclick="showWeekContent('quiz')" id="quizTab" class="week-tab flex-1 px-4 py-2 text-sm font-medium text-slate-400 rounded-md">
+            <i class="fas fa-question-circle mr-2"></i>Quiz
+          </button>
+          <button onclick="showWeekContent('discussion')" id="discussionTab" class="week-tab flex-1 px-4 py-2 text-sm font-medium text-slate-400 rounded-md">
+            <i class="fas fa-comments mr-2"></i>Discussion
+          </button>
+        </div>
+        
+        <!-- Video Lessons Content -->
+        <div id="videosContent" class="content-section">
+          {% include 'module/video_player.html' %}
+        </div>
+        
+        <!-- Assignments Content -->
+        <div id="assignmentsContent" class="week-content hidden">
+          {% include 'module/assignments.html' %}
+        </div>
+        
+        <!-- Quiz Assessment Content -->
+        <div id="quizContent" class="week-content hidden">
+          {% include 'module/quiz.html' %}
+        </div>
+        
+        <!-- Discussion Forum Content -->
+        <div id="discussionContent" class="week-content hidden">
+          {% include 'module/discussion.html' %}
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-4 reveal">
+        <button id="markComplete" class="flex-1 px-6 py-3 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-500 transition">
+          <i class="fas fa-check mr-2"></i>I'm Done! 🎉
+        </button>
+        <button id="saveProgress" class="px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-500 transition">
+          <i class="fas fa-save mr-2"></i>Save
+        </button>
+        <button onclick="showUpcomingModulesModal()" class="px-6 py-3 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-500 transition">
+          <i class="fas fa-rocket mr-2"></i>What's Next?
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      
+      <!-- Progress Summary -->
+      <div class="glass p-6 reveal">
+        <h3 class="text-lg font-semibold text-white mb-4">How You're Doing 📊</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-slate-300">This Module</span>
+              <span class="text-emerald-400" id="moduleProgressSidebar">{{ progress.progress_percentage if progress else 0 }}%</span>
+            </div>
+            <div class="w-full bg-slate-700 rounded-full h-2">
+              <div class="bg-emerald-500 h-2 rounded-full transition-all duration-500" 
+                   style="width: {{ progress.progress_percentage if progress else 0 }}%"></div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-slate-300">Overall Course</span>
+              <span class="text-blue-400">{{ course_progress.progress_percentage if course_progress else 0 }}%</span>
+            </div>
+            <div class="w-full bg-slate-700 rounded-full h-2">
+              <div class="bg-blue-500 h-2 rounded-full transition-all duration-500" 
+                   style="width: {{ course_progress.progress_percentage if course_progress else 0 }}%"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Achievement Badges -->
+        <div class="mt-6">
+          <h4 class="text-sm font-semibold text-white mb-3">Badges 🏆</h4>
+          <div class="flex flex-wrap gap-2">
+            <div class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs">
+              <i class="fas fa-star mr-1"></i>Started!
+            </div>
+            {% if progress and progress.is_completed %}
+            <div class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs">
+              <i class="fas fa-check-circle mr-1"></i>Done!
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Tips -->
+      <div class="glass p-6 reveal">
+        <h3 class="text-lg font-semibold text-white mb-4">Pro Tips 💡</h3>
+        
+        <div class="space-y-3 text-sm text-slate-300">
+          <div class="flex items-start gap-2">
+            <i class="fas fa-lightbulb text-yellow-400 mt-1"></i>
+            <span>Take breaks! Your brain needs rest</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <i class="fas fa-repeat text-blue-400 mt-1"></i>
+            <span>Stuck? Go back and review</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <i class="fas fa-comments text-emerald-400 mt-1"></i>
+            <span>Practice out loud - it helps!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Upcoming Modules Modal -->
+  {% include 'components/upcoming_modules_modal.html' %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/module_learning.js') }}"></script>
+<script>
+  // Initialize module data for JavaScript
+  window.moduleData = {{ module|tojson }};
+  window.quizData = {{ quiz|tojson if quiz else 'null' }};
+  window.progressData = {{ progress|tojson if progress else 'null' }};
+  window.videosData = {{ videos|tojson if videos else '[]' }};
+  window.assignmentsData = {{ assignments|tojson if assignments else '[]' }};
+  window.discussionsData = {{ discussions|tojson if discussions else '[]' }};
+</script>
+{% endblock %}

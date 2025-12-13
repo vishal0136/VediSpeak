@@ -1,0 +1,215 @@
+<!-- Grammar & Sentence Structure Practice Component for Module 6 -->
+<div class="glass p-6 reveal">
+  <h3 class="text-xl font-semibold text-white mb-6">
+    <i class="fas fa-language text-pink-400 mr-2"></i>
+    Grammar & Sentence Structure Practice
+  </h3>
+  
+  <!-- Basic Grammar Rules -->
+  <div class="mb-8">
+    <h4 class="text-lg font-semibold text-white mb-4">ISL Grammar Rules</h4>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="glass p-4 bg-slate-800/30">
+        <h5 class="font-semibold text-pink-400 mb-3">Word Order</h5>
+        <div class="space-y-2 text-sm text-slate-300">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 bg-pink-400 rounded-full"></span>
+            <span>Subject + Object + Verb (SOV)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+            <span>Time expressions come first</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
+            <span>Questions use facial expressions</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="glass p-4 bg-slate-800/30">
+        <h5 class="font-semibold text-pink-400 mb-3">Non-Manual Markers</h5>
+        <div class="space-y-2 text-sm text-slate-300">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 bg-pink-400 rounded-full"></span>
+            <span>Eyebrow raise for questions</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+            <span>Head nod for affirmation</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
+            <span>Head shake for negation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Sentence Building -->
+  <div class="mb-8">
+    <h4 class="text-lg font-semibold text-white mb-4">Sentence Builder</h4>
+    <div class="glass p-4 bg-slate-800/30">
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-slate-300 mb-2">Build a sentence:</label>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+          <!-- Subjects -->
+          <div>
+            <h6 class="text-xs text-pink-400 mb-2">Subject</h6>
+            <div class="space-y-1">
+              <button onclick="addToSentence('I', 'subject')" class="w-full px-2 py-1 bg-pink-600/20 text-pink-300 rounded text-sm hover:bg-pink-600/30 transition">I</button>
+              <button onclick="addToSentence('You', 'subject')" class="w-full px-2 py-1 bg-pink-600/20 text-pink-300 rounded text-sm hover:bg-pink-600/30 transition">You</button>
+              <button onclick="addToSentence('He/She', 'subject')" class="w-full px-2 py-1 bg-pink-600/20 text-pink-300 rounded text-sm hover:bg-pink-600/30 transition">He/She</button>
+            </div>
+          </div>
+          
+          <!-- Objects -->
+          <div>
+            <h6 class="text-xs text-blue-400 mb-2">Object</h6>
+            <div class="space-y-1">
+              <button onclick="addToSentence('book', 'object')" class="w-full px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-sm hover:bg-blue-600/30 transition">book</button>
+              <button onclick="addToSentence('water', 'object')" class="w-full px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-sm hover:bg-blue-600/30 transition">water</button>
+              <button onclick="addToSentence('food', 'object')" class="w-full px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-sm hover:bg-blue-600/30 transition">food</button>
+            </div>
+          </div>
+          
+          <!-- Verbs -->
+          <div>
+            <h6 class="text-xs text-emerald-400 mb-2">Verb</h6>
+            <div class="space-y-1">
+              <button onclick="addToSentence('read', 'verb')" class="w-full px-2 py-1 bg-emerald-600/20 text-emerald-300 rounded text-sm hover:bg-emerald-600/30 transition">read</button>
+              <button onclick="addToSentence('drink', 'verb')" class="w-full px-2 py-1 bg-emerald-600/20 text-emerald-300 rounded text-sm hover:bg-emerald-600/30 transition">drink</button>
+              <button onclick="addToSentence('eat', 'verb')" class="w-full px-2 py-1 bg-emerald-600/20 text-emerald-300 rounded text-sm hover:bg-emerald-600/30 transition">eat</button>
+            </div>
+          </div>
+          
+          <!-- Time -->
+          <div>
+            <h6 class="text-xs text-purple-400 mb-2">Time</h6>
+            <div class="space-y-1">
+              <button onclick="addToSentence('now', 'time')" class="w-full px-2 py-1 bg-purple-600/20 text-purple-300 rounded text-sm hover:bg-purple-600/30 transition">now</button>
+              <button onclick="addToSentence('today', 'time')" class="w-full px-2 py-1 bg-purple-600/20 text-purple-300 rounded text-sm hover:bg-purple-600/30 transition">today</button>
+              <button onclick="addToSentence('tomorrow', 'time')" class="w-full px-2 py-1 bg-purple-600/20 text-purple-300 rounded text-sm hover:bg-purple-600/30 transition">tomorrow</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <div class="bg-slate-700 p-3 rounded-lg min-h-[60px] flex items-center">
+            <span class="text-white" id="builtSentence">Click words above to build a sentence...</span>
+          </div>
+        </div>
+        
+        <div class="flex gap-2">
+          <button onclick="clearSentence()" class="px-4 py-2 bg-slate-600 text-white rounded hover:bg-slate-500 transition">
+            <i class="fas fa-trash mr-2"></i>Clear
+          </button>
+          <button onclick="practiceSentence()" class="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-500 transition">
+            <i class="fas fa-play mr-2"></i>Practice
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Question Types -->
+  <div class="mb-8">
+    <h4 class="text-lg font-semibold text-white mb-4">Question Types</h4>
+    <div class="grid md:grid-cols-3 gap-4">
+      {% for question in [
+        {'type': 'What', 'hindi': 'क्या', 'example': 'What is your name?'},
+        {'type': 'Where', 'hindi': 'कहाँ', 'example': 'Where do you live?'},
+        {'type': 'When', 'hindi': 'कब', 'example': 'When will you come?'},
+        {'type': 'Who', 'hindi': 'कौन', 'example': 'Who is this?'},
+        {'type': 'Why', 'hindi': 'क्यों', 'example': 'Why are you late?'},
+        {'type': 'How', 'hindi': 'कैसे', 'example': 'How are you?'}
+      ] %}
+      <div class="letter-card glass p-4 text-center hover:bg-pink-500/10 transition cursor-pointer" 
+           onclick="practiceQuestion('{{ question.type }}', '{{ question.example }}')">
+        <div class="text-lg font-bold text-pink-400">{{ question.type }}</div>
+        <div class="text-sm text-slate-400 mb-2">{{ question.hindi }}</div>
+        <div class="text-xs text-slate-300">{{ question.example }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <!-- Practice Area -->
+  <div class="glass p-4 bg-slate-800/30">
+    <h4 class="font-semibold text-white mb-4">Grammar Practice</h4>
+    <div class="text-center">
+      <div class="w-full h-32 bg-slate-700 rounded-lg flex items-center justify-center mb-4">
+        <div id="grammarPracticeArea" class="text-center">
+          <div class="text-white font-semibold">Select a sentence or question to practice</div>
+        </div>
+      </div>
+      
+      <button onclick="startGrammarDetection()" class="px-6 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-500 transition">
+        <i class="fas fa-language mr-2"></i>Start Grammar Practice
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentSentence = {
+  time: '',
+  subject: '',
+  object: '',
+  verb: ''
+};
+
+function addToSentence(word, type) {
+  currentSentence[type] = word;
+  updateSentenceDisplay();
+}
+
+function updateSentenceDisplay() {
+  const parts = [];
+  if (currentSentence.time) parts.push(`[${currentSentence.time}]`);
+  if (currentSentence.subject) parts.push(currentSentence.subject);
+  if (currentSentence.object) parts.push(currentSentence.object);
+  if (currentSentence.verb) parts.push(currentSentence.verb);
+  
+  const sentence = parts.length > 0 ? parts.join(' ') : 'Click words above to build a sentence...';
+  document.getElementById('builtSentence').textContent = sentence;
+}
+
+function clearSentence() {
+  currentSentence = { time: '', subject: '', object: '', verb: '' };
+  updateSentenceDisplay();
+}
+
+function practiceSentence() {
+  const parts = [];
+  if (currentSentence.time) parts.push(currentSentence.time);
+  if (currentSentence.subject) parts.push(currentSentence.subject);
+  if (currentSentence.object) parts.push(currentSentence.object);
+  if (currentSentence.verb) parts.push(currentSentence.verb);
+  
+  if (parts.length > 0) {
+    const sentence = parts.join(' ');
+    document.getElementById('grammarPracticeArea').innerHTML = `
+      <div class="text-white font-semibold">${sentence}</div>
+      <div class="text-sm text-slate-400 mt-2">Practice this sentence structure</div>
+    `;
+    LearningUtils.showNotification(`Practicing sentence: ${sentence}`, 'info');
+  } else {
+    LearningUtils.showNotification('Please build a sentence first!', 'warning');
+  }
+}
+
+function practiceQuestion(type, example) {
+  document.getElementById('grammarPracticeArea').innerHTML = `
+    <div class="text-pink-400 font-semibold">${type} Question</div>
+    <div class="text-white mt-2">${example}</div>
+    <div class="text-sm text-slate-400 mt-2">Remember: Raise eyebrows for questions</div>
+  `;
+  LearningUtils.showNotification(`Practicing ${type} questions`, 'info');
+}
+
+function startGrammarDetection() {
+  LearningUtils.showNotification('Starting AI detection for grammar practice...', 'success');
+}
+</script>

@@ -1,0 +1,140 @@
+{% extends 'components/base_learning.html' %}
+
+{% block page_title %}Module 2: Numbers & Mathematical Concepts — NPTEL-SWAYAM{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <!-- Module Header -->
+  {% include 'module/header.html' with context %}
+
+  <div class="grid lg:grid-cols-4 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-3 space-y-6">
+      
+      <!-- NPTEL Course Info -->
+      <div class="glass p-6 reveal">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-white">
+            <i class="fas fa-graduation-cap text-blue-400 mr-2"></i>
+            NPTEL-SWAYAM: Numbers & Mathematical Concepts
+          </h2>
+          <div class="text-sm text-emerald-400">
+            <i class="fas fa-wifi mr-1"></i>Live Session
+          </div>
+        </div>
+        
+        <!-- Content Tabs -->
+        <div class="flex gap-1 mb-6 bg-slate-800/50 p-1 rounded-lg">
+          <button onclick="showWeekContent('practice')" id="practiceTab" class="week-tab active flex-1 px-4 py-2 text-sm font-medium text-white rounded-md">
+            <i class="fas fa-calculator mr-2"></i>Practice
+          </button>
+          <button onclick="showWeekContent('videos')" id="videosTab" class="week-tab flex-1 px-4 py-2 text-sm font-medium text-slate-400 rounded-md">
+            <i class="fas fa-video mr-2"></i>Videos
+          </button>
+          <button onclick="showWeekContent('quiz')" id="quizTab" class="week-tab flex-1 px-4 py-2 text-sm font-medium text-slate-400 rounded-md">
+            <i class="fas fa-question-circle mr-2"></i>Quiz
+          </button>
+        </div>
+        
+        <!-- Practice Content -->
+        <div id="practiceContent" class="content-section">
+          {% include 'courses/components/number_practice.html' %}
+        </div>
+        
+        <!-- Videos Content -->
+        <div id="videosContent" class="week-content hidden">
+          {% include 'module/video_player.html' %}
+        </div>
+        
+        <!-- Quiz Content -->
+        <div id="quizContent" class="week-content hidden">
+          {% include 'module/quiz.html' %}
+        </div>
+      </div>
+
+      <!-- Progress Actions -->
+      <div class="flex gap-4 reveal">
+        <button onclick="updateProgress(100)" class="flex-1 px-6 py-3 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-500 transition">
+          <i class="fas fa-check mr-2"></i>Complete Module
+        </button>
+        <button onclick="updateProgress(currentProgress)" class="px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-500 transition">
+          <i class="fas fa-save mr-2"></i>Save Progress
+        </button>
+        <button onclick="showUpcomingModulesModal()" class="px-6 py-3 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-500 transition">
+          <i class="fas fa-rocket mr-2"></i>What's Next?
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- Module Progress -->
+      <div class="glass p-6 reveal">
+        <h3 class="text-lg font-semibold text-white mb-4">Module Progress</h3>
+        <div class="text-center mb-4">
+          <div class="text-3xl font-bold text-blue-400">{{ progress.progress_percentage if progress else 0 }}%</div>
+          <div class="text-sm text-slate-400">Complete</div>
+        </div>
+        <div class="progress-bar mb-4">
+          <div class="progress-fill bg-blue-500" style="width: {{ progress.progress_percentage if progress else 0 }}%"></div>
+        </div>
+        
+        <!-- Learning Stats -->
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-slate-300">Numbers Learned</span>
+            <span class="text-blue-400">{{ (progress.progress_percentage if progress else 0) * 100 // 100 }}/100</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-300">Operations</span>
+            <span class="text-purple-400">{{ (progress.progress_percentage if progress else 0) * 4 // 100 }}/4</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Tips -->
+      <div class="glass p-6 reveal">
+        <h3 class="text-lg font-semibold text-white mb-4">Number Tips</h3>
+        <div class="space-y-3 text-sm text-slate-300">
+          <div class="flex items-start gap-2">
+            <i class="fas fa-sort-numeric-up text-blue-400 mt-1"></i>
+            <span>Start with 0-10, then advance</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <i class="fas fa-calculator text-purple-400 mt-1"></i>
+            <span>Practice math operations daily</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <i class="fas fa-clock text-emerald-400 mt-1"></i>
+            <span>Use numbers in time expressions</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <!-- Upcoming Modules Modal -->
+  {% include 'components/upcoming_modules_modal.html' %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/module_learning.js') }}"></script>
+<script>
+  // Module 2 specific data
+  window.moduleData = {
+    id: 2,
+    title: 'Numbers & Mathematical Concepts',
+    type: 'numbers'
+  };
+  window.progressData = {{ progress|tojson if progress else 'null' }};
+  
+  let currentProgress = {{ progress.progress_percentage if progress else 0 }};
+  
+  function updateProgress(newProgress) {
+    currentProgress = newProgress;
+    LearningUtils.showNotification(`Progress updated: ${newProgress}%`, 'success');
+  }
+</script>
+{% endblock %}

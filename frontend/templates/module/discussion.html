@@ -1,0 +1,161 @@
+<!-- Discussion Forum Component -->
+<div class="grid lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2 space-y-4">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-white">
+        <i class="fas fa-comments text-emerald-400 mr-2"></i>
+        Discussion Forum
+      </h3>
+      <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition">
+        <i class="fas fa-plus mr-2"></i>New Topic
+      </button>
+    </div>
+    
+    <!-- Discussion Topics -->
+    <div class="space-y-3">
+      {% if discussions %}
+        {% for discussion in discussions %}
+          <div class="glass p-4 rounded-lg cursor-pointer hover:bg-white/5">
+            <div class="flex items-start gap-3">
+              <img src="https://ui-avatars.com/api/?name={{ discussion.author | urlencode }}&background={{ discussion.avatar_color or '3b82f6' }}&color=fff" 
+                   alt="{{ discussion.author }}" class="w-10 h-10 rounded-full">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <h4 class="font-semibold text-white">{{ discussion.title }}</h4>
+                  {% if discussion.is_pinned %}
+                    <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">Pinned</span>
+                  {% endif %}
+                  {% if discussion.category %}
+                    <span class="px-2 py-1 bg-{{ discussion.category_color or 'yellow' }}-500/20 text-{{ discussion.category_color or 'yellow' }}-400 text-xs rounded-full">
+                      {{ discussion.category }}
+                    </span>
+                  {% endif %}
+                </div>
+                <p class="text-sm text-slate-300 mb-2">{{ discussion.preview_text or discussion.title }}</p>
+                <div class="flex items-center gap-4 text-xs text-slate-400">
+                  <span><i class="fas fa-user mr-1"></i>{{ discussion.author }}</span>
+                  <span><i class="fas fa-clock mr-1"></i>{{ discussion.created_at }}</span>
+                  <span><i class="fas fa-reply mr-1"></i>{{ discussion.replies }} replies</span>
+                  <span><i class="fas fa-eye mr-1"></i>{{ discussion.views or 0 }} views</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <!-- Default discussions when no data provided -->
+        <div class="glass p-4 rounded-lg cursor-pointer hover:bg-white/5">
+          <div class="flex items-start gap-3">
+            <img src="https://ui-avatars.com/api/?name=Instructor&background=3b82f6&color=fff" alt="Instructor" class="w-10 h-10 rounded-full">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h4 class="font-semibold text-white">Welcome to Module {{ module.module_order or 1 }}!</h4>
+                <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">Pinned</span>
+              </div>
+              <p class="text-sm text-slate-300 mb-2">Introduction and guidelines for this week's learning objectives...</p>
+              <div class="flex items-center gap-4 text-xs text-slate-400">
+                <span><i class="fas fa-user mr-1"></i>Dr. Sharma (Instructor)</span>
+                <span><i class="fas fa-clock mr-1"></i>2 days ago</span>
+                <span><i class="fas fa-reply mr-1"></i>12 replies</span>
+                <span><i class="fas fa-eye mr-1"></i>156 views</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="glass p-4 rounded-lg cursor-pointer hover:bg-white/5">
+          <div class="flex items-start gap-3">
+            <img src="https://ui-avatars.com/api/?name=Priya+S&background=10b981&color=fff" alt="Student" class="w-10 h-10 rounded-full">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h4 class="font-semibold text-white">Difficulty with hand shapes</h4>
+                <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded-full">Question</span>
+              </div>
+              <p class="text-sm text-slate-300 mb-2">I'm having trouble distinguishing between similar hand shapes. Any tips?</p>
+              <div class="flex items-center gap-4 text-xs text-slate-400">
+                <span><i class="fas fa-user mr-1"></i>Priya S.</span>
+                <span><i class="fas fa-clock mr-1"></i>5 hours ago</span>
+                <span><i class="fas fa-reply mr-1"></i>8 replies</span>
+                <span><i class="fas fa-eye mr-1"></i>45 views</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="glass p-4 rounded-lg cursor-pointer hover:bg-white/5">
+          <div class="flex items-start gap-3">
+            <img src="https://ui-avatars.com/api/?name=Rahul+K&background=8b5cf6&color=fff" alt="Student" class="w-10 h-10 rounded-full">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h4 class="font-semibold text-white">Practice partner needed</h4>
+                <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full">Study Group</span>
+              </div>
+              <p class="text-sm text-slate-300 mb-2">Looking for someone to practice video calls with. Delhi area preferred.</p>
+              <div class="flex items-center gap-4 text-xs text-slate-400">
+                <span><i class="fas fa-user mr-1"></i>Rahul K.</span>
+                <span><i class="fas fa-clock mr-1"></i>1 day ago</span>
+                <span><i class="fas fa-reply mr-1"></i>3 replies</span>
+                <span><i class="fas fa-eye mr-1"></i>28 views</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <!-- Forum Sidebar -->
+  <div class="space-y-4">
+    <div class="glass p-4 rounded-lg">
+      <h4 class="font-semibold text-white mb-3">
+        <i class="fas fa-fire text-red-400 mr-2"></i>
+        Hot Topics
+      </h4>
+      <div class="space-y-2 text-sm">
+        {% if hot_topics %}
+          {% for topic in hot_topics %}
+            <div class="text-slate-300 hover:text-white cursor-pointer">{{ topic }}</div>
+          {% endfor %}
+        {% else %}
+          <div class="text-slate-300 hover:text-white cursor-pointer">Assignment 2 clarifications</div>
+          <div class="text-slate-300 hover:text-white cursor-pointer">Best practice videos</div>
+          <div class="text-slate-300 hover:text-white cursor-pointer">Study group formation</div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <div class="glass p-4 rounded-lg">
+      <h4 class="font-semibold text-white mb-3">
+        <i class="fas fa-users text-blue-400 mr-2"></i>
+        Active Members
+      </h4>
+      <div class="space-y-2">
+        {% if active_members %}
+          {% for member in active_members %}
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 bg-{{ member.status_color or 'emerald' }}-400 rounded-full"></div>
+              <span class="text-sm text-slate-300">{{ member.name }}{% if member.role %} ({{ member.role }}){% endif %}</span>
+            </div>
+          {% endfor %}
+          {% if online_count %}
+            <div class="text-xs text-slate-400 mt-2">+{{ online_count }} more online</div>
+          {% endif %}
+        {% else %}
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+            <span class="text-sm text-slate-300">Dr. Sharma (Instructor)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+            <span class="text-sm text-slate-300">Priya S.</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-yellow-400 rounded-full"></div>
+            <span class="text-sm text-slate-300">Rahul K.</span>
+          </div>
+          <div class="text-xs text-slate-400 mt-2">+247 more online</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

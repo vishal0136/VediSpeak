@@ -1,0 +1,87 @@
+<!-- Recent Achievements & Live Feed Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  
+  <!-- Recent Achievements -->
+  <section class="glass p-6 reveal">
+    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+      <i class="fa-solid fa-trophy text-yellow-300"></i>
+      Recent Achievements
+    </h2>
+    <div class="space-y-3" id="achievementsContainer">
+      {% if achievements and achievements|length > 0 %}
+        {% for achievement in achievements[:3] %}
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20">
+          <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
+            <i class="fa-solid fa-{{ achievement.icon or 'trophy' }} text-yellow-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">{{ achievement.title }}</div>
+            <div class="text-sm text-[--muted]">{{ achievement.description }}</div>
+          </div>
+          <div class="text-xs text-yellow-400">{{ achievement.earned_date.strftime('%b %d') if achievement.earned_date else 'Recent' }}</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <!-- Dynamic achievements based on current progress -->
+        {% if stats.streak_days >= 7 %}
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20">
+          <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
+            <i class="fa-solid fa-fire text-yellow-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">{{ stats.streak_days }}-Day Streak</div>
+            <div class="text-sm text-[--muted]">Maintained daily learning streak</div>
+          </div>
+          <div class="text-xs text-yellow-400">Active</div>
+        </div>
+        {% endif %}
+        
+        {% if stats.completed_tasks >= 10 %}
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
+          <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+            <i class="fa-solid fa-tasks text-green-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">Task Achiever</div>
+            <div class="text-sm text-[--muted]">Completed {{ stats.completed_tasks }} tasks</div>
+          </div>
+          <div class="text-xs text-green-400">Recent</div>
+        </div>
+        {% endif %}
+        
+        {% if stats.total_hours >= 5 %}
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/20">
+          <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+            <i class="fa-solid fa-clock text-blue-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">Study Champion</div>
+            <div class="text-sm text-[--muted]">{{ stats.total_hours }} hours of learning</div>
+          </div>
+          <div class="text-xs text-blue-400">Ongoing</div>
+        </div>
+        {% endif %}
+        
+        {% if not stats.streak_days and not stats.completed_tasks and not stats.total_hours %}
+        <div class="text-center text-[--muted] py-8">
+          <i class="fa-solid fa-trophy text-4xl mb-3 opacity-30"></i>
+          <p>Start learning to earn achievements!</p>
+          <p class="text-sm">Complete tasks and maintain streaks to unlock badges</p>
+        </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Live Activity Feed -->
+  <section class="glass p-6 reveal">
+    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+      <i class="fa-solid fa-rss text-emerald-300"></i>
+      Live Activity Feed
+      <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse ml-2"></div>
+    </h2>
+    <div id="activityFeed" class="space-y-3 max-h-64 overflow-y-auto">
+      <!-- Live activities will be populated here -->
+    </div>
+  </section>
+</div>
