@@ -28,6 +28,15 @@
 
 ---
 
+## 🚀 Featured Work
+
+**[VediSpeak](https://github.com/vishal0136/VediSpeak)** - AI platform for Indian Sign Language recognition
+- 🎯 **95.2% accuracy** in real-time ISL detection
+- 🌐 Supports **14+ Indian languages** for TTS/STT
+- 🛠️ Built with **PyTorch, MediaPipe, and Azure Cognitive Services**
+
+---
+
 ## ✨ Key Features
 
 ### 🤖 **AI-Powered ISL Recognition**
