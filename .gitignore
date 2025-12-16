@@ -1,4 +1,6 @@
+# ===============================
 # Python
+# ===============================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -20,7 +22,9 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment (NEVER commit these)
+# ===============================
+# Virtual Environment (NEVER commit)
+# ===============================
 venv/
 venv_new/
 env/
@@ -31,35 +35,53 @@ Scripts/
 share/
 pyvenv.cfg
 
-# IDE
+# ===============================
+# IDE / Editor
+# ===============================
 .vscode/
 .idea/
 *.swp
 *.swo
 
+# ===============================
 # Environment variables
+# ===============================
 .env
 
+# ===============================
 # Logs
+# ===============================
 logs/
 *.log
 
+# ===============================
 # Uploads
+# ===============================
 storage/uploads/*
 !storage/uploads/.gitkeep
 
-# ML Models and Data (Large files - use Git LFS or external storage)
-checkpoints/*.pth
-!checkpoints/.gitkeep
+# ===============================
+# ML Models & Data (LOCAL ONLY)
+# ===============================
+data/
 raw_data/
+checkpoints/*.pth
 *.pth
 *.pkl
 *.h5
 *.model
 
+# Keep empty folders on GitHub
+!data/.gitkeep
+!checkpoints/.gitkeep
+
+# ===============================
 # OS
+# ===============================
 .DS_Store
 Thumbs.db
 
+# ===============================
 # Build artifacts
-.dist/data/
+# ===============================
+.dist/
