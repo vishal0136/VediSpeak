@@ -105,8 +105,6 @@ python -c "from backend.app import create_app; app = create_app(); app.app_conte
 python run.py
 ```
 
-Visit `http://localhost:5000` to start using VediSpeak!
-
 ---
 
 ## 🛠️ Tech Stack
@@ -262,3 +260,4 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 
 </div>
+
