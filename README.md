@@ -105,7 +105,6 @@ python -c "from backend.app import create_app; app = create_app(); app.app_conte
 python run.py
 ```
 
-
 ---
 
 ## 🛠️ Tech Stack
@@ -261,3 +260,4 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 
 </div>
+
