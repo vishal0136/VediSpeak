@@ -14,7 +14,7 @@ Before setting up VediSpeak, ensure you have the following installed on your sys
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/vishal0136/vedispeak.git
+git clone https://github.com/vishal0136/VediSpeak.git
 cd vedispeak
 ```
 
@@ -270,5 +270,6 @@ If you encounter issues:
 ---
 
 **Happy Learning! 🎉**
+
 
 *VediSpeak - Empowering Communication Through Technology*
