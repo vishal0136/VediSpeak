@@ -260,7 +260,8 @@ Every contribution, no matter how small, makes VediSpeak better for everyone. Wh
 ---
 
 
-*For questions about contributing, reach out to us at contribute@vedispeak.com*
+
+
 
 
 
