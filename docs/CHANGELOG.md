@@ -113,14 +113,7 @@ We welcome contributions! Please see our [Contributing Guidelines](../CONTRIBUTI
 
 ---
 
-## 📞 Support
 
-For questions about specific versions or upgrade paths:
-- 📧 **Email**: support@vedispeak.com
-- 💬 **Discord**: [VediSpeak Community](https://discord.gg/vedispeak)
-- 📖 **Documentation**: [docs.vedispeak.com](https://docs.vedispeak.com)
+*Last Updated: December 18, 2025*
 
----
-
-*Last Updated: December 13, 2024*
 *VediSpeak Development Team*
