@@ -161,7 +161,6 @@ Contributors are recognized in:
 ### Communication Channels
 - **GitHub Issues**: Bug reports and feature requests
 - **GitHub Discussions**: General questions and ideas
-- **Email**: support@vedispeak.com for sensitive issues
 
 ### Mentorship Program
 - New contributors get paired with experienced mentors
@@ -262,5 +261,6 @@ Every contribution, no matter how small, makes VediSpeak better for everyone. Wh
 
 
 *For questions about contributing, reach out to us at contribute@vedispeak.com*
+
 
 
