@@ -77,7 +77,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/vishal0136/Vedispeak.git
+git clone https://github.com/vishal0136/VediSpeak.git
 cd vedispeak
 
 # Create and activate virtual environment
@@ -260,4 +260,5 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 
 </div>
+
 
