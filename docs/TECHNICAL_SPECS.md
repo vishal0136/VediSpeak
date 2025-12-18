@@ -300,5 +300,6 @@ CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "run:app"]
 
 ---
 
-*Last Updated: December 2024*
+*Last Updated: December 2025*
+
 *VediSpeak Technical Team*
