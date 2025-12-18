@@ -421,16 +421,7 @@ result = client.speech_to_text(
 )
 ```
 
----
 
-## 📞 Support
+*Last Updated: December 18, 2025*
 
-For API support and questions:
-- 📧 **Email**: api-support@vedispeak.com
-- 📖 **Documentation**: [docs.vedispeak.com/api](https://docs.vedispeak.com/api)
-- 💬 **Discord**: [VediSpeak Developers](https://discord.gg/vedispeak-dev)
-
----
-
-*Last Updated: December 13, 2024*
 *VediSpeak API Team*
