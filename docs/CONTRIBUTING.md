@@ -5,7 +5,7 @@ Thank you for your interest in contributing to VediSpeak! We welcome contributio
 ## 🌟 Ways to Contribute
 
 ### 🐛 Bug Reports
-- Use the [GitHub Issues](https://github.com/vishal0136/vedispeak/issues) to report bugs
+- Use the [GitHub Issues](https://github.com/vishal0136/VediSpeak/issues) to report bugs
 - Include detailed steps to reproduce the issue
 - Provide system information (OS, browser, Python version)
 - Add screenshots or videos if applicable
@@ -259,5 +259,6 @@ Every contribution, no matter how small, makes VediSpeak better for everyone. Wh
 **Together, we're making communication accessible for all.**
 
 ---
+
 
 *For questions about contributing, reach out to us at contribute@vedispeak.com*
