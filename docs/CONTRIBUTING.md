@@ -45,7 +45,7 @@ Thank you for your interest in contributing to VediSpeak! We welcome contributio
 ### Setup Steps
 ```bash
 # Fork and clone the repository
-git clone https://github.com/vishal0136/vedispeak.git
+git clone https://github.com/vishal0136/VediSpeak.git
 cd vedispeak
 
 # Create virtual environment
@@ -262,4 +262,5 @@ Every contribution, no matter how small, makes VediSpeak better for everyone. Wh
 
 
 *For questions about contributing, reach out to us at contribute@vedispeak.com*
+
 
