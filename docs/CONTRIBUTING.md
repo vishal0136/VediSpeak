@@ -11,7 +11,7 @@ Thank you for your interest in contributing to VediSpeak! We welcome contributio
 - Add screenshots or videos if applicable
 
 ### 💡 Feature Requests
-- Suggest new features through [GitHub Issues](https://github.com/vishal0136/vedispeak/issues)
+- Suggest new features through [GitHub Issues](https://github.com/vishal0136/VediSpeak/issues)
 - Explain the use case and expected behavior
 - Consider accessibility implications
 - Discuss implementation approaches
@@ -262,3 +262,4 @@ Every contribution, no matter how small, makes VediSpeak better for everyone. Wh
 
 
 *For questions about contributing, reach out to us at contribute@vedispeak.com*
+
