@@ -181,9 +181,12 @@ resetPwdBtn.addEventListener('click', async () => {
   }
 });
 
-// Enhanced form submissions
+// Enhanced form submissions with validation
 document.getElementById("signupForm").addEventListener("submit", async function(e) {
   e.preventDefault();
+  
+  // Clear previous errors
+  clearAllErrors();
   
   const submitBtn = document.getElementById("submitSignup");
   const msgBox = document.getElementById("signupMessage");
@@ -194,6 +197,39 @@ document.getElementById("signupForm").addEventListener("submit", async function(
     phone: document.getElementById("signupPhone").value.trim(),
     password: document.getElementById("signupPassword").value.trim()
   };
+
+  // Client-side validation
+  let hasErrors = false;
+  
+  if (payload.name.length < 2) {
+    showFieldError('name', 'Name must be at least 2 characters');
+    hasErrors = true;
+  }
+  
+  if (!isValidEmail(payload.email)) {
+    showFieldError('signupEmail', 'Please enter a valid email address');
+    hasErrors = true;
+  }
+  
+  if (payload.phone && !isValidPhone(payload.phone)) {
+    showFieldError('signupPhone', 'Please enter a valid Indian phone number');
+    hasErrors = true;
+  }
+  
+  if (payload.password.length < 8) {
+    showFieldError('signupPassword', 'Password must be at least 8 characters');
+    hasErrors = true;
+  } else if (!isStrongPassword(payload.password)) {
+    showFieldError('signupPassword', 'Password must contain uppercase, lowercase, and number');
+    hasErrors = true;
+  }
+  
+  if (hasErrors) {
+    msgBox.style.display = "block";
+    msgBox.className = "msg error";
+    msgBox.innerText = "Please fix the errors above";
+    return;
+  }
 
   submitBtn.disabled = true;
   submitBtn.classList.add('loading');
@@ -230,11 +266,33 @@ document.getElementById("signupForm").addEventListener("submit", async function(
 document.getElementById("loginForm").addEventListener("submit", async function(e) {
   e.preventDefault();
   
+  // Clear previous errors
+  clearAllErrors();
+  
   const loginBtn = document.getElementById("loginBtn");
+  const msgBox = document.getElementById("loginMessage");
+  
   const payload = {
     email: document.getElementById("loginEmail").value.trim(),
     password: document.getElementById("loginPassword").value.trim()
   };
+
+  // Client-side validation
+  let hasErrors = false;
+  
+  if (!isValidEmail(payload.email)) {
+    showFieldError('loginEmail', 'Please enter a valid email address');
+    hasErrors = true;
+  }
+  
+  if (!payload.password) {
+    showFieldError('loginPassword', 'Password is required');
+    hasErrors = true;
+  }
+  
+  if (hasErrors) {
+    return;
+  }
 
   loginBtn.disabled = true;
   loginBtn.classList.add('loading');
@@ -249,16 +307,146 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     const data = await res.json();
 
     if (data.status === "success") {
-      window.location.href = "/dashboard";
+      showNotification('Login successful! Redirecting...', 'success');
+      setTimeout(() => window.location.href = "/dashboard", 500);
     } else {
-      showNotification(data.message || 'Login failed', 'error');
+      msgBox.style.display = "block";
+      msgBox.className = "msg error";
+      msgBox.innerText = data.message || 'Login failed. Please check your credentials.';
     }
   } catch (e) {
-    showNotification('Network error. Please try again.', 'error');
+    msgBox.style.display = "block";
+    msgBox.className = "msg error";
+    msgBox.innerText = 'Network error. Please try again.';
   } finally {
     loginBtn.disabled = false;
     loginBtn.classList.remove('loading');
     loginBtn.innerHTML = '<i class="fas fa-arrow-right mr-2"></i>Sign In';
+  }
+});
+
+// Validation helper functions
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function isValidPhone(phone) {
+  const phoneRegex = /^(\+91|91|0)?[6-9]\d{9}$/;
+  return phoneRegex.test(phone.replace(/\s+/g, ''));
+}
+
+function isStrongPassword(password) {
+  return /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password);
+}
+
+function showFieldError(fieldId, message) {
+  const input = document.getElementById(fieldId);
+  const errorSpan = document.getElementById(fieldId + 'Error');
+  
+  if (input && errorSpan) {
+    input.classList.add('error');
+    errorSpan.textContent = message;
+    errorSpan.classList.add('show');
+  }
+}
+
+function clearFieldError(fieldId) {
+  const input = document.getElementById(fieldId);
+  const errorSpan = document.getElementById(fieldId + 'Error');
+  
+  if (input && errorSpan) {
+    input.classList.remove('error');
+    errorSpan.classList.remove('show');
+  }
+}
+
+function clearAllErrors() {
+  document.querySelectorAll('.input-error').forEach(error => {
+    error.classList.remove('show');
+  });
+  document.querySelectorAll('input.error').forEach(input => {
+    input.classList.remove('error');
+  });
+}
+
+// Password strength checker
+document.getElementById('signupPassword')?.addEventListener('input', function() {
+  const password = this.value;
+  const strengthFill = document.getElementById('strengthFill');
+  const strengthText = document.getElementById('strengthText');
+  
+  let strength = 0;
+  let text = 'Weak';
+  let color = '#ef4444';
+  
+  if (password.length >= 8) strength += 25;
+  if (/[a-z]/.test(password)) strength += 25;
+  if (/[A-Z]/.test(password)) strength += 25;
+  if (/\d/.test(password)) strength += 25;
+  
+  if (strength === 0) {
+    text = 'Enter a password';
+    color = '#64748b';
+  } else if (strength <= 25) {
+    text = 'Weak';
+    color = '#ef4444';
+  } else if (strength <= 50) {
+    text = 'Fair';
+    color = '#f59e0b';
+  } else if (strength <= 75) {
+    text = 'Good';
+    color = '#10b981';
+  } else {
+    text = 'Strong';
+    color = '#059669';
+  }
+  
+  strengthFill.style.width = strength + '%';
+  strengthFill.style.background = color;
+  strengthText.textContent = text;
+  strengthText.style.color = color;
+});
+
+// Password visibility toggle
+function togglePasswordVisibility(inputId) {
+  const input = document.getElementById(inputId);
+  const button = input.parentElement.querySelector('.password-toggle');
+  const icon = button.querySelector('i');
+  
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('fa-eye');
+    icon.classList.add('fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('fa-eye-slash');
+    icon.classList.add('fa-eye');
+  }
+}
+
+// Real-time validation on blur
+document.getElementById('signupEmail')?.addEventListener('blur', function() {
+  if (this.value && !isValidEmail(this.value)) {
+    showFieldError('signupEmail', 'Please enter a valid email address');
+  } else {
+    clearFieldError('signupEmail');
+  }
+});
+
+document.getElementById('signupPhone')?.addEventListener('blur', function() {
+  if (this.value && !isValidPhone(this.value)) {
+    showFieldError('signupPhone', 'Please enter a valid Indian phone number');
+  } else {
+    clearFieldError('signupPhone');
+  }
+});
+
+document.getElementById('name')?.addEventListener('blur', function() {
+  if (this.value && this.value.length < 2) {
+    showFieldError('name', 'Name must be at least 2 characters');
+  } else {
+    clearFieldError('name');
   }
 });
 

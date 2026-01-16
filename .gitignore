@@ -85,3 +85,17 @@ Thumbs.db
 # Build artifacts
 # ===============================
 .dist/
+
+# ===============================
+# Internal Documentation (DO NOT COMMIT)
+# ===============================
+# Issue tracking and internal docs
+**/ISSUES/
+update/
+*_ISSUES.md
+*_ERRORS.md
+*_BUGS.md
+*_PROBLEMS.md
+*_FIX*.md
+PRIORITY_*.md
+CRITICAL_*.md

@@ -422,7 +422,7 @@ function startQuizTimer() {
 function selectQuizOption(optionIndex) {
   // Clear previous selections
   document.querySelectorAll('.quiz-option').forEach(option => {
-    option.classList.remove('border-emerald-400', 'selected');
+    option.classList.remove('border-emerald-400', 'selected', 'bg-emerald-500/10');
     option.classList.add('border-slate-600');
     const dot = option.querySelector('.option-dot');
     if (dot) dot.classList.add('hidden');
@@ -432,29 +432,94 @@ function selectQuizOption(optionIndex) {
   const selectedOption = document.querySelectorAll('.quiz-option')[optionIndex];
   if (selectedOption) {
     selectedOption.classList.remove('border-slate-600');
-    selectedOption.classList.add('border-emerald-400', 'selected');
+    selectedOption.classList.add('border-emerald-400', 'selected', 'bg-emerald-500/10');
     const dot = selectedOption.querySelector('.option-dot');
     if (dot) dot.classList.remove('hidden');
   }
   
-  // Enable next button
+  // Enable next/submit button
   const nextBtn = document.getElementById('nextQuestionBtn');
-  if (nextBtn) nextBtn.disabled = false;
+  const submitBtn = document.getElementById('submitQuizBtn');
+  
+  if (nextBtn) {
+    nextBtn.disabled = false;
+    nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+  }
+  
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+  }
   
   // Update question navigator
-  const currentQ = document.querySelector('.grid.grid-cols-10 .bg-emerald-500');
-  if (currentQ) {
-    currentQ.classList.remove('bg-emerald-500');
-    currentQ.classList.add('bg-blue-500'); // Mark as answered
-  }
+  updateQuestionNavigator();
   
   // Store answer
   quizAnswers[currentQuestionIndex] = optionIndex;
 }
 
+function updateQuestionNavigator() {
+  // Update question navigator dots/numbers if they exist
+  const navigatorItems = document.querySelectorAll('.question-nav-item');
+  
+  navigatorItems.forEach((item, index) => {
+    // Remove all status classes
+    item.classList.remove('bg-emerald-500', 'bg-blue-500', 'bg-slate-600');
+    
+    if (index === currentQuestionIndex) {
+      // Current question
+      item.classList.add('bg-emerald-500', 'ring-2', 'ring-emerald-400');
+    } else if (quizAnswers[index] !== undefined) {
+      // Answered question
+      item.classList.add('bg-blue-500');
+    } else {
+      // Unanswered question
+      item.classList.add('bg-slate-600');
+    }
+  });
+}
+
+function nextQuestion() {
+  const quizData = window.quizData;
+  if (!quizData || !quizData.questions) return;
+  
+  if (currentQuestionIndex < quizData.questions.length - 1) {
+    goToQuestion(currentQuestionIndex + 1);
+  }
+}
+
+function previousQuestion() {
+  if (currentQuestionIndex > 0) {
+    goToQuestion(currentQuestionIndex - 1);
+  }
+}
+
 function goToQuestion(questionIndex) {
+  // Validate question index
+  if (!window.quizData || !window.quizData.questions) {
+    console.error('Quiz data not loaded');
+    showNotification('Quiz data not available', 'error');
+    return;
+  }
+  
+  const questions = window.quizData.questions;
+  if (questionIndex < 0 || questionIndex >= questions.length) {
+    console.error('Invalid question index:', questionIndex);
+    return;
+  }
+  
+  // Save current answer before switching
+  if (currentQuestionIndex >= 0 && currentQuestionIndex !== questionIndex) {
+    const selectedOption = document.querySelector('.quiz-option.selected');
+    if (selectedOption) {
+      const optionIndex = parseInt(selectedOption.getAttribute('data-option'));
+      quizAnswers[currentQuestionIndex] = optionIndex;
+    }
+  }
+  
   currentQuestionIndex = questionIndex;
   loadQuizQuestion(questionIndex);
+  updateQuestionNavigator();
 }
 
 function submitQuizAssessment() {
@@ -667,14 +732,18 @@ function loadQuizContent() {
 
 function loadQuizQuestion(index) {
   const quizData = window.quizData;
-  if (!quizData || !quizData.questions || !quizData.questions[index]) return;
+  if (!quizData || !quizData.questions || !quizData.questions[index]) {
+    console.error('Cannot load question:', index);
+    showNotification('Failed to load question', 'error');
+    return;
+  }
   
   const question = quizData.questions[index];
   const questionTextEl = document.getElementById('questionText');
   const optionsContainer = document.getElementById('optionsContainer');
   
   if (questionTextEl) {
-    questionTextEl.textContent = question.text;
+    questionTextEl.textContent = question.text || question.question || `Question ${index + 1}`;
   }
   
   if (optionsContainer) {
@@ -707,15 +776,35 @@ function loadQuizQuestion(index) {
   // Update navigation buttons
   const prevBtn = document.getElementById('prevQuestionBtn');
   const nextBtn = document.getElementById('nextQuestionBtn');
+  const submitBtn = document.getElementById('submitQuizBtn');
   
-  if (prevBtn) prevBtn.disabled = index === 0;
-  if (nextBtn) {
-    nextBtn.style.display = index === quizData.questions.length - 1 ? 'none' : 'block';
+  if (prevBtn) {
+    prevBtn.disabled = index === 0;
+    prevBtn.classList.toggle('opacity-50', index === 0);
+    prevBtn.classList.toggle('cursor-not-allowed', index === 0);
+  }
+  
+  if (nextBtn && submitBtn) {
+    const isLastQuestion = index === quizData.questions.length - 1;
+    nextBtn.style.display = isLastQuestion ? 'none' : 'inline-flex';
+    submitBtn.style.display = isLastQuestion ? 'inline-flex' : 'none';
   }
   
   // Restore previous answer if exists
   if (quizAnswers[index] !== undefined) {
     selectQuizOption(quizAnswers[index]);
+  } else {
+    // Disable next button if no answer selected
+    if (nextBtn) {
+      nextBtn.disabled = true;
+      nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+  }
+  
+  // Scroll to top of question
+  const questionContainer = document.getElementById('questionContainer');
+  if (questionContainer) {
+    questionContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 
@@ -769,6 +858,9 @@ window.startQuiz = startQuiz;
 window.startQuizAssessment = startQuizAssessment;
 window.selectQuizOption = selectQuizOption;
 window.goToQuestion = goToQuestion;
+window.nextQuestion = nextQuestion;
+window.previousQuestion = previousQuestion;
+window.updateQuestionNavigator = updateQuestionNavigator;
 window.submitQuizAssessment = submitQuizAssessment;
 window.retakeAssessment = retakeAssessment;
 window.proceedToNextModule = proceedToNextModule;

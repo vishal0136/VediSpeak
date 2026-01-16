@@ -64,19 +64,22 @@ async function enumerateCameras() {
   try {
     console.log('Enumerating cameras...');
     
+    // Check browser support
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error('Camera access not supported in this browser');
+      throw new Error('Camera access not supported in this browser. Please use Chrome, Firefox, or Safari.');
     }
     
     // Request permission first
     let tempStream;
     try {
+      showCameraLoading();
       tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
       console.log('✅ Camera permission granted');
+      hideCameraLoading();
     } catch (permError) {
-      console.warn('Camera permission needed for enumeration:', permError.message);
-      cameraSelect.innerHTML = '<option value="">❌ Camera permission required</option>';
-      updateCameraStatus('permission_denied');
+      console.warn('Camera permission error:', permError);
+      hideCameraLoading();
+      handleCameraError(permError);
       return [];
     }
     
@@ -91,6 +94,14 @@ async function enumerateCameras() {
       tempStream.getTracks().forEach(track => track.stop());
     }
     
+    if (videoDevices.length === 0) {
+      showCameraError(
+        'No Camera Found',
+        'No camera devices detected. Please connect a camera and try again.'
+      );
+      return [];
+    }
+    
     // Update camera list
     availableCameras = videoDevices;
     updateCameraSelect(videoDevices);
@@ -100,9 +111,135 @@ async function enumerateCameras() {
     
   } catch (error) {
     console.error('Camera enumeration failed:', error);
-    cameraSelect.innerHTML = `<option value="">❌ ${error.message}</option>`;
-    updateCameraStatus('error');
+    handleCameraError(error);
     return [];
+  }
+}
+
+// Handle camera errors with user-friendly messages
+function handleCameraError(error) {
+  let title = 'Camera Error';
+  let message = 'Unable to access camera. Please check your settings.';
+  
+  if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+    title = 'Camera Permission Denied';
+    message = 'Please allow camera access in your browser settings and refresh the page.';
+  } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+    title = 'No Camera Found';
+    message = 'No camera detected. Please connect a camera and try again.';
+  } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+    title = 'Camera In Use';
+    message = 'Camera is already in use by another application. Please close other apps using the camera.';
+  } else if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
+    title = 'Camera Not Compatible';
+    message = 'Your camera does not meet the required specifications. Try a different camera.';
+  } else if (error.name === 'TypeError') {
+    title = 'Browser Not Supported';
+    message = 'Your browser does not support camera access. Please use Chrome, Firefox, or Safari.';
+  } else if (error.name === 'SecurityError') {
+    title = 'Security Error';
+    message = 'Camera access blocked due to security settings. Please use HTTPS or localhost.';
+  }
+  
+  showCameraError(title, message);
+  updateCameraStatus('error');
+  cameraSelect.innerHTML = `<option value="">❌ ${title}</option>`;
+  startBtn.disabled = true;
+  startBtn.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Camera Error';
+}
+
+// Show camera error overlay
+function showCameraError(title, message) {
+  const errorDiv = document.getElementById('cameraError');
+  const errorTitle = document.getElementById('errorTitle');
+  const errorMessage = document.getElementById('errorMessage');
+  
+  if (errorDiv && errorTitle && errorMessage) {
+    errorTitle.textContent = title;
+    errorMessage.textContent = message;
+    errorDiv.classList.remove('hidden');
+  }
+}
+
+// Hide camera error overlay
+function hideCameraError() {
+  const errorDiv = document.getElementById('cameraError');
+  if (errorDiv) {
+    errorDiv.classList.add('hidden');
+  }
+}
+
+// Show camera loading state
+function showCameraLoading() {
+  const loadingDiv = document.getElementById('cameraLoading');
+  if (loadingDiv) {
+    loadingDiv.classList.remove('hidden');
+  }
+}
+
+// Hide camera loading state
+function hideCameraLoading() {
+  const loadingDiv = document.getElementById('cameraLoading');
+  if (loadingDiv) {
+    loadingDiv.classList.add('hidden');
+  }
+}
+
+// Retry camera initialization
+async function retryCamera() {
+  hideCameraError();
+  startBtn.disabled = false;
+  startBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Start Recognition';
+  await enumerateCameras();
+}
+
+// Show camera help modal
+function showCameraHelp() {
+  const helpMessage = `
+    <div class="text-left space-y-4">
+      <h4 class="font-bold text-white">Camera Access Help</h4>
+      
+      <div>
+        <h5 class="font-semibold text-white mb-2">Chrome:</h5>
+        <ol class="list-decimal list-inside text-sm text-slate-300 space-y-1">
+          <li>Click the camera icon in the address bar</li>
+          <li>Select "Always allow" for camera access</li>
+          <li>Refresh the page</li>
+        </ol>
+      </div>
+      
+      <div>
+        <h5 class="font-semibold text-white mb-2">Firefox:</h5>
+        <ol class="list-decimal list-inside text-sm text-slate-300 space-y-1">
+          <li>Click the camera icon in the address bar</li>
+          <li>Select "Allow" and check "Remember this decision"</li>
+          <li>Refresh the page</li>
+        </ol>
+      </div>
+      
+      <div>
+        <h5 class="font-semibold text-white mb-2">Safari:</h5>
+        <ol class="list-decimal list-inside text-sm text-slate-300 space-y-1">
+          <li>Go to Safari > Settings > Websites > Camera</li>
+          <li>Select "Allow" for this website</li>
+          <li>Refresh the page</li>
+        </ol>
+      </div>
+      
+      <div class="pt-3 border-t border-slate-600">
+        <p class="text-sm text-slate-400">
+          <i class="fas fa-info-circle mr-1"></i>
+          Make sure no other application is using your camera.
+        </p>
+      </div>
+    </div>
+  `;
+  
+  // Show help in a modal or alert
+  if (typeof showModal === 'function') {
+    showModal('Camera Help', helpMessage);
+  } else {
+    alert('Camera Help:\n\n1. Allow camera access in browser settings\n2. Make sure camera is not in use by another app\n3. Refresh the page after granting permission');
   }
 }
 
