@@ -1,4 +1,4 @@
-# 🤟 VediSpeak - AI-Powered Indian Sign Language Platform
+# VediSpeak - AI-Powered Indian Sign Language Platform
 
 <div align="center">
 
@@ -260,5 +260,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 
 </div>
+
 
 
