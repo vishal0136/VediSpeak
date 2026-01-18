@@ -28,6 +28,11 @@
 
       <!-- Right side actions -->
       <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Mobile menu button -->
+        <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors">
+          <i class="fas fa-bars text-white text-lg"></i>
+        </button>
+
         <!-- Notifications (hidden on mobile) -->
         <button class="hidden sm:block p-2 rounded-full hover:bg-white/5 transition" aria-label="Notifications">
           <i class="fa-regular fa-bell text-[--muted] hover:text-white transition"></i>
@@ -38,22 +43,22 @@
           <button class="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] px-3 py-2 rounded-full hover:bg-[rgba(255,255,255,0.06)] transition" aria-label="User menu">
             <!-- Dynamic Profile Photo -->
             <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-amber-400/20">
-              {% if user and user.profile_photo %}
+              {% if user is defined and user and user.profile_photo %}
                 <img src="{{ url_for('pages.uploaded_file', filename=user.profile_photo) }}" 
                      alt="Profile" 
                      class="w-full h-full object-cover"
                      id="navProfilePhoto"
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="w-full h-full bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-sm font-semibold" style="display: none;">
-                  {{ (user.username or session.username or 'User')[0].upper() }}
+                  {{ ((user.username if user is defined and user else session.username if session is defined and session.username else 'User')[0]).upper() }}
                 </div>
               {% else %}
                 <div class="w-full h-full bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-sm font-semibold">
-                  {{ (user.username or session.username or 'User')[0].upper() }}
+                  {{ ((user.username if user is defined and user and user.username else session.username if session is defined and session.username else 'User')[0]).upper() }}
                 </div>
               {% endif %}
             </div>
-            <span class="text-sm font-medium">{{ user.username or session.username or 'User' }}</span>
+            <span class="hidden sm:block text-sm font-medium">{{ user.username if user is defined and user and user.username else session.username if session is defined and session.username else 'User' }}</span>
             <i class="fa-solid fa-chevron-down text-xs text-[--muted]"></i>
           </button>
           
@@ -82,19 +87,6 @@
             </a>
           </div>
         </div>
-
-        <!-- Mobile Menu Button -->
-        <button id="mobileMenuToggle" 
-                class="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
-                aria-label="Toggle mobile menu"
-                aria-expanded="false">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path id="menuIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M4 6h16M4 12h16M4 18h16"></path>
-            <path id="closeIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M6 18L18 6M6 6l12 12" style="display: none;"></path>
-          </svg>
-        </button>
       </div>
     </div>
 
@@ -137,18 +129,18 @@
         <div class="border-t border-slate-700 pt-3 mt-3">
           <div class="mobile-nav-item cursor-default bg-white/5">
             <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-400/30">
-              {% if user and user.profile_photo %}
+              {% if user is defined and user and user.profile_photo %}
                 <img src="{{ url_for('pages.uploaded_file', filename=user.profile_photo) }}" 
                      alt="Profile" class="w-full h-full object-cover">
               {% else %}
                 <div class="w-full h-full bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-sm font-semibold">
-                  {{ (user.username or session.username or 'User')[0].upper() }}
+                  {{ ((user.username if user is defined and user and user.username else session.username if session is defined and session.username else 'User')[0]).upper() }}
                 </div>
               {% endif %}
             </div>
             <div class="flex-1 min-w-0">
-              <div class="font-medium text-white truncate">{{ user.username or session.username or 'User' }}</div>
-              <div class="text-xs text-slate-400 truncate">{{ user.email or session.email or 'user@example.com' }}</div>
+              <div class="font-medium text-white truncate">{{ user.username if user is defined and user and user.username else session.username if session is defined and session.username else 'User' }}</div>
+              <div class="text-xs text-slate-400 truncate">{{ user.email if user is defined and user and user.email else session.email if session is defined and session.email else 'user@example.com' }}</div>
             </div>
           </div>
           
@@ -279,74 +271,42 @@
 <script>
 // Mobile menu toggle functionality
 document.addEventListener('DOMContentLoaded', function() {
-  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
   const mobileMenu = document.getElementById('mobileMenu');
-  const menuIcon = document.getElementById('menuIcon');
-  const closeIcon = document.getElementById('closeIcon');
   
-  if (mobileMenuToggle && mobileMenu) {
-    let isMenuOpen = false;
+  if(mobileMenuBtn && mobileMenu) {
+    const menuIcon = mobileMenuBtn.querySelector('i');
     
-    mobileMenuToggle.addEventListener('click', function() {
-      isMenuOpen = !isMenuOpen;
+    mobileMenuBtn.addEventListener('click', () => {
+      const isHidden = mobileMenu.style.maxHeight === '0px' || !mobileMenu.style.maxHeight;
       
-      if (isMenuOpen) {
+      if(isHidden) {
         mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
         mobileMenu.setAttribute('aria-hidden', 'false');
-        mobileMenuToggle.setAttribute('aria-expanded', 'true');
-        menuIcon.style.display = 'none';
-        closeIcon.style.display = 'block';
-        document.body.style.overflow = 'hidden'; // Prevent scroll when menu open
+        if(menuIcon) {
+          menuIcon.classList.remove('fa-bars');
+          menuIcon.classList.add('fa-times');
+        }
       } else {
         mobileMenu.style.maxHeight = '0';
         mobileMenu.setAttribute('aria-hidden', 'true');
-        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-        menuIcon.style.display = 'block';
-        closeIcon.style.display = 'none';
-        document.body.style.overflow = ''; // Restore scroll
+        if(menuIcon) {
+          menuIcon.classList.remove('fa-times');
+          menuIcon.classList.add('fa-bars');
+        }
       }
     });
-    
-    // Close menu when clicking outside
-    document.addEventListener('click', function(event) {
-      if (isMenuOpen && 
-          !mobileMenuToggle.contains(event.target) && 
-          !mobileMenu.contains(event.target)) {
-        isMenuOpen = false;
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if(!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
         mobileMenu.style.maxHeight = '0';
         mobileMenu.setAttribute('aria-hidden', 'true');
-        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-        menuIcon.style.display = 'block';
-        closeIcon.style.display = 'none';
-        document.body.style.overflow = '';
+        if(menuIcon) {
+          menuIcon.classList.remove('fa-times');
+          menuIcon.classList.add('fa-bars');
+        }
       }
-    });
-    
-    // Close menu on escape key
-    document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape' && isMenuOpen) {
-        isMenuOpen = false;
-        mobileMenu.style.maxHeight = '0';
-        mobileMenu.setAttribute('aria-hidden', 'true');
-        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-        menuIcon.style.display = 'block';
-        closeIcon.style.display = 'none';
-        document.body.style.overflow = '';
-      }
-    });
-    
-    // Close menu when navigating
-    const mobileNavLinks = mobileMenu.querySelectorAll('a');
-    mobileNavLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        isMenuOpen = false;
-        mobileMenu.style.maxHeight = '0';
-        mobileMenu.setAttribute('aria-hidden', 'true');
-        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-        menuIcon.style.display = 'block';
-        closeIcon.style.display = 'none';
-        document.body.style.overflow = '';
-      });
     });
   }
 });

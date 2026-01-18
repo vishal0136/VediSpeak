@@ -81,7 +81,7 @@
 
   <!-- ===== NAV ===== -->
   <header class="sticky top-0 z-40 backdrop-blur bg-[rgba(2,6,11,0.45)] border-b border-slate-800">
-    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
       <!-- Logo -->
       <a href="{{ url_for('pages.dashboard') }}" class="flex items-center gap-3" aria-label="VediSpeak Home">
         <!-- VediSpeak Lotus Logo -->
@@ -92,30 +92,51 @@
         </div>
         <div>
           <div class="text-sm font-semibold text-amber-200 leading-none">VediSpeak</div>
-          <div class="text-xs text-muted text-[--muted]">Learn • Speak • Rise</div>
+          <div class="text-xs text-[--muted]">Learn • Speak • Rise</div>
         </div>
       </a>
 
-      <!-- nav -->
-      <nav class="hidden md:flex items-center gap-6 text-sm text-slate-300">
-        <a href="#tools" class="hover:text-white transition">Tools</a>
+      <!-- Desktop nav -->
+      <nav class="hidden lg:flex items-center gap-6 text-sm text-slate-200">
+        <a href="{{ url_for('pages.dashboard') }}" class="text-white font-semibold">Home</a>
+        <a href="{{ url_for('pages.stt_tts') }}" class="hover:text-white transition">Tools</a>
         <a href="{{ url_for('pages.learn') }}" class="hover:text-white transition">Learn</a>
         <a href="{{ url_for('pages.about_us') }}" class="hover:text-white transition">About</a>
       </nav>
 
-      <!-- User Profile Section (when logged in) -->
+      <!-- User Profile Section -->
       <div class="flex items-center gap-3">
-        <button class="p-2 rounded-full hover:bg-white/5 transition" aria-label="Notifications">
+        <!-- Mobile menu button -->
+        <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors">
+          <i class="fas fa-bars text-white text-lg"></i>
+        </button>
+
+        <!-- Notifications -->
+        <button class="hidden sm:block p-2 rounded-full hover:bg-white/5 transition" aria-label="Notifications">
           <i class="fa-regular fa-bell text-[--muted] hover:text-white transition"></i>
         </button>
         
         <!-- User Profile Dropdown -->
         <div class="relative group">
           <button class="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] px-3 py-2 rounded-full hover:bg-[rgba(255,255,255,0.06)] transition" aria-label="User menu">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-sm font-semibold">
-              {{ username[0].upper() if username else 'U' }}
+            <!-- Dynamic Profile Photo -->
+            <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-amber-400/20">
+              {% if user is defined and user and user.profile_photo %}
+                <img src="{{ url_for('pages.uploaded_file', filename=user.profile_photo) }}" 
+                     alt="Profile" 
+                     class="w-full h-full object-cover"
+                     id="navProfilePhoto"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="w-full h-full bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-sm font-semibold" style="display: none;">
+                  {{ ((user.username if user is defined and user else session.username if session is defined and session.username else username if username else 'User')[0]).upper() }}
+                </div>
+              {% else %}
+                <div class="w-full h-full bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-sm font-semibold">
+                  {{ ((user.username if user is defined and user and user.username else session.username if session is defined and session.username else username if username else 'User')[0]).upper() }}
+                </div>
+              {% endif %}
             </div>
-            <span class="text-sm font-medium">{{ username or 'User' }}</span>
+            <span class="hidden sm:block text-sm font-medium">{{ user.username if user is defined and user and user.username else session.username if session is defined and session.username else username if username else 'User' }}</span>
             <i class="fa-solid fa-chevron-down text-xs text-[--muted]"></i>
           </button>
           
@@ -124,6 +145,14 @@
             <a href="{{ url_for('profile.user_profile') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
               <i class="fa-solid fa-user text-[--muted]"></i>
               View Profile
+            </a>
+            <a href="{{ url_for('profile.settings') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
+              <i class="fa-solid fa-cog text-[--muted]"></i>
+              Settings
+            </a>
+            <a href="{{ url_for('pages.ml_diagnostics') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
+              <i class="fa-solid fa-brain text-[--muted]"></i>
+              ML Diagnostics
             </a>
             <a href="{{ url_for('pages.learn') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
               <i class="fa-solid fa-graduation-cap text-[--muted]"></i>
@@ -137,13 +166,31 @@
           </div>
         </div>
       </div>
-      
-      <!-- mobile menu toggle -->
-      <div class="md:hidden text-slate-300">
-        <button aria-label="Open menu" class="p-2 rounded hover:bg-white/3">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-      </div>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobile-menu" class="lg:hidden hidden bg-[rgba(2,6,11,0.95)] border-t border-slate-700">
+      <nav class="px-6 py-4 space-y-3">
+        <a href="{{ url_for('pages.dashboard') }}" class="block py-2 text-white font-semibold">
+          <i class="fas fa-home mr-3"></i>Home
+        </a>
+        <a href="{{ url_for('pages.stt_tts') }}" class="block py-2 text-slate-300 hover:text-white transition">
+          <i class="fas fa-tools mr-3"></i>Tools
+        </a>
+        <a href="{{ url_for('pages.learn') }}" class="block py-2 text-slate-300 hover:text-white transition">
+          <i class="fas fa-graduation-cap mr-3"></i>Learn
+        </a>
+        <a href="{{ url_for('pages.about_us') }}" class="block py-2 text-slate-300 hover:text-white transition">
+          <i class="fas fa-info-circle mr-3"></i>About
+        </a>
+        <div class="border-t border-white/10 my-2"></div>
+        <a href="{{ url_for('profile.user_profile') }}" class="block py-2 text-slate-300 hover:text-white transition">
+          <i class="fas fa-user mr-3"></i>Profile
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-red-400 hover:text-red-300 transition">
+          <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+        </a>
+      </nav>
     </div>
   </header>
 
@@ -445,6 +492,71 @@
         });
       }, {passive:true});
     })();
+
+    // Mobile menu toggle
+    (function(){
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      if(mobileMenuBtn && mobileMenu) {
+        const menuIcon = mobileMenuBtn.querySelector('i');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+          const isHidden = mobileMenu.classList.contains('hidden');
+          
+          if(isHidden) {
+            mobileMenu.classList.remove('hidden');
+            if(menuIcon) {
+              menuIcon.classList.remove('fa-bars');
+              menuIcon.classList.add('fa-times');
+            }
+          } else {
+            mobileMenu.classList.add('hidden');
+            if(menuIcon) {
+              menuIcon.classList.remove('fa-times');
+              menuIcon.classList.add('fa-bars');
+            }
+          }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+          if(!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+            mobileMenu.classList.add('hidden');
+            if(menuIcon) {
+              menuIcon.classList.remove('fa-times');
+              menuIcon.classList.add('fa-bars');
+            }
+          }
+        });
+      }
+    })();
+
+    // Profile photo update functionality
+    function updateNavbarProfilePhoto(photoUrl) {
+      const navProfilePhoto = document.getElementById('navProfilePhoto');
+      const fallbackDiv = navProfilePhoto ? navProfilePhoto.nextElementSibling : null;
+      
+      if (navProfilePhoto && photoUrl) {
+        navProfilePhoto.src = photoUrl;
+        navProfilePhoto.style.display = 'block';
+        if (fallbackDiv) fallbackDiv.style.display = 'none';
+      } else if (fallbackDiv) {
+        if (navProfilePhoto) navProfilePhoto.style.display = 'none';
+        fallbackDiv.style.display = 'flex';
+      }
+    }
+
+    // Listen for profile photo updates
+    window.addEventListener('profilePhotoUpdated', function(event) {
+      updateNavbarProfilePhoto(event.detail.photoUrl);
+    });
+
+    // Check for stored profile photo on load
+    const storedPhotoUrl = localStorage.getItem('userProfilePhoto');
+    if (storedPhotoUrl) {
+      updateNavbarProfilePhoto(storedPhotoUrl);
+    }
   </script>
 
   <!-- Real-time Dashboard Scripts -->
