@@ -80,8 +80,72 @@
 <body class="min-h-screen antialiased">
 
   <!-- ===== NAV ===== -->
-  {% set active_page = 'dashboard' %}
-  {% include 'components/navigation.html' %}
+  <header class="sticky top-0 z-40 backdrop-blur bg-[rgba(2,6,11,0.45)] border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="{{ url_for('pages.dashboard') }}" class="flex items-center gap-3" aria-label="VediSpeak Home">
+        <!-- VediSpeak Lotus Logo -->
+        <div class="w-11 h-11 flex items-center justify-center">
+          <img src="{{ url_for('static', filename='images/vedispeak-logo.png') }}" 
+               alt="VediSpeak Logo" 
+               class="w-11 h-11 object-contain">
+        </div>
+        <div>
+          <div class="text-sm font-semibold text-amber-200 leading-none">VediSpeak</div>
+          <div class="text-xs text-muted text-[--muted]">Learn • Speak • Rise</div>
+        </div>
+      </a>
+
+      <!-- nav -->
+      <nav class="hidden md:flex items-center gap-6 text-sm text-slate-300">
+        <a href="#tools" class="hover:text-white transition">Tools</a>
+        <a href="{{ url_for('pages.learn') }}" class="hover:text-white transition">Learn</a>
+        <a href="{{ url_for('pages.about_us') }}" class="hover:text-white transition">About</a>
+      </nav>
+
+      <!-- User Profile Section (when logged in) -->
+      <div class="flex items-center gap-3">
+        <button class="p-2 rounded-full hover:bg-white/5 transition" aria-label="Notifications">
+          <i class="fa-regular fa-bell text-[--muted] hover:text-white transition"></i>
+        </button>
+        
+        <!-- User Profile Dropdown -->
+        <div class="relative group">
+          <button class="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] px-3 py-2 rounded-full hover:bg-[rgba(255,255,255,0.06)] transition" aria-label="User menu">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-sm font-semibold">
+              {{ username[0].upper() if username else 'U' }}
+            </div>
+            <span class="text-sm font-medium">{{ username or 'User' }}</span>
+            <i class="fa-solid fa-chevron-down text-xs text-[--muted]"></i>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div class="absolute right-0 top-full mt-2 w-48 glass rounded-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <a href="{{ url_for('profile.user_profile') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
+              <i class="fa-solid fa-user text-[--muted]"></i>
+              View Profile
+            </a>
+            <a href="{{ url_for('pages.learn') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
+              <i class="fa-solid fa-graduation-cap text-[--muted]"></i>
+              My Learning
+            </a>
+            <div class="border-t border-white/10 my-2"></div>
+            <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition text-red-400">
+              <i class="fa-solid fa-sign-out-alt text-red-400"></i>
+              Sign Out
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- mobile menu toggle -->
+      <div class="md:hidden text-slate-300">
+        <button aria-label="Open menu" class="p-2 rounded hover:bg-white/3">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
 
   <!-- ===== HERO ===== -->
   <main>

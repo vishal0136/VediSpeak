@@ -1,56 +1,43 @@
 <!-- Navigation Header -->
-<header class="sticky top-0 z-50 backdrop-blur bg-[rgba(2,6,11,0.95)] border-b border-slate-800 nav-header">
+<header class="sticky top-0 z-50 backdrop-blur bg-[rgba(2,6,11,0.95)] border-b border-slate-800">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
     <div class="flex items-center justify-between">
-      <a href="{{ url_for('pages.dashboard') }}" class="flex items-center gap-2 sm:gap-3 nav-logo-link">
+      <a href="{{ url_for('pages.dashboard') }}" class="flex items-center gap-2 sm:gap-3">
         <!-- VediSpeak Lotus Logo -->
-        <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center logo-container">
+        <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center">
           <img src="{{ url_for('static', filename='images/vedispeak-logo.png') }}" 
                alt="VediSpeak Logo" 
-               class="w-9 h-9 sm:w-11 sm:h-11 object-contain logo-image">
+               class="w-9 h-9 sm:w-11 sm:h-11 object-contain">
         </div>
-        <!-- Show VediSpeak name on all screen sizes -->
-        <div class="block">
-          <div class="text-sm sm:text-base font-semibold text-amber-200 leading-none brand-name">VediSpeak</div>
-          <div class="text-xs text-[--muted] hidden sm:block tagline">Learn • Speak • Rise</div>
+        <div class="hidden sm:block">
+          <div class="text-sm font-semibold text-amber-200 leading-none">VediSpeak</div>
+          <div class="text-xs text-[--muted]">Learn • Speak • Rise</div>
         </div>
       </a>
 
       <!-- Desktop Navigation -->
-      <nav class="hidden lg:flex items-center gap-6 text-sm text-slate-200 desktop-nav">
-        <a href="{{ url_for('pages.dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
-          <span>Home</span>
-        </a>
-        <a href="{{ url_for('pages.stt_tts') }}" class="nav-link {% if active_page == 'stt-tts' %}active{% endif %}">
-          <span>Tools</span>
-        </a>
-        <a href="{{ url_for('pages.learn') }}" class="nav-link {% if active_page == 'learn' %}active{% endif %}">
-          <span>Learn</span>
-        </a>
-        <a href="{{ url_for('pages.about_us') }}" class="nav-link {% if active_page == 'about_us' %}active{% endif %}">
-          <span>About</span>
-        </a>
+      <nav class="hidden lg:flex items-center gap-6 text-sm text-slate-200">
+        <a href="{{ url_for('pages.dashboard') }}" class="{% if active_page == 'dashboard' %}text-white font-semibold{% else %}hover:text-white transition{% endif %}">Home</a>
+        <a href="{{ url_for('pages.stt_tts') }}" class="{% if active_page == 'stt-tts' %}text-white font-semibold{% else %}hover:text-white transition{% endif %}">Tools</a>
+        <a href="{{ url_for('pages.learn') }}" class="{% if active_page == 'learn' %}text-white font-semibold{% else %}hover:text-white transition{% endif %}">Learn</a>
+        <a href="{{ url_for('pages.about_us') }}" class="{% if active_page == 'about_us' %}text-white font-semibold{% else %}hover:text-white transition{% endif %}">About</a>
         {% if active_page == 'user_profile' or active_page == 'test_profile' or active_page == 'settings' %}
-        <a href="{{ url_for('profile.user_profile') }}" class="nav-link active">
-          <span>Profile</span>
-        </a>
+        <a href="{{ url_for('profile.user_profile') }}" class="text-white font-semibold">Profile</a>
         {% endif %}
       </nav>
 
       <!-- Right side actions -->
       <div class="flex items-center gap-2 sm:gap-3">
-        <!-- Notifications (responsive) -->
-        <button class="hidden sm:flex p-2 rounded-full hover:bg-white/5 transition-all duration-200 notification-btn" 
-                aria-label="Notifications">
-          <i class="fa-regular fa-bell text-[--muted] hover:text-white transition-colors"></i>
+        <!-- Notifications (hidden on mobile) -->
+        <button class="hidden sm:block p-2 rounded-full hover:bg-white/5 transition" aria-label="Notifications">
+          <i class="fa-regular fa-bell text-[--muted] hover:text-white transition"></i>
         </button>
         
         <!-- Desktop User Profile Dropdown -->
         <div class="hidden lg:block relative group">
-          <button class="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] px-3 py-2 rounded-full hover:bg-[rgba(255,255,255,0.06)] transition-all duration-200 profile-btn" 
-                  aria-label="User menu">
+          <button class="flex items-center gap-3 bg-[rgba(255,255,255,0.03)] px-3 py-2 rounded-full hover:bg-[rgba(255,255,255,0.06)] transition" aria-label="User menu">
             <!-- Dynamic Profile Photo -->
-            <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-amber-400/20 profile-avatar">
+            <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-amber-400/20">
               {% if user and user.profile_photo %}
                 <img src="{{ url_for('pages.uploaded_file', filename=user.profile_photo) }}" 
                      alt="Profile" 
@@ -67,29 +54,29 @@
               {% endif %}
             </div>
             <span class="text-sm font-medium">{{ user.username or session.username or 'User' }}</span>
-            <i class="fa-solid fa-chevron-down text-xs text-[--muted] dropdown-icon"></i>
+            <i class="fa-solid fa-chevron-down text-xs text-[--muted]"></i>
           </button>
           
           <!-- Dropdown Menu -->
-          <div class="absolute right-0 top-full mt-2 w-48 glass rounded-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 dropdown-menu">
-            <a href="{{ url_for('profile.user_profile') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition-colors dropdown-item">
+          <div class="absolute right-0 top-full mt-2 w-48 glass rounded-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <a href="{{ url_for('profile.user_profile') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
               <i class="fa-solid fa-user text-[--muted]"></i>
               View Profile
             </a>
-            <a href="{{ url_for('profile.settings') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition-colors dropdown-item">
+            <a href="{{ url_for('profile.settings') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
               <i class="fa-solid fa-cog text-[--muted]"></i>
               Settings
             </a>
-            <a href="{{ url_for('pages.ml_diagnostics') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition-colors dropdown-item">
+            <a href="{{ url_for('pages.ml_diagnostics') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
               <i class="fa-solid fa-brain text-[--muted]"></i>
               ML Diagnostics
             </a>
-            <a href="{{ url_for('pages.learn') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition-colors dropdown-item">
+            <a href="{{ url_for('pages.learn') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition">
               <i class="fa-solid fa-graduation-cap text-[--muted]"></i>
               My Learning
             </a>
             <div class="border-t border-white/10 my-2"></div>
-            <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition-colors text-red-400 dropdown-item">
+            <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/5 transition text-red-400">
               <i class="fa-solid fa-sign-out-alt text-red-400"></i>
               Sign Out
             </a>
@@ -98,10 +85,10 @@
 
         <!-- Mobile Menu Button -->
         <button id="mobileMenuToggle" 
-                class="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-all duration-200 mobile-menu-btn"
+                class="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
                 aria-label="Toggle mobile menu"
                 aria-expanded="false">
-          <svg class="w-6 h-6 text-white menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path id="menuIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M4 6h16M4 12h16M4 18h16"></path>
             <path id="closeIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -205,183 +192,12 @@
 </aside>
 
 <style>
-/* ===== NAVIGATION ANIMATIONS ===== */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-/* Navigation header animation on load */
-.nav-header {
-  animation: slideDown 0.4s ease-out;
-}
-
-/* Logo animations */
-.logo-container {
-  transition: transform 0.3s ease;
-}
-
-.nav-logo-link:hover .logo-container {
-  transform: rotate(10deg) scale(1.1);
-}
-
-.logo-image {
-  transition: filter 0.3s ease;
-}
-
-.nav-logo-link:hover .logo-image {
-  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.5));
-}
-
-.brand-name {
-  transition: color 0.3s ease, text-shadow 0.3s ease;
-}
-
-.nav-logo-link:hover .brand-name {
-  color: #fbbf24;
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
-}
-
-/* Desktop navigation links */
-.nav-link {
-  position: relative;
-  padding: 0.5rem 0;
-  transition: color 0.3s ease;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #fbbf24, #f59e0b);
-  transition: width 0.3s ease;
-}
-
-.nav-link:hover {
-  color: white;
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.nav-link.active {
-  color: white;
-  font-weight: 600;
-}
-
-.nav-link.active::after {
-  width: 100%;
-}
-
-/* Notification button animation */
-.notification-btn {
-  position: relative;
-}
-
-.notification-btn:hover i {
-  animation: pulse 1s ease-in-out infinite;
-}
-
-/* Profile button animations */
-.profile-btn {
-  transition: all 0.3s ease;
-}
-
-.profile-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
-}
-
-.profile-avatar {
-  transition: transform 0.3s ease, border-color 0.3s ease;
-}
-
-.profile-btn:hover .profile-avatar {
-  transform: scale(1.1);
-  border-color: rgba(251, 191, 36, 0.5);
-}
-
-.dropdown-icon {
-  transition: transform 0.3s ease;
-}
-
-.profile-btn:hover .dropdown-icon,
-.group:hover .dropdown-icon {
-  transform: rotate(180deg);
-}
-
-/* Dropdown menu animations */
-.dropdown-menu {
-  transform-origin: top right;
-  animation: fadeIn 0.2s ease-out;
-}
-
-.dropdown-item {
-  transition: all 0.2s ease;
-}
-
-.dropdown-item:hover {
-  transform: translateX(4px);
-}
-
-/* Mobile menu button animation */
-.mobile-menu-btn {
-  transition: all 0.3s ease;
-}
-
-.mobile-menu-btn:hover {
-  transform: scale(1.1);
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.mobile-menu-btn:active {
-  transform: scale(0.95);
-}
-
-.menu-icon {
-  transition: transform 0.3s ease;
-}
-
-.mobile-menu-btn[aria-expanded="true"] .menu-icon {
-  transform: rotate(90deg);
-}
-
 /* Glass effect for dropdown */
 .glass {
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(6px);
   border-radius: 14px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 /* Mobile navigation styles */
@@ -402,76 +218,26 @@
 .mobile-nav-item:hover {
   background: rgba(255, 255, 255, 0.05);
   color: white;
-  transform: translateX(4px);
-}
-
-.mobile-nav-item:active {
-  transform: translateX(2px) scale(0.98);
 }
 
 .mobile-nav-item.active {
   background: rgba(185, 131, 74, 0.15);
-  color: #fbbf24;
-  border-left: 3px solid #fbbf24;
+  color: #b9834a;
+  border-left: 3px solid #b9834a;
   padding-left: calc(1rem - 3px);
-  font-weight: 500;
 }
 
 .mobile-nav-item i {
   flex-shrink: 0;
-  transition: transform 0.2s ease;
 }
 
-.mobile-nav-item:hover i {
-  transform: scale(1.1);
-}
-
-/* Mobile menu animation */
-#mobileMenu {
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-              opacity 0.3s ease;
-}
-
-#mobileMenu[aria-hidden="false"] {
-  animation: slideDown 0.3s ease-out;
-}
-
-/* Responsive adjustments */
+/* Add padding to body for mobile menu */
 @media (max-width: 1023px) {
   body {
     padding-bottom: env(safe-area-inset-bottom);
   }
-  
-  /* Ensure mobile menu is accessible */
-  #mobileMenu {
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-  
-  /* Better touch targets on mobile */
-  .mobile-nav-item {
-    min-height: 48px;
-  }
 }
 
-@media (max-width: 640px) {
-  /* Adjust logo and brand name for small screens */
-  .brand-name {
-    font-size: 0.875rem;
-  }
-  
-  .logo-container {
-    width: 2rem;
-    height: 2rem;
-  }
-  
-  .logo-image {
-    width: 2rem !important;
-    height: 2rem !important;
-  }
-}
-
-/* Sidebar styles */
 .sidebar {
   width:84px;
   position:fixed;
@@ -484,62 +250,34 @@
 }
 
 .sb-item {
-  width:64px; 
-  height:64px;
-  display:flex; 
-  align-items:center; 
-  justify-content:center;
+  width:64px; height:64px;
+  display:flex; align-items:center; justify-content:center;
   border-radius:12px;
   background: rgba(255,255,255,0.02);
   border:1px solid rgba(255,255,255,0.03);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  transition: transform .18s, box-shadow .18s;
   cursor:pointer;
 }
 
 .sb-item:hover{
-  transform: translateY(-6px) scale(1.05);
-  box-shadow:0 8px 30px rgba(99,102,241,0.1);
-  background: rgba(255,255,255,0.05);
-}
-
-.sb-item:active {
-  transform: translateY(-4px) scale(1.02);
+  transform: translateY(-6px) scale(1.02);
+  box-shadow:0 8px 30px rgba(99,102,241,0.06);
 }
 
 .sb-item.active{
-  background: linear-gradient(180deg, rgba(185,131,74,0.1), rgba(185,131,74,0.03));
-  box-shadow:0 10px 40px rgba(185,131,74,0.15);
-  border-color: rgba(185,131,74,0.2);
-}
-
-.sb-item i {
-  transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.sb-item:hover i {
-  transform: scale(1.15);
+  background: linear-gradient(180deg, rgba(185,131,74,0.06), rgba(185,131,74,0.02));
+  box-shadow:0 10px 40px rgba(185,131,74,0.12);
+  border-color: rgba(185,131,74,0.14);
 }
 
 @media (max-width: 900px) {
-  .sidebar { 
-    display:none; 
-  }
-}
-
-/* Smooth scrolling for the page */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Prevent layout shift */
-.nav-header {
-  will-change: transform;
+  .sidebar { display:none; }
 }
 </style>
 
 <!-- Profile Photo Update Script -->
 <script>
-// ===== MOBILE MENU FUNCTIONALITY =====
+// Mobile menu toggle functionality
 document.addEventListener('DOMContentLoaded', function() {
   const mobileMenuToggle = document.getElementById('mobileMenuToggle');
   const mobileMenu = document.getElementById('mobileMenu');
@@ -549,53 +287,24 @@ document.addEventListener('DOMContentLoaded', function() {
   if (mobileMenuToggle && mobileMenu) {
     let isMenuOpen = false;
     
-    // Toggle menu function
-    function toggleMenu() {
+    mobileMenuToggle.addEventListener('click', function() {
       isMenuOpen = !isMenuOpen;
       
       if (isMenuOpen) {
-        // Open menu
         mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
         mobileMenu.setAttribute('aria-hidden', 'false');
         mobileMenuToggle.setAttribute('aria-expanded', 'true');
         menuIcon.style.display = 'none';
         closeIcon.style.display = 'block';
         document.body.style.overflow = 'hidden'; // Prevent scroll when menu open
-        
-        // Add animation class
-        mobileMenu.classList.add('menu-open');
       } else {
-        // Close menu
         mobileMenu.style.maxHeight = '0';
         mobileMenu.setAttribute('aria-hidden', 'true');
         mobileMenuToggle.setAttribute('aria-expanded', 'false');
         menuIcon.style.display = 'block';
         closeIcon.style.display = 'none';
         document.body.style.overflow = ''; // Restore scroll
-        
-        // Remove animation class
-        mobileMenu.classList.remove('menu-open');
       }
-    }
-    
-    // Close menu function
-    function closeMenu() {
-      if (isMenuOpen) {
-        isMenuOpen = false;
-        mobileMenu.style.maxHeight = '0';
-        mobileMenu.setAttribute('aria-hidden', 'true');
-        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-        menuIcon.style.display = 'block';
-        closeIcon.style.display = 'none';
-        document.body.style.overflow = '';
-        mobileMenu.classList.remove('menu-open');
-      }
-    }
-    
-    // Toggle button click
-    mobileMenuToggle.addEventListener('click', function(e) {
-      e.stopPropagation();
-      toggleMenu();
     });
     
     // Close menu when clicking outside
@@ -603,14 +312,26 @@ document.addEventListener('DOMContentLoaded', function() {
       if (isMenuOpen && 
           !mobileMenuToggle.contains(event.target) && 
           !mobileMenu.contains(event.target)) {
-        closeMenu();
+        isMenuOpen = false;
+        mobileMenu.style.maxHeight = '0';
+        mobileMenu.setAttribute('aria-hidden', 'true');
+        mobileMenuToggle.setAttribute('aria-expanded', 'false');
+        menuIcon.style.display = 'block';
+        closeIcon.style.display = 'none';
+        document.body.style.overflow = '';
       }
     });
     
     // Close menu on escape key
     document.addEventListener('keydown', function(event) {
       if (event.key === 'Escape' && isMenuOpen) {
-        closeMenu();
+        isMenuOpen = false;
+        mobileMenu.style.maxHeight = '0';
+        mobileMenu.setAttribute('aria-hidden', 'true');
+        mobileMenuToggle.setAttribute('aria-expanded', 'false');
+        menuIcon.style.display = 'block';
+        closeIcon.style.display = 'none';
+        document.body.style.overflow = '';
       }
     });
     
@@ -618,32 +339,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileNavLinks = mobileMenu.querySelectorAll('a');
     mobileNavLinks.forEach(link => {
       link.addEventListener('click', function() {
-        closeMenu();
+        isMenuOpen = false;
+        mobileMenu.style.maxHeight = '0';
+        mobileMenu.setAttribute('aria-hidden', 'true');
+        mobileMenuToggle.setAttribute('aria-expanded', 'false');
+        menuIcon.style.display = 'block';
+        closeIcon.style.display = 'none';
+        document.body.style.overflow = '';
       });
-    });
-    
-    // Handle window resize
-    let resizeTimer;
-    window.addEventListener('resize', function() {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(function() {
-        // Close menu if window is resized to desktop size
-        if (window.innerWidth >= 1024 && isMenuOpen) {
-          closeMenu();
-        }
-      }, 250);
     });
   }
 });
 
-// ===== LOGOUT CONFIRMATION =====
+// Logout confirmation
 function confirmLogout() {
   if (confirm('Are you sure you want to logout?')) {
     window.location.href = '{{ url_for("auth.logout") }}';
   }
 }
 
-// ===== PROFILE PHOTO UPDATE =====
+// Function to update profile photo in navbar
 function updateNavbarProfilePhoto(photoUrl) {
   const navProfilePhoto = document.getElementById('navProfilePhoto');
   const fallbackDiv = navProfilePhoto ? navProfilePhoto.nextElementSibling : null;
@@ -669,45 +384,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const storedPhotoUrl = localStorage.getItem('userProfilePhoto');
   if (storedPhotoUrl) {
     updateNavbarProfilePhoto(storedPhotoUrl);
-  }
-  
-  // Add smooth scroll behavior
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      const href = this.getAttribute('href');
-      if (href !== '#' && document.querySelector(href)) {
-        e.preventDefault();
-        document.querySelector(href).scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    });
-  });
-});
-
-// ===== NAVIGATION ACTIVE STATE =====
-// Ensure navigation stays functional across page loads
-window.addEventListener('pageshow', function(event) {
-  // Reset menu state if page is loaded from cache
-  if (event.persisted) {
-    const mobileMenu = document.getElementById('mobileMenu');
-    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-    const menuIcon = document.getElementById('menuIcon');
-    const closeIcon = document.getElementById('closeIcon');
-    
-    if (mobileMenu) {
-      mobileMenu.style.maxHeight = '0';
-      mobileMenu.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }
-    
-    if (mobileMenuToggle) {
-      mobileMenuToggle.setAttribute('aria-expanded', 'false');
-    }
-    
-    if (menuIcon) menuIcon.style.display = 'block';
-    if (closeIcon) closeIcon.style.display = 'none';
   }
 });
 </script>
