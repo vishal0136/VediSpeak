@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VediSpeak Logo](frontend/static/images/vedispeak-logo.png)
+<img src="frontend/static/images/vedispeak-logo.png" alt="VediSpeak Logo" width="120" height="120">
 
 **Empowering Communication Through AI-Powered Indian Sign Language Recognition**
 
