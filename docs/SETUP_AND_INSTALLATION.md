@@ -1,15 +1,53 @@
-# 🚀 VediSpeak Setup & Installation Guide
+# VediSpeak Setup and Installation Guide
+
+This comprehensive guide will help you set up VediSpeak on your local development environment or production server. Follow these step-by-step instructions to get the platform running quickly and efficiently.
+
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Quick Start Guide](#quick-start-guide)
+- [Advanced Configuration](#advanced-configuration)
+- [Production Deployment](#production-deployment)
+- [Troubleshooting](#troubleshooting)
+- [Development Setup](#development-setup)
+- [Next Steps](#next-steps)
+
+---
 
 ## Prerequisites
 
-Before setting up VediSpeak, ensure you have the following installed on your system:
+### System Requirements
 
-- **Python 3.8+** (Recommended: Python 3.9 or 3.10)
-- **Node.js 16+** (for frontend dependencies)
-- **Git** (for cloning the repository)
-- **Webcam** (for ISL recognition features)
+**Minimum Requirements**
+- **Operating System**: Windows 10, macOS 10.14, or Ubuntu 18.04+
+- **Python**: Version 3.8 or higher (Python 3.9-3.10 recommended)
+- **Memory**: 4 GB RAM minimum
+- **Storage**: 2 GB free disk space
+- **Internet**: Stable connection for cloud services
 
-## Quick Start
+**Recommended Requirements**
+- **Operating System**: Windows 11, macOS 12+, or Ubuntu 20.04+
+- **Python**: Version 3.9 or 3.10 for optimal compatibility
+- **Memory**: 8 GB RAM for better performance
+- **Storage**: 5 GB free disk space for models and data
+- **Internet**: High-speed connection (25+ Mbps) for optimal experience
+
+### Required Software
+
+**Essential Tools**
+- **Git**: Version control system for cloning the repository
+- **Python Package Manager**: pip (usually included with Python)
+- **Webcam**: For ISL recognition features (720p minimum, 1080p recommended)
+- **Modern Web Browser**: Chrome (recommended), Firefox, Safari, or Edge
+
+**Optional Tools**
+- **Node.js 16+**: For frontend development and build tools
+- **Docker**: For containerized deployment (optional)
+- **PostgreSQL**: For production database (SQLite used by default)
+
+---
+
+## Quick Start Guide
 
 ### 1. Clone the Repository
 

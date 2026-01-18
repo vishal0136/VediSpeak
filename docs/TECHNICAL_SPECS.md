@@ -1,22 +1,85 @@
-# 📊 VediSpeak Technical Specifications & Performance
+# VediSpeak Technical Specifications
+
+This document provides comprehensive technical specifications, performance metrics, and architectural details for the VediSpeak platform. It serves as a reference for developers, system administrators, and technical stakeholders.
+
+## Table of Contents
+
+- [System Architecture](#system-architecture)
+- [Technology Stack](#technology-stack)
+- [Performance Metrics](#performance-metrics)
+- [Database Schema](#database-schema)
+- [API Specifications](#api-specifications)
+- [Security Features](#security-features)
+- [Deployment Architecture](#deployment-architecture)
+- [Monitoring and Analytics](#monitoring-and-analytics)
+
+---
 
 ## System Architecture
 
-### Overview
-VediSpeak is a full-stack web application built with modern technologies to provide real-time Indian Sign Language recognition and multi-language voice synthesis capabilities.
+### High-Level Architecture
+
+VediSpeak follows a modern, scalable architecture designed for real-time Indian Sign Language recognition and multilingual voice processing. The system is built with modularity, performance, and accessibility as core principles.
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend       │    │   ML Engine     │
-│   (Web UI)      │◄──►│   (Flask API)   │◄──►│   (PyTorch)     │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   WebRTC        │    │   Database      │    │   MediaPipe     │
-│   (Camera)      │    │   (SQLite)      │    │   (Hand Track)  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                        Client Layer                             │
+├─────────────────┬─────────────────┬─────────────────────────────┤
+│   Web Browser   │   Mobile App    │   Progressive Web App       │
+│   (React/JS)    │   (React Native)│   (Service Workers)         │
+└─────────────────┴─────────────────┴─────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     API Gateway Layer                          │
+├─────────────────┬─────────────────┬─────────────────────────────┤
+│   Load Balancer │   Rate Limiting │   Authentication            │
+│   (Nginx)       │   (Redis)       │   (Flask-Login)             │
+└─────────────────┴─────────────────┴─────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   Application Layer                             │
+├─────────────────┬─────────────────┬─────────────────────────────┤
+│   Web Framework │   API Services  │   Background Tasks          │
+│   (Flask)       │   (RESTful)     │   (Celery)                  │
+└─────────────────┴─────────────────┴─────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Service Layer                               │
+├─────────────────┬─────────────────┬─────────────────────────────┤
+│   ML Engine     │   Speech Services│   Translation Services      │
+│   (PyTorch)     │   (Azure/Google) │   (Google Translate)        │
+└─────────────────┴─────────────────┴─────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Data Layer                                 │
+├─────────────────┬─────────────────┬─────────────────────────────┤
+│   Database      │   File Storage  │   Cache Layer               │
+│   (PostgreSQL)  │   (Local/Cloud) │   (Redis)                   │
+└─────────────────┴─────────────────┴─────────────────────────────┘
 ```
+
+### Component Architecture
+
+**Frontend Components**
+- **User Interface**: Responsive web application with modern design
+- **Camera Integration**: WebRTC for real-time video capture
+- **Audio Processing**: Web Audio API for speech processing
+- **Real-time Communication**: WebSocket for live updates
+
+**Backend Services**
+- **API Gateway**: Request routing and authentication
+- **ML Inference Engine**: Real-time ISL recognition
+- **Speech Processing**: STT/TTS with multilingual support
+- **Translation Service**: Multi-language translation capabilities
+
+**External Integrations**
+- **Azure Cognitive Services**: Premium speech processing
+- **Google Cloud APIs**: Fallback services and translation
+- **CDN Services**: Static asset delivery and optimization
 
 ## Technology Stack
 

@@ -1,29 +1,38 @@
-# 🔌 VediSpeak API Reference
+# VediSpeak API Reference
 
 ## Overview
 
-VediSpeak provides a comprehensive RESTful API for Indian Sign Language recognition, multilingual speech processing, and real-time translation services.
+The VediSpeak API provides a comprehensive RESTful interface for Indian Sign Language recognition, multilingual speech processing, and real-time translation services. This API enables developers to integrate ISL recognition, speech-to-text, text-to-speech, and translation capabilities into their applications.
 
-**Base URL**: `http://localhost:5000` (development)
+**Base URL**: `http://localhost:5000` (development)  
+**Production URL**: `https://api.vedispeak.com` (when available)
 
-**Authentication**: Session-based authentication required for most endpoints
+**Authentication**: Session-based authentication required for most endpoints  
+**API Version**: v2.1.0  
+**Content Type**: `application/json`
 
 ---
 
-## 🔐 Authentication Endpoints
+## Authentication Endpoints
 
-### POST /login
-Authenticate user and create session.
+### User Login
+**Endpoint**: `POST /login`  
+**Description**: Authenticate user credentials and create a new session
 
-**Request Body:**
+**Request Headers**:
+```http
+Content-Type: application/json
+```
+
+**Request Body**:
 ```json
 {
-  "username": "string",
-  "password": "string"
+  "username": "string (required)",
+  "password": "string (required)"
 }
 ```
 
-**Response:**
+**Success Response** (200 OK):
 ```json
 {
   "status": "success",
@@ -31,28 +40,49 @@ Authenticate user and create session.
   "user": {
     "id": 1,
     "username": "john_doe",
-    "email": "john@example.com"
+    "email": "john@example.com",
+    "created_at": "2024-01-15T10:30:00Z",
+    "last_login": "2024-12-13T14:22:00Z"
   }
 }
 ```
 
-### POST /register
-Register new user account.
+**Error Responses**:
+- `400 Bad Request`: Invalid credentials
+- `429 Too Many Requests`: Rate limit exceeded
 
-**Request Body:**
+### User Registration
+**Endpoint**: `POST /register`  
+**Description**: Create a new user account with email verification
+
+**Request Body**:
 ```json
 {
-  "username": "string",
-  "email": "string",
-  "password": "string",
-  "confirm_password": "string"
+  "username": "string (required, 3-80 characters)",
+  "email": "string (required, valid email format)",
+  "password": "string (required, minimum 8 characters)",
+  "confirm_password": "string (required, must match password)"
 }
 ```
 
-### POST /logout
-End user session.
+**Success Response** (201 Created):
+```json
+{
+  "status": "success",
+  "message": "Account created successfully",
+  "user": {
+    "id": 2,
+    "username": "new_user",
+    "email": "newuser@example.com"
+  }
+}
+```
 
-**Response:**
+### User Logout
+**Endpoint**: `POST /logout`  
+**Description**: End current user session and clear authentication
+
+**Success Response** (200 OK):
 ```json
 {
   "status": "success",
@@ -62,32 +92,45 @@ End user session.
 
 ---
 
-## 🗣️ Speech Processing Endpoints
+## Speech Processing Endpoints
 
-### POST /text_to_speech
-Convert text to speech with enhanced controls.
+### Text-to-Speech Conversion
+**Endpoint**: `POST /text_to_speech`  
+**Description**: Convert text to high-quality speech with advanced controls and multilingual support
 
-**Request Body:**
+**Request Headers**:
+```http
+Content-Type: application/json
+Authorization: Bearer <session_token>
+```
+
+**Request Body**:
 ```json
 {
-  "text": "Hello, this is a test message",
-  "lang": "hi",
-  "speech_rate": "1.2",
-  "pitch": "1.0",
-  "audio_format": "mp3",
+  "text": "Hello, this is a test message (required)",
+  "lang": "hi (optional, default: 'en')",
+  "speech_rate": "1.2 (optional, range: 0.5-2.0)",
+  "pitch": "1.0 (optional, range: 0.5-2.0)",
+  "audio_format": "mp3 (optional, options: mp3, wav, ogg)",
   "auto_translate": true
 }
 ```
 
-**Parameters:**
-- `text` (required): Text to convert to speech
-- `lang` (optional): Language code (en, hi, hinglish, bn, ta, te, gu, kn, ml, mr, pa, ur)
-- `speech_rate` (optional): Speed multiplier (0.5-2.0)
-- `pitch` (optional): Pitch multiplier (0.5-2.0)
-- `audio_format` (optional): Output format (mp3, wav, ogg)
-- `auto_translate` (optional): Enable automatic translation
+**Supported Languages**:
+- `en` - English
+- `hi` - Hindi (हिंदी)
+- `hinglish` - Hinglish
+- `bn` - Bengali (বাংলা)
+- `ta` - Tamil (தமிழ்)
+- `te` - Telugu (తెలుగు)
+- `gu` - Gujarati (ગુજરાતી)
+- `kn` - Kannada (ಕನ್ನಡ)
+- `ml` - Malayalam (മലയാളം)
+- `mr` - Marathi (मराठी)
+- `pa` - Punjabi (ਪੰਜਾਬੀ)
+- `ur` - Urdu (اردو)
 
-**Response:**
+**Success Response** (200 OK):
 ```json
 {
   "status": "success",
@@ -105,50 +148,60 @@ Convert text to speech with enhanced controls.
 }
 ```
 
-### POST /speech_to_text
-Convert speech to text with multilingual support.
+### Speech-to-Text Conversion
+**Endpoint**: `POST /speech_to_text`  
+**Description**: Convert speech audio to text with multilingual support and dual-engine architecture
 
-**Request Body:**
+**Request Body**:
 ```json
 {
-  "audio_data": "data:audio/mp3;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEA...",
-  "lang": "bn"
+  "audio_data": "data:audio/mp3;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEA... (required)",
+  "lang": "bn (optional, default: 'auto' for auto-detection)"
 }
 ```
 
-**Parameters:**
-- `audio_data` (required): Base64 encoded audio data
-- `lang` (optional): Expected language code (auto, en, hi, bn, ta, te, gu, kn, ml, mr, pa, ur, or, as)
+**Supported Languages**:
+- `auto` - Automatic language detection
+- `en` - English
+- `hi` - Hindi (हिंदी)
+- `bn` - Bengali (বাংলা)
+- `ta` - Tamil (தமிழ்)
+- `te` - Telugu (తెలుగు)
+- `gu` - Gujarati (ગુજરાતી)
+- `kn` - Kannada (ಕನ್ನಡ)
+- `ml` - Malayalam (മലയാളം)
+- `mr` - Marathi (मराठी)
+- `pa` - Punjabi (ਪੰਜਾਬੀ)
+- `ur` - Urdu (اردو)
+- `or` - Odia (ଓଡ଼ିଆ)
+- `as` - Assamese (অসমীয়া)
 
-**Response:**
+**Success Response** (200 OK):
 ```json
 {
   "status": "success",
   "text": "আমি বাংলায় কথা বলছি",
   "method": "azure",
   "confidence": 0.92,
-  "language_detected": "bn-IN"
+  "language_detected": "bn-IN",
+  "processing_time_ms": 1250
 }
 ```
 
-### POST /translate
-Translate text between Indian languages.
+### Real-Time Translation
+**Endpoint**: `POST /translate`  
+**Description**: Translate text between Indian languages with confidence scoring
 
-**Request Body:**
+**Request Body**:
 ```json
 {
-  "text": "Hello, how are you?",
-  "from_lang": "en",
-  "to_lang": "hi"
+  "text": "Hello, how are you? (required)",
+  "from_lang": "en (optional, default: 'auto')",
+  "to_lang": "hi (required)"
 }
 ```
 
-**Parameters:**
-- `text` (required): Text to translate
-- `from_lang` (optional): Source language code (auto for auto-detection)
-- `to_lang` (required): Target language code
-
-**Response:**
+**Success Response** (200 OK):
 ```json
 {
   "status": "success",
@@ -156,7 +209,8 @@ Translate text between Indian languages.
   "source_language": "en",
   "target_language": "hi",
   "translation_method": "google_translate",
-  "confidence": 0.95
+  "confidence": 0.95,
+  "processing_time_ms": 450
 }
 ```
 

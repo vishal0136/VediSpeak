@@ -1,39 +1,92 @@
-# 📝 VediSpeak Changelog
+# VediSpeak Changelog
 
-All notable changes to the VediSpeak project will be documented in this file.
+All notable changes to the VediSpeak project are documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) standards, and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
 
 ## [2.1.0] - 2024-12-13
 
-### 🆕 Added
-- **Enhanced Multilingual STT**: Added support for Bengali, Tamil, Telugu, Gujarati, Kannada, Malayalam, Marathi, Punjabi, Urdu, Odia, and Assamese
-- **Real-time Translation API**: New `/translate` endpoint for instant translation between Indian languages
-- **Dual-Engine STT Architecture**: Azure Speech Services as primary with Google Speech Recognition fallback
-- **Live Audio Controls**: Real-time speed (0.25x-4.0x) and pitch (0.5x-2.0x) adjustment during playback
-- **Professional Maintenance Notifications**: Beautiful animated popups with positive messaging
-- **Interactive Module Cards**: Coming soon notifications when learning modules are clicked
-- **STT Capabilities Endpoint**: New `/stt_capabilities` API for dynamic feature detection
-- **Confidence Scoring**: Quality metrics for STT and translation results
+### Added
 
-### 🔄 Changed
-- **Simplified TTS Interface**: Removed voice type selector for cleaner, more focused user experience
-- **Enhanced TTS Controls**: Replaced dropdown selectors with intuitive sliders for speed and pitch
-- **Improved Error Handling**: Better fallback mechanisms and more informative error messages
-- **Updated Maintenance Messaging**: Changed from "maintenance" to "enhancement" language
-- **Optimized Performance**: Reduced DOM complexity and improved slider responsiveness
+**Enhanced Multilingual Speech-to-Text**
+- Support for Bengali, Tamil, Telugu, Gujarati, Kannada, Malayalam, Marathi, Punjabi, Urdu, Odia, and Assamese
+- Dual-engine architecture with Azure Speech Services as primary and Google Speech Recognition as fallback
+- Confidence scoring for transcription quality assessment
+- Auto-detection of spoken language for improved user experience
 
-### 🛠️ Fixed
-- **Bengali STT Recognition**: Now properly supports Bengali voice files with correct locale mapping
-- **Translation Service Integration**: Improved reliability with multiple fallback methods
-- **Mobile Responsiveness**: Better experience on mobile and tablet devices
-- **Audio File Size Limits**: Increased from 10MB to 25MB for better quality support
+**Real-Time Translation API**
+- New `/translate` endpoint for instant translation between Indian languages
+- Support for bidirectional translation with auto-detection
+- Multiple translation methods with intelligent fallback mechanisms
+- Quality metrics and confidence scoring for translation accuracy
 
-### 🗑️ Removed
-- **Voice Type Selection**: Simplified interface by removing voice gender/type controls
-- **Live Recording Features**: Removed from STT tool in favor of file-based processing
-- **Redundant UI Elements**: Cleaned up interface for better user focus
+**Advanced Audio Controls**
+- Live audio controls with real-time speed adjustment (0.25x-4.0x)
+- Real-time pitch modification (0.5x-2.0x) during playback
+- Enhanced TTS interface with intuitive slider controls
+- Professional audio quality with multiple format support
+
+**User Experience Improvements**
+- Professional maintenance notifications with beautiful animated popups
+- Interactive module cards with "coming soon" notifications for learning modules
+- Enhanced error handling with more informative user feedback
+- Simplified interface design focusing on core functionality
+
+**API Enhancements**
+- New `/stt_capabilities` endpoint for dynamic feature detection
+- Enhanced response formats with detailed metadata
+- Improved error messages with actionable guidance
+- Better API documentation with comprehensive examples
+
+### Changed
+
+**Interface Simplification**
+- Removed voice type selector from TTS interface for cleaner user experience
+- Replaced dropdown selectors with intuitive sliders for speed and pitch controls
+- Updated maintenance messaging from "maintenance" to "enhancement" language
+- Optimized DOM structure for better performance and responsiveness
+
+**Performance Optimizations**
+- Reduced complexity in UI components for faster rendering
+- Improved slider responsiveness and real-time feedback
+- Enhanced mobile and tablet user experience
+- Optimized API response times and error handling
+
+**Architecture Improvements**
+- Better separation of concerns in service layer
+- Enhanced fallback mechanisms for external services
+- Improved logging and monitoring capabilities
+- Streamlined configuration management
+
+### Fixed
+
+**Speech Recognition Issues**
+- Resolved Bengali STT recognition with proper locale mapping
+- Fixed audio file size limitations (increased from 10MB to 25MB)
+- Improved handling of various audio formats and quality levels
+- Enhanced error recovery for failed recognition attempts
+
+**Translation Service Reliability**
+- Improved translation service integration with multiple fallback methods
+- Fixed timeout issues with external translation APIs
+- Enhanced error handling for unsupported language pairs
+- Better handling of special characters and formatting
+
+**Mobile Responsiveness**
+- Improved mobile and tablet device compatibility
+- Fixed touch interaction issues on smaller screens
+- Enhanced responsive design for various screen sizes
+- Better performance on mobile browsers
+
+### Removed
+
+**Deprecated Features**
+- Voice type selection controls (simplified to focus on core functionality)
+- Live recording features from STT tool (replaced with file-based processing)
+- Redundant UI elements that cluttered the interface
+- Legacy fallback methods that were no longer needed
 
 ## [2.0.0] - 2024-11-15
 

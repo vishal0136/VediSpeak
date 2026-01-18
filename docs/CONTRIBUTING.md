@@ -1,38 +1,101 @@
-# 🤝 Contributing to VediSpeak
+# Contributing to VediSpeak
 
-Thank you for your interest in contributing to VediSpeak! We welcome contributions from developers, educators, accessibility advocates, and anyone passionate about making technology more inclusive.
+Thank you for your interest in contributing to VediSpeak! We welcome contributions from developers, educators, accessibility advocates, and anyone passionate about making technology more inclusive for the deaf and hard-of-hearing community.
 
-## 🌟 Ways to Contribute
+## Table of Contents
 
-### 🐛 Bug Reports
-- Use the [GitHub Issues](https://github.com/vishal0136/VediSpeak/issues) to report bugs
+- [Ways to Contribute](#ways-to-contribute)
+- [Development Setup](#development-setup)
+- [Development Guidelines](#development-guidelines)
+- [Testing Guidelines](#testing-guidelines)
+- [Focus Areas](#focus-areas)
+- [Recognition Program](#recognition-program)
+- [Getting Help](#getting-help)
+- [Security](#security)
+- [Code of Conduct](#code-of-conduct)
+
+---
+
+## Ways to Contribute
+
+### Bug Reports and Issues
+
+**Reporting Bugs**
+- Use [GitHub Issues](https://github.com/vishal0136/VediSpeak/issues) to report bugs
+- Search existing issues before creating new ones to avoid duplicates
 - Include detailed steps to reproduce the issue
-- Provide system information (OS, browser, Python version)
-- Add screenshots or videos if applicable
+- Provide system information (OS, browser version, Python version)
+- Add screenshots, videos, or error logs when applicable
+- Use the provided issue templates for consistency
 
-### 💡 Feature Requests
-- Suggest new features through [GitHub Issues](https://github.com/vishal0136/VediSpeak/issues)
-- Explain the use case and expected behavior
-- Consider accessibility implications
-- Discuss implementation approaches
+**Issue Labels**
+- `bug` - Something isn't working correctly
+- `enhancement` - New feature or improvement request
+- `documentation` - Documentation needs improvement
+- `good first issue` - Perfect for newcomers
+- `help wanted` - Community assistance needed
+- `accessibility` - Accessibility-related improvements
 
-### 📝 Documentation
-- Improve existing documentation
-- Add examples and tutorials
-- Fix typos and clarify instructions
-- Translate documentation to other languages
+### Feature Requests and Enhancements
 
-### 🧪 Testing
-- Test features across different environments
-- Report compatibility issues
-- Validate accessibility compliance
-- Performance testing and optimization
+**Suggesting New Features**
+- Create detailed feature requests through [GitHub Issues](https://github.com/vishal0136/VediSpeak/issues)
+- Explain the use case and expected behavior clearly
+- Consider accessibility implications and inclusive design
+- Discuss potential implementation approaches
+- Provide mockups or wireframes when helpful
 
-### 🌐 Localization
-- Add support for more Indian languages
-- Improve existing translations
-- Cultural adaptation of content
-- Regional sign language variations
+**Enhancement Guidelines**
+- Focus on features that benefit the deaf and hard-of-hearing community
+- Consider multilingual and multicultural aspects
+- Ensure compatibility with assistive technologies
+- Think about scalability and performance implications
+
+### Documentation Contributions
+
+**Documentation Improvements**
+- Improve existing documentation for clarity and completeness
+- Add practical examples and step-by-step tutorials
+- Fix typos, grammatical errors, and formatting issues
+- Translate documentation to regional Indian languages
+- Create video tutorials and visual guides
+
+**Documentation Standards**
+- Use clear, concise language appropriate for diverse audiences
+- Include code examples with proper syntax highlighting
+- Provide alternative text for images and visual content
+- Follow accessibility guidelines for documentation
+- Maintain consistent formatting and structure
+
+### Testing and Quality Assurance
+
+**Testing Contributions**
+- Test features across different environments and devices
+- Report compatibility issues with various browsers and operating systems
+- Validate accessibility compliance using screen readers and other assistive tools
+- Perform usability testing with diverse user groups
+- Conduct performance testing and optimization
+
+**Testing Focus Areas**
+- Cross-browser compatibility (Chrome, Firefox, Safari, Edge)
+- Mobile responsiveness and touch interactions
+- Accessibility compliance (WCAG 2.1 AA standards)
+- Performance under various network conditions
+- ISL recognition accuracy across different lighting conditions
+
+### Localization and Cultural Adaptation
+
+**Language Support**
+- Add support for additional Indian languages and dialects
+- Improve existing translations for accuracy and cultural appropriateness
+- Translate user interface elements and documentation
+- Adapt content for regional sign language variations
+
+**Cultural Considerations**
+- Ensure cultural sensitivity in design and content
+- Adapt features for regional preferences and practices
+- Consider local accessibility standards and regulations
+- Collaborate with local deaf communities for authentic representation
 
 ## 🚀 Development Setup
 
